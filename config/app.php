@@ -15,6 +15,9 @@ return [
     | any other location as required by the application or its packages.
     |
     */
+
+    'front_url' => env('APP_FRONT_URL', 'http://localhost:3000'),
+
     'access_token_key' => env('ACCESS_TOKEN_KEY', '5|rjFn2tePHCNPD9DY16WhNlpi2YWUVnjlqxExAaOt'),
 
     'per_page' => env('PER_PAGE', 10),
