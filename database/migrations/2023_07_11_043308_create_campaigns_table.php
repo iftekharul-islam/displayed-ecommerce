@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique()->index();
+            $table->string('name', 255)->unique()->index();
             $table->boolean('is_active')->default(true);
             $table->date('date')->nullable()->comment('last updated date');
             $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');

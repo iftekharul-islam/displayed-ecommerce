@@ -25,3 +25,6 @@ require __DIR__ . '/user/user.php';
 
 // campaign routes
 require __DIR__ . '/campaign/campaign.php';
+
+// campaign routes
+require __DIR__ . '/sort-url/sort_url.php';

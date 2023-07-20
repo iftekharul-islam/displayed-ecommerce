@@ -31,3 +31,22 @@ if (!function_exists('hasPermissionTo')) {
         abort(403, 'Access Denied – You don’t have permission to access');
     }
 }
+
+if (!function_exists('extractTld')) {
+
+    function extractTld(string $url): ?string
+    {
+        $parsedUrl = parse_url($url);
+
+        if (isset($parsedUrl['host'])) {
+            $host = $parsedUrl['host'];
+            $hostParts = explode('.', $host);
+            $tld = end($hostParts);
+            $tldWithDot = '.' . $tld;
+
+            return $tldWithDot;
+        }
+
+        return null;
+    }
+}
