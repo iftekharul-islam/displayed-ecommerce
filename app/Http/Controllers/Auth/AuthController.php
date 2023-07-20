@@ -40,10 +40,6 @@ class AuthController extends Controller
                 ]);
             }
 
-            if (!Auth::attempt($validated)) {
-                abort(401, 'Unauthorized');
-            }
-
             return response()->json([
                 'access_token' => $user->createToken(config('app.access_token_key'))->plainTextToken
             ]);

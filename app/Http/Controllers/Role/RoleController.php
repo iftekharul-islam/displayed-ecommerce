@@ -33,7 +33,7 @@ class RoleController extends Controller
             $searchQuery = $request->query('searchQuery');
             $name = @$searchQuery['name'];
 
-            $query  = Role::query()->withCount('users');
+            $query  = Role::query()->withCount(['users']);
 
             if (!empty($name)) {
                 $query->where('name', 'ILIKE', "%$name%");
@@ -41,7 +41,7 @@ class RoleController extends Controller
 
             $query->orderBy($sortByKey, $sortByOrder);
 
-            return $data = $query->paginate($perPage);
+            $data = $query->paginate($perPage);
 
             return RoleResource::collection($data);
         } catch (HttpException $th) {

@@ -24,6 +24,8 @@ class User extends Authenticatable
     use DeletedBy;
     use SoftDeletes;
 
+    protected $guard_name = 'api';
+
     /**
      * The attributes that are mass assignable.
      *

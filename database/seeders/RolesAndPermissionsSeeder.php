@@ -174,6 +174,7 @@ class RolesAndPermissionsSeeder extends Seeder
                     'label' => $permission['label'],
                     'group' => $permission['group'],
                     'code' => $permission['code'],
+                    'guard_name' => $permission['guard_name'],
                     'module_id' => $module->id
                 ]);
             }
@@ -181,7 +182,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // roles
         $roles = [
-            ['name' => RolesConstant::EMPLOYEE],
+            ['name' => RolesConstant::EMPLOYEE, 'guard_name' => 'api'],
         ];
 
         foreach ($roles as $role) {
@@ -189,12 +190,19 @@ class RolesAndPermissionsSeeder extends Seeder
                 'name' => $role['name'],
             ], [
                 'name' => $role['name'],
+                'guard_name' => $role['guard_name']
             ]);
         }
 
 
         $permissions = Permission::all();
-        $role = Role::updateOrCreate(['name' => RolesConstant::ADMIN], ['name' => RolesConstant::ADMIN]);
+        $role = Role::updateOrCreate(
+            ['name' => RolesConstant::ADMIN],
+            [
+                'name' => RolesConstant::ADMIN,
+                'guard_name' => 'api'
+            ]
+        );
         $role->givePermissionTo($permissions);
     }
 }
