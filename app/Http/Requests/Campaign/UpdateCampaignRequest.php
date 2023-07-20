@@ -4,6 +4,7 @@ namespace App\Http\Requests\Campaign;
 
 use App\Rules\Boolean;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateCampaignRequest extends FormRequest
 {
@@ -23,7 +24,7 @@ class UpdateCampaignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', Rule::unique('campaigns', 'name')->ignore($this->campaign)],
             'is_active' => ['required', new Boolean],
             'date' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];

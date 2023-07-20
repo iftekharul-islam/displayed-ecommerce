@@ -23,7 +23,7 @@ class StoreCampaignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'unique:campaigns,name'],
             'is_active' => ['required', new Boolean],
             'date' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];

@@ -60,7 +60,10 @@ class RoleController extends Controller
 
             $validated = $request->validated();
 
-            $data = Role::create($validated);
+            $data = Role::create([
+                ...$validated,
+                'guard_name' => 'api',
+            ]);
 
             return (new RoleResource($data))->response()->setStatusCode(201);
         } catch (HttpException $th) {
