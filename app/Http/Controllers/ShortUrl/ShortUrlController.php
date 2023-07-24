@@ -105,12 +105,10 @@ class ShortUrlController extends Controller
         try {
             $validated = $request->validated();
 
-            $shortUrl = ShortUrl::where([
+            ShortUrl::where([
                 'campaign_id' => $validated['campaign_id'],
                 'id' => $id,
-            ])->firstOrFail();
-
-            $shortUrl->update($validated);
+            ])->update($validated);
 
             return response()->json([
                 'message' => 'Successfully updated',
