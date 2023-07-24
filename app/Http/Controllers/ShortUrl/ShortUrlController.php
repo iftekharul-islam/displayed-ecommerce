@@ -32,14 +32,14 @@ class ShortUrlController extends Controller
 
             DB::transaction(function () use ($validated, $generateCodeAction, $generatedUrl) {
                 foreach ($validated['original_domains'] as $originalDomain) {
-                    $url = rtrim(str_replace(['http://', 'https://'], '', $originalDomain['domain']), '/');
-                    $tld = extractTld($url);
+                    $domain = removeHttpOrHttps($originalDomain['domain']);
+                    $tld = extractTldFromDomain($domain);
                     $code = $generateCodeAction->execute();
                     $short_url = $generatedUrl . $code;
 
                     ShortUrl::firstOrCreate(
                         [
-                            'original_domain' => $url,
+                            'original_domain' => $domain,
                             'campaign_id' => $validated['campaign_id'],
                         ],
                         [
@@ -51,11 +51,15 @@ class ShortUrlController extends Controller
                             'auto_renewal' => $originalDomain['auto_renewal'],
                             'status' => $originalDomain['status'],
                             'tld' => $tld,
-                            'remarks' => $validated['remarks'],
+                            'note' => $validated['note'],
                         ]
                     );
                 }
             });
+
+            return response()->json([
+                'message' => 'Successfully created',
+            ], 201);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());

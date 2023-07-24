@@ -13,7 +13,7 @@ class GenerateCodeAction
         try {
             $code = Str::random(16);
 
-            $existingRecord = DB::table('sort_urls')->where('url_code', $code)->exists();
+            $existingRecord = DB::table('short_urls')->where('url_key', $code)->exists();
 
             if ($existingRecord) {
                 $this->execute();

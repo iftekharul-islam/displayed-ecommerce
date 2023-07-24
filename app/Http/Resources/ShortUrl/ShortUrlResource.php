@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Resources\SortUrl;
+namespace App\Http\Resources\ShortUrl;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Campaign\CampaignResource;
 
-class SortUrlResource extends JsonResource
+class ShortUrlResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,11 +22,12 @@ class SortUrlResource extends JsonResource
             'original_domain' => $this->original_domain,
             'destination_domain' => $this->destination_domain,
             'short_url' => $this->short_url,
-            'url_code' => $this->url_code,
+            'url_key' => $this->url_key,
             'tld' => $this->tld,
             'expired_date' => $this->expired_date,
             'auto_renewal' => $this->auto_renewal,
             'status' => $this->status,
+            'note' => $this->note,
             'remarks' => $this->remarks,
             'campaign' => new CampaignResource($this->whenLoaded('campaign')),
         ];

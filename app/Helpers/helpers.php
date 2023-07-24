@@ -32,21 +32,31 @@ if (!function_exists('hasPermissionTo')) {
     }
 }
 
-if (!function_exists('extractTld')) {
+// remove http or https from url
+if (!function_exists('removeHttpOrHttps')) {
 
-    function extractTld(string $url): ?string
+    function removeHttpOrHttps(string $url): string
     {
-        $parsedUrl = parse_url($url);
+        return rtrim(str_replace(['http://', 'https://'], '', $url), '/');
+    }
+}
 
-        if (isset($parsedUrl['host'])) {
-            $host = $parsedUrl['host'];
-            $hostParts = explode('.', $host);
-            $tld = end($hostParts);
-            $tldWithDot = '.' . $tld;
+// extract Tld from domain
+if (!function_exists('extractTldFromDomain')) {
 
-            return $tldWithDot;
+    function extractTldFromDomain(string $domain): ?string
+    {
+        if (!$domain) {
+            return null;
         }
 
-        return null;
+        $domain = removeHttpOrHttps($domain);
+        $domain = preg_replace('/^www\./', '', $domain);
+
+        $domainParts = explode('.', $domain);
+        $tld = end($domainParts);
+        $tldWithDot = '.' . $tld;
+
+        return $tldWithDot;
     }
 }
