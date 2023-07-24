@@ -12,14 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sort_urls', function (Blueprint $table) {
+        Schema::create('short_urls', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tld_id')->index()->nullable()->comment('tlds table id');
             $table->unsignedBigInteger('campaign_id')->index()->nullable()->comment('campaigns table id');
             $table->string('original_domain', 255)->unique()->index();
             $table->string('destination_domain', 255);
             $table->string('short_url', 255);
-            $table->string('url_code', 255)->unique()->index();
+            $table->string('url_key', 255)->unique()->index();
             $table->string('tld', 255)->index()->nullable();
             $table->date('expired_date')->index();
             $table->boolean('auto_renewal')->default(false);
@@ -28,6 +28,7 @@ return new class extends Migration
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])->index()->default(ShortUrlConstant::INVALID);
+            $table->string('note', 255)->nullable();
             $table->text('remarks')->nullable();
             $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');

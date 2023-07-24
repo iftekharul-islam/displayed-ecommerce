@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\SortUrl;
+namespace App\Http\Requests\ShortUrl;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateSortUrlRequest extends FormRequest
+class UpdateShortUrlRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

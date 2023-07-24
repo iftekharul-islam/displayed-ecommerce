@@ -27,4 +27,4 @@ require __DIR__ . '/user/user.php';
 require __DIR__ . '/campaign/campaign.php';
 
 // campaign routes
-require __DIR__ . '/sort-url/sort_url.php';
+require __DIR__ . '/short-url/short_url.php';

@@ -1,19 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\SortUrl;
+namespace App\Http\Controllers\ShortUrl;
 
-use App\Models\SortUrl;
+use App\Models\ShortUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
-use App\Constants\ShortUrlConstant;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SortUrl\StoreSortUrlRequest;
+use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\TryCatch;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class SortUrlController extends Controller
+class ShortUrlController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -26,7 +24,7 @@ class SortUrlController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSortUrlRequest $request, GenerateCodeAction $generateCodeAction)
+    public function store(StoreShortUrlRequest $request, GenerateCodeAction $generateCodeAction)
     {
         try {
             $validated = $request->validated();
@@ -39,7 +37,7 @@ class SortUrlController extends Controller
                     $code = $generateCodeAction->execute();
                     $short_url = $generatedUrl . $code;
 
-                    SortUrl::firstOrCreate(
+                    ShortUrl::firstOrCreate(
                         [
                             'original_domain' => $url,
                             'campaign_id' => $validated['campaign_id'],
@@ -48,7 +46,7 @@ class SortUrlController extends Controller
                             'campaign_id' => $validated['campaign_id'],
                             'destination_domain' => $validated['destination_domain'],
                             'short_url' => $short_url,
-                            'url_code' => $code,
+                            'url_key' => $code,
                             'expired_date' => $originalDomain['expired_date'],
                             'auto_renewal' => $originalDomain['auto_renewal'],
                             'status' => $originalDomain['status'],

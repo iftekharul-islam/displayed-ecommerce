@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class SortUrl extends Model
+class ShortUrl extends Model
 {
     use HasFactory;
     use CreatedBy;
@@ -23,11 +23,12 @@ class SortUrl extends Model
         'original_domain',
         'destination_domain',
         'short_url',
-        'url_code',
+        'url_key',
         'tld',
         'expired_date',
         'auto_renewal',
         'status',
+        'note',
         'remarks',
         'created_by',
         'updated_by',
