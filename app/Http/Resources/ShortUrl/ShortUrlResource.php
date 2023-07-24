@@ -27,7 +27,6 @@ class ShortUrlResource extends JsonResource
             'expired_date' => $this->expired_date,
             'auto_renewal' => $this->auto_renewal,
             'status' => $this->status,
-            'note' => $this->note,
             'remarks' => $this->remarks,
             'campaign' => new CampaignResource($this->whenLoaded('campaign')),
         ];

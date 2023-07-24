@@ -28,7 +28,6 @@ class ShortUrl extends Model
         'expired_date',
         'auto_renewal',
         'status',
-        'note',
         'remarks',
         'created_by',
         'updated_by',

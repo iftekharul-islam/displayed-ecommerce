@@ -28,7 +28,6 @@ return new class extends Migration
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])->index()->default(ShortUrlConstant::INVALID);
-            $table->string('note', 255)->nullable();
             $table->text('remarks')->nullable();
             $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');

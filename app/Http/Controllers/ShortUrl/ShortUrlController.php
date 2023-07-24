@@ -6,9 +6,10 @@ use App\Models\ShortUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ShortUrlController extends Controller
@@ -51,7 +52,7 @@ class ShortUrlController extends Controller
                             'auto_renewal' => $originalDomain['auto_renewal'],
                             'status' => $originalDomain['status'],
                             'tld' => $tld,
-                            'note' => $validated['note'],
+                            'remarks' => $validated['remarks'],
                         ]
                     );
                 }
@@ -77,9 +78,25 @@ class ShortUrlController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateShortUrlRequest $request, string $id)
     {
-        //
+        try {
+            $validated = $request->validated();
+
+            $shortUrl = ShortUrl::where([
+                'id' => $id,
+                'campaign_id' => $validated['campaign_id'],
+            ])->firstOrFail();
+
+            $shortUrl->update($validated);
+
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 
     /**

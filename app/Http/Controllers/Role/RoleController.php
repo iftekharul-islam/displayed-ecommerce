@@ -60,12 +60,14 @@ class RoleController extends Controller
 
             $validated = $request->validated();
 
-            $data = Role::create([
+            Role::create([
                 ...$validated,
                 'guard_name' => 'api',
             ]);
 
-            return (new RoleResource($data))->response()->setStatusCode(201);
+            return response()->json([
+                'message' => 'Successfully created',
+            ], 201);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -101,7 +103,9 @@ class RoleController extends Controller
 
             $model->update($validated);
 
-            return new RoleResource($model);
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -203,9 +207,7 @@ class RoleController extends Controller
                 return $model;
             });
 
-            $data = $model->fresh();
-
-            return new RoleResource($data);
+            return new RoleResource($model);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());

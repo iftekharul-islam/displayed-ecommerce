@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\ShortUrl;
 
+use App\Rules\Boolean;
+use Illuminate\Validation\Rule;
+use App\Constants\ShortUrlConstant;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateShortUrlRequest extends FormRequest
@@ -11,7 +14,7 @@ class UpdateShortUrlRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,15 @@ class UpdateShortUrlRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'campaign_id' => ['required', 'exists:campaigns,id'],
+            'expired_date' => ['required', 'date', 'date_format:Y-m-d'],
+            'auto_renewal' => ['required', new Boolean],
+            'remarks' => 'nullable|string',
+            'status' => ['required', Rule::in([
+                ShortUrlConstant::VALID,
+                ShortUrlConstant::INVALID,
+                ShortUrlConstant::EXPIRED,
+            ])],
         ];
     }
 }

@@ -57,7 +57,9 @@ class CampaignController extends Controller
 
             $data = Campaign::create($validated);
 
-            return (new CampaignResource($data))->response()->setStatusCode(201);
+            return response()->json([
+                'message' => 'Successfully created',
+            ], 201);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -86,7 +88,9 @@ class CampaignController extends Controller
 
             $model->update($validated);
 
-            return new CampaignResource($model);
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
