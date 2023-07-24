@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -17,9 +18,30 @@ class ShortUrlController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $perPage = $request->query('perPage', config('app.per_page'));
+            $sortByKey = $request->query('sortByKey', 'id');
+            $sortByOrder = $request->query('sortByOrder', 'desc');
+            $searchQuery = $request->query('searchQuery');
+            $originalDomain = @$searchQuery['originalDomain'];
+
+            $query  = ShortUrl::query();
+
+            if (!empty($originalDomain)) {
+                $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+            }
+
+            $query->orderBy($sortByKey, $sortByOrder);
+
+            $data = $query->paginate($perPage);
+
+            return ShortUrlResource::collection($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 
     /**
@@ -84,8 +106,8 @@ class ShortUrlController extends Controller
             $validated = $request->validated();
 
             $shortUrl = ShortUrl::where([
-                'id' => $id,
                 'campaign_id' => $validated['campaign_id'],
+                'id' => $id,
             ])->firstOrFail();
 
             $shortUrl->update($validated);
@@ -104,6 +126,13 @@ class ShortUrlController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            ShortUrl::destroy($id);
+
+            return response()->noContent();
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 }
