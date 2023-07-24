@@ -30,9 +30,9 @@ class CampaignController extends Controller
 
             $query  = Campaign::query();
 
-            if (!empty($name)) {
+            $query->when($name, function ($query, $name) {
                 $query->where('name', 'ILIKE', "%$name%");
-            }
+            });
 
             $query->orderBy($sortByKey, $sortByOrder);
 
@@ -55,7 +55,7 @@ class CampaignController extends Controller
 
             $validated = $request->validated();
 
-            $data = Campaign::create($validated);
+            Campaign::create($validated);
 
             return response()->json([
                 'message' => 'Successfully created',
@@ -77,7 +77,7 @@ class CampaignController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCampaignRequest $request, $id)
+    public function update(UpdateCampaignRequest $request, string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::CAMPAIGNS_EDIT['name']);
@@ -100,7 +100,7 @@ class CampaignController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::CAMPAIGNS_DELETE['name']);

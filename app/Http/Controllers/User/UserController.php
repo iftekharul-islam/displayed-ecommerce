@@ -33,9 +33,9 @@ class UserController extends Controller
 
             $query  = User::query()->with(['roles']);
 
-            if (!empty($name)) {
+            $query->when($name, function ($query, $name) {
                 $query->where('name', 'ILIKE', "%$name%");
-            }
+            });
 
             $query->orderBy($sortByKey, $sortByOrder);
 
@@ -60,13 +60,14 @@ class UserController extends Controller
 
             $role = Role::findOrFail($validated['role_id']);
 
-            $data =  DB::transaction(function () use ($validated, $role) {
+            DB::transaction(function () use ($validated, $role) {
                 $user = User::create($validated);
                 $user->assignRole($role);
-                return $user;
             });
 
-            return (new UserResource($data))->response()->setStatusCode(201);
+            return response()->json([
+                'message' => 'Successfully created',
+            ], 201);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -84,7 +85,7 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::USERS_EDIT['name']);
@@ -99,7 +100,9 @@ class UserController extends Controller
                 $user->syncRoles($role);
             });
 
-            return new UserResource($user);
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -109,7 +112,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::USERS_DELETE['name']);

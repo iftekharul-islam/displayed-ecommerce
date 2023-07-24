@@ -35,9 +35,12 @@ class RoleController extends Controller
 
             $query  = Role::query()->withCount(['users']);
 
-            if (!empty($name)) {
-                $query->where('name', 'ILIKE', "%$name%");
-            }
+            $query->when(
+                $name,
+                function ($query, $name) {
+                    $query->where('name', 'ILIKE', "%$name%");
+                }
+            );
 
             $query->orderBy($sortByKey, $sortByOrder);
 
@@ -77,7 +80,7 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
         try {
             $data = Role::with(['permissions'])->findOrFail($id);
@@ -92,7 +95,7 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRoleRequest $request, $id)
+    public function update(UpdateRoleRequest $request, string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::ROLES_EDIT['name']);
@@ -115,7 +118,7 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::ROLES_DELETE['name']);

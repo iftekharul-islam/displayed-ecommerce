@@ -29,9 +29,9 @@ class ShortUrlController extends Controller
 
             $query  = ShortUrl::query();
 
-            if (!empty($originalDomain)) {
+            $query->when($originalDomain, function ($query, $originalDomain) {
                 $query->where('original_domain', 'ILIKE', "%$originalDomain%");
-            }
+            });
 
             $query->orderBy($sortByKey, $sortByOrder);
 
