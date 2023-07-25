@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ShortUrl extends Model
+class ExcludedDomain extends Model
 {
     use HasFactory;
     use CreatedBy;
@@ -18,13 +18,8 @@ class ShortUrl extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'tld_id',
         'campaign_id',
-        'original_domain',
-        'destination_domain',
-        'short_url',
-        'url_key',
-        'tld',
+        'domain',
         'expired_at',
         'auto_renewal',
         'status',

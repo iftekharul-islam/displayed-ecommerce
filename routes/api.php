@@ -26,5 +26,8 @@ require __DIR__ . '/user/user.php';
 // campaign routes
 require __DIR__ . '/campaign/campaign.php';
 
-// campaign routes
+// short-url routes
 require __DIR__ . '/short-url/short_url.php';
+
+// excluded-domain routes
+require __DIR__ . '/excluded-domain/excluded_domain.php';

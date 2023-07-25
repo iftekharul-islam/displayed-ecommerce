@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\ShortUrl;
+namespace App\Http\Controllers\ExcludedDomain;
 
-use App\Models\ShortUrl;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Models\ExcludedDomain;
 use Illuminate\Support\Facades\DB;
-use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ShortUrl\ShortUrlResource;
-use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
-use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Http\Resources\ExcludedDomain\ExcludedDomainResource;
+use App\Http\Requests\ExcludedDomain\StoreExcludedDomainRequest;
+use App\Http\Requests\ExcludedDomain\UpdateExcludedDomainRequest;
 
-class ShortUrlController extends Controller
+class ExcludedDomainController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,19 +25,19 @@ class ShortUrlController extends Controller
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
             $searchQuery = $request->query('searchQuery');
-            $originalDomain = @$searchQuery['originalDomain'];
+            $domain = @$searchQuery['domain'];
 
-            $query  = ShortUrl::query();
+            $query  = ExcludedDomain::query();
 
-            $query->when($originalDomain, function ($query, $originalDomain) {
-                $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+            $query->when($domain, function ($query, $domain) {
+                $query->where('domain', 'ILIKE', "%$domain%");
             });
 
             $query->orderBy($sortByKey, $sortByOrder);
 
             $data = $query->paginate($perPage);
 
-            return ShortUrlResource::collection($data);
+            return ExcludedDomainResource::collection($data);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -47,34 +47,24 @@ class ShortUrlController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreShortUrlRequest $request, GenerateCodeAction $generateCodeAction)
+    public function store(StoreExcludedDomainRequest $request)
     {
         try {
             $validated = $request->validated();
-            $generatedUrl = config('app.url') . '/vx/';
 
-            DB::transaction(function () use ($validated, $generateCodeAction, $generatedUrl) {
-                foreach ($validated['original_domains'] as $originalDomain) {
-                    $domain = removeHttpOrHttps($originalDomain['domain']);
-                    $tld = extractTldFromDomain($domain);
-                    $code = $generateCodeAction->execute();
-                    $short_url = $generatedUrl . $code;
+            DB::transaction(function () use ($validated) {
+                foreach ($validated['domains'] as $domain) {
+                    $filteredDomain = removeHttpOrHttps($domain['domain']);
+                    $filtered = Arr::except($domain, ['domain']);
 
-                    ShortUrl::firstOrCreate(
+                    ExcludedDomain::firstOrCreate(
                         [
                             'campaign_id' => $validated['campaign_id'],
-                            'original_domain' => $domain,
+                            'domain' => $filteredDomain,
                         ],
                         [
-                            'campaign_id' => $validated['campaign_id'],
-                            'destination_domain' => $validated['destination_domain'],
-                            'short_url' => $short_url,
-                            'url_key' => $code,
-                            'expired_at' => $originalDomain['expired_at'],
-                            'auto_renewal' => $originalDomain['auto_renewal'],
-                            'status' => $originalDomain['status'],
-                            'tld' => $tld,
-                            'remarks' => $validated['remarks'],
+                            ...$filtered,
+                            'domain' => $filteredDomain,
                         ]
                     );
                 }
@@ -100,15 +90,20 @@ class ShortUrlController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateShortUrlRequest $request, string $id)
+    public function update(UpdateExcludedDomainRequest $request, string $id)
     {
         try {
             $validated = $request->validated();
 
-            ShortUrl::where([
+            $filtered = Arr::except($validated, ['domain']);
+
+            ExcludedDomain::where([
                 'campaign_id' => $validated['campaign_id'],
                 'id' => $id,
-            ])->update($validated);
+            ])->update([
+                ...$filtered,
+                'domain' => removeHttpOrHttps($validated['domain']),
+            ]);
 
             return response()->json([
                 'message' => 'Successfully updated',
@@ -125,7 +120,7 @@ class ShortUrlController extends Controller
     public function destroy(string $id)
     {
         try {
-            ShortUrl::destroy($id);
+            ExcludedDomain::destroy($id);
 
             return response()->noContent();
         } catch (HttpException $th) {
