@@ -26,7 +26,7 @@ class UpdateShortUrlRequest extends FormRequest
     {
         return [
             'campaign_id' => ['required', 'exists:campaigns,id'],
-            'expired_date' => ['required', 'date', 'date_format:Y-m-d'],
+            'expired_at' => ['required', 'date', 'date_format:Y-m-d'],
             'auto_renewal' => ['required', new Boolean],
             'remarks' => 'nullable|string',
             'status' => ['required', Rule::in([

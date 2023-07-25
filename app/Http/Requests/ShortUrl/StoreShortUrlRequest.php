@@ -30,7 +30,7 @@ class StoreShortUrlRequest extends FormRequest
             'remarks' => 'nullable|string',
             'original_domains' => ['required', 'array', 'max:5'],
             'original_domains.*.domain' => ['required', 'string', 'max:255', 'unique:short_urls,original_domain'],
-            'original_domains.*.expired_date' => ['required', 'date', 'date_format:Y-m-d'],
+            'original_domains.*.expired_at' => ['required', 'date', 'date_format:Y-m-d'],
             'original_domains.*.auto_renewal' => ['required', new Boolean],
             'original_domains.*.status' => ['required', Rule::in([
                 ShortUrlConstant::VALID,

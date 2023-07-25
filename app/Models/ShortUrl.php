@@ -25,7 +25,7 @@ class ShortUrl extends Model
         'short_url',
         'url_key',
         'tld',
-        'expired_date',
+        'expired_at',
         'auto_renewal',
         'status',
         'remarks',

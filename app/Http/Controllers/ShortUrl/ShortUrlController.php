@@ -70,7 +70,7 @@ class ShortUrlController extends Controller
                             'destination_domain' => $validated['destination_domain'],
                             'short_url' => $short_url,
                             'url_key' => $code,
-                            'expired_date' => $originalDomain['expired_date'],
+                            'expired_at' => $originalDomain['expired_at'],
                             'auto_renewal' => $originalDomain['auto_renewal'],
                             'status' => $originalDomain['status'],
                             'tld' => $tld,
