@@ -77,6 +77,13 @@ class TldController extends Controller
      */
     public function destroy(string $campaign_id, string $id)
     {
-        //
+        try {
+            Tld::destroy($id);
+
+            return response()->noContent();
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 }
