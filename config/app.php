@@ -16,6 +16,12 @@ return [
     |
     */
 
+    'front_url' => env('APP_FRONT_URL', 'http://localhost:3000'),
+
+    'access_token_key' => env('ACCESS_TOKEN_KEY', '5|rjFn2tePHCNPD9DY16WhNlpi2YWUVnjlqxExAaOt'),
+
+    'per_page' => env('PER_PAGE', 10),
+
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
@@ -159,6 +165,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Spatie\Permission\PermissionServiceProvider::class,
 
         /*
          * Application Service Providers...
