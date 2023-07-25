@@ -6,12 +6,35 @@ use App\Models\Tld;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Tld\TldResource;
 use App\Http\Requests\Tld\StoreTldRequest;
 use App\Http\Requests\Tld\UpdateTldRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TldController extends Controller
 {
+    public function get(Request $request, string $campaign_id)
+    {
+        $perPage = $request->query('perPage', config('app.per_page'));
+        $sortByKey = $request->query('sortByKey', 'id');
+        $sortByOrder = $request->query('sortByOrder', 'desc');
+        $searchQuery = $request->query('searchQuery');
+        $name = @$searchQuery['name'];
+
+        $query  = Tld::query()
+            ->where('campaign_id', $campaign_id);
+
+        $query->when($name, function ($query, $name) {
+            $query->where('name', 'ILIKE', "%$name%");
+        });
+
+        $query->orderBy($sortByKey, $sortByOrder);
+
+        $data = $query->paginate($perPage);
+
+        return TldResource::collection($data);
+    }
+
     /**
      * Display a listing of the resource.
      */
