@@ -24,7 +24,7 @@ class StoreTldRequest extends FormRequest
     {
         return [
             'name'   => ['required', 'string', 'max:255', Rule::unique('tlds', 'name')->where(function ($query) {
-                return $query->where('campaign_id', $this->campaign_id);
+                return $query->where('campaign_id', $this->campaign);
             })],
             'price' => ['nullable', 'string', 'max:255'],
             'updated_date' => ['nullable', 'date', 'date_format:Y-m-d'],

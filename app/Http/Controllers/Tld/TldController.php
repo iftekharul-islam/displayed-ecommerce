@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tld\StoreTldRequest;
+use App\Http\Requests\Tld\UpdateTldRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TldController extends Controller
@@ -52,9 +53,23 @@ class TldController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $campaign_id, string $id)
+    public function update(UpdateTldRequest $request, string $campaign_id, string $id)
     {
-        //
+        try {
+            $validated = $request->validated();
+
+            Tld::where([
+                'campaign_id' => $campaign_id,
+                'id' => $id,
+            ])->update($validated);
+
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 
     /**

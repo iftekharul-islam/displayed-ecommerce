@@ -156,7 +156,7 @@ class RoleController extends Controller
         }
     }
 
-    public function updatePermissions(UpdatePermissionRequest $request, $role_id)
+    public function updatePermissions(UpdatePermissionRequest $request, string $role_id)
     {
         try {
             hasPermissionTo(PermissionConstant::PERMISSIONS_EDIT['name']);

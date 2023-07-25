@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tld;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTldRequest extends FormRequest
@@ -11,7 +12,7 @@ class UpdateTldRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,11 @@ class UpdateTldRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name'   => ['required', 'string', 'max:255', Rule::unique('tlds', 'name')->where(function ($query) {
+                return $query->where('campaign_id', $this->campaign);
+            })->ignore($this->tld)],
+            'price' => ['nullable', 'string', 'max:255'],
+            'updated_date' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];
     }
 }
