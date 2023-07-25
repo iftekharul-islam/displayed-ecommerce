@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\ExcludedDomain;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Models\ExcludedDomain;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Http\Requests\ExcludedDomain\StoreExcludedDomainRequest;
 
 class ExcludedDomainController extends Controller
 {
@@ -18,9 +23,25 @@ class ExcludedDomainController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreExcludedDomainRequest $request)
     {
-        //
+        try {
+            $validated = $request->validated();
+
+            $filtered = Arr::except($validated, ['domain']);
+
+            ExcludedDomain::create([
+                ...$filtered,
+                'domain' => removeHttpOrHttps($validated['domain']),
+            ]);
+
+            return response()->json([
+                'message' => 'Successfully created',
+            ], 201);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 
     /**
