@@ -10,8 +10,9 @@ class Tld extends Model
     use HasFactory;
 
     protected $fillable = [
+        'campaign_id',
         'name',
         'price',
-        'updated_at',
+        'updated_date',
     ];
 }

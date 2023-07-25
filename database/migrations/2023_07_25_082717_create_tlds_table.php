@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('tlds', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->index();
-            $table->string('price')->nullable();
-            $table->date('updated_at')->nullable();
+            $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
+            $table->string('name', 255)->index();
+            $table->string('price', 255)->nullable();
+            $table->date('updated_date')->nullable();
             $table->timestamps();
         });
     }
