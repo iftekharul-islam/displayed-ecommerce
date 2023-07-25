@@ -85,6 +85,13 @@ class ExcludedDomainController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            ExcludedDomain::destroy($id);
+
+            return response()->noContent();
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 }
