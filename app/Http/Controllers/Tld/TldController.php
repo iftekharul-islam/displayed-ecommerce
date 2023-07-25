@@ -21,7 +21,7 @@ class TldController extends Controller
         $searchQuery = $request->query('searchQuery');
         $name = @$searchQuery['name'];
 
-        $query  = Tld::query()
+        $query  = Tld::query()->with(['campaign'])
             ->where('campaign_id', $campaign_id);
 
         $query->when($name, function ($query, $name) {
