@@ -31,3 +31,32 @@ if (!function_exists('hasPermissionTo')) {
         abort(403, 'Access Denied – You don’t have permission to access');
     }
 }
+
+// remove http or https from url
+if (!function_exists('removeHttpOrHttps')) {
+
+    function removeHttpOrHttps(string $url): string
+    {
+        return rtrim(str_replace(['http://', 'https://'], '', $url), '/');
+    }
+}
+
+// extract Tld from domain
+if (!function_exists('extractTldFromDomain')) {
+
+    function extractTldFromDomain(string $domain): ?string
+    {
+        if (!$domain) {
+            return null;
+        }
+
+        $domain = removeHttpOrHttps($domain);
+        $domain = preg_replace('/^www\./', '', $domain);
+
+        $domainParts = explode('.', $domain);
+        $tld = end($domainParts);
+        $tldWithDot = '.' . $tld;
+
+        return $tldWithDot;
+    }
+}

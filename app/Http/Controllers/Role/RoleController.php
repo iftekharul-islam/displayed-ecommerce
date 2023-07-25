@@ -35,9 +35,12 @@ class RoleController extends Controller
 
             $query  = Role::query()->withCount(['users']);
 
-            if (!empty($name)) {
-                $query->where('name', 'ILIKE', "%$name%");
-            }
+            $query->when(
+                $name,
+                function ($query, $name) {
+                    $query->where('name', 'ILIKE', "%$name%");
+                }
+            );
 
             $query->orderBy($sortByKey, $sortByOrder);
 
@@ -60,12 +63,14 @@ class RoleController extends Controller
 
             $validated = $request->validated();
 
-            $data = Role::create([
+            Role::create([
                 ...$validated,
                 'guard_name' => 'api',
             ]);
 
-            return (new RoleResource($data))->response()->setStatusCode(201);
+            return response()->json([
+                'message' => 'Successfully created',
+            ], 201);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -75,7 +80,7 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
         try {
             $data = Role::with(['permissions'])->findOrFail($id);
@@ -90,7 +95,7 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRoleRequest $request, $id)
+    public function update(UpdateRoleRequest $request, string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::ROLES_EDIT['name']);
@@ -101,7 +106,9 @@ class RoleController extends Controller
 
             $model->update($validated);
 
-            return new RoleResource($model);
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -111,7 +118,7 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         try {
             hasPermissionTo(PermissionConstant::ROLES_DELETE['name']);
@@ -203,9 +210,7 @@ class RoleController extends Controller
                 return $model;
             });
 
-            $data = $model->fresh();
-
-            return new RoleResource($data);
+            return new RoleResource($model);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
