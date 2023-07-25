@@ -25,7 +25,7 @@ class StoreCampaignRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:campaigns,name'],
             'is_active' => ['required', new Boolean],
-            'date' => ['nullable', 'date', 'date_format:Y-m-d'],
+            'last_updated_at' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];
     }
 }

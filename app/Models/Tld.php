@@ -13,6 +13,6 @@ class Tld extends Model
         'campaign_id',
         'name',
         'price',
-        'updated_date',
+        'last_updated_at',
     ];
 }

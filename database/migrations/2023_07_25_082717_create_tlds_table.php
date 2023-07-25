@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
             $table->string('name', 255)->index();
             $table->string('price', 255)->nullable();
-            $table->date('updated_date')->nullable();
+            $table->date('last_updated_at')->nullable();
             $table->timestamps();
         });
     }

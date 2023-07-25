@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255)->unique()->index();
             $table->boolean('is_active')->default(true);
-            $table->date('date')->nullable()->comment('last updated date');
+            $table->date('last_updated_at')->nullable()->comment('last updated date');
             $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('deleted_by')->nullable()->comment('from users table');

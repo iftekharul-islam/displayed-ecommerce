@@ -18,7 +18,7 @@ class CampaignResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'is_active' => $this->is_active,
-            'date' => $this->date,
+            'last_updated_at' => $this->last_updated_at,
             'created_at' => $this->created_at,
         ];
     }

@@ -20,7 +20,7 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'is_active',
-        'date',
+        'last_updated_at',
         'created_by',
         'updated_by',
         'deleted_by',

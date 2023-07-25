@@ -20,7 +20,7 @@ class TldResource extends JsonResource
             'campaign_id' => $this->campaign_id,
             'name' => $this->name,
             'price' => $this->price,
-            'updated_date' => $this->updated_date,
+            'last_updated_at' => $this->last_updated_at,
             'campaign' => new CampaignResource($this->whenLoaded('campaign')),
             'created_at' => $this->created_at,
         ];
