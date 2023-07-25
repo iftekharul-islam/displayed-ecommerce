@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Http\Requests\ExcludedDomain\StoreExcludedDomainRequest;
+use App\Http\Requests\ExcludedDomain\UpdateExcludedDomainRequest;
 
 class ExcludedDomainController extends Controller
 {
@@ -55,9 +56,28 @@ class ExcludedDomainController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateExcludedDomainRequest $request, string $id)
     {
-        //
+        try {
+            $validated = $request->validated();
+
+            $filtered = Arr::except($validated, ['domain']);
+
+            ExcludedDomain::where([
+                'campaign_id' => $validated['campaign_id'],
+                'id' => $id,
+            ])->update([
+                ...$filtered,
+                'domain' => removeHttpOrHttps($validated['domain']),
+            ]);
+
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 
     /**
