@@ -8,6 +8,7 @@ use App\Models\ExcludedDomain;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Http\Resources\ExcludedDomain\ExcludedDomainResource;
 use App\Http\Requests\ExcludedDomain\StoreExcludedDomainRequest;
 use App\Http\Requests\ExcludedDomain\UpdateExcludedDomainRequest;
 
@@ -16,9 +17,30 @@ class ExcludedDomainController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $perPage = $request->query('perPage', config('app.per_page'));
+            $sortByKey = $request->query('sortByKey', 'id');
+            $sortByOrder = $request->query('sortByOrder', 'desc');
+            $searchQuery = $request->query('searchQuery');
+            $domain = @$searchQuery['domain'];
+
+            $query  = ExcludedDomain::query();
+
+            $query->when($domain, function ($query, $domain) {
+                $query->where('domain', 'ILIKE', "%$domain%");
+            });
+
+            $query->orderBy($sortByKey, $sortByOrder);
+
+            $data = $query->paginate($perPage);
+
+            return ExcludedDomainResource::collection($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 
     /**
