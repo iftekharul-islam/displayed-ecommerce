@@ -20,6 +20,7 @@ class ExcludedDomainResource extends JsonResource
             'campaign_id' => $this->campaign_id,
             'domain' => $this->domain,
             'expired_at' => $this->expired_at,
+            'auto_renewal' => $this->auto_renewal,
             'status' => $this->status,
             'remarks' => $this->remarks,
             'campaign' => new CampaignResource($this->whenLoaded('campaign')),

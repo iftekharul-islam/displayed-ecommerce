@@ -62,8 +62,8 @@ class ShortUrlController extends Controller
 
                     ShortUrl::firstOrCreate(
                         [
-                            'original_domain' => $domain,
                             'campaign_id' => $validated['campaign_id'],
+                            'original_domain' => $domain,
                         ],
                         [
                             'campaign_id' => $validated['campaign_id'],

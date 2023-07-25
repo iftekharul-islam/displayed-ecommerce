@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
             $table->string('domain')->index();
             $table->date('expired_at')->index();
+            $table->boolean('auto_renewal')->default(false);
             $table->enum('status', [
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,

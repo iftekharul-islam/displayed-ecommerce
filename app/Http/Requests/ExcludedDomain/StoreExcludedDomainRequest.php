@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ExcludedDomain;
 
+use App\Rules\Boolean;
 use Illuminate\Validation\Rule;
 use App\Constants\ShortUrlConstant;
 use Illuminate\Foundation\Http\FormRequest;
@@ -25,14 +26,16 @@ class StoreExcludedDomainRequest extends FormRequest
     {
         return [
             'campaign_id' => ['required', 'exists:campaigns,id'],
-            'domain' => ['required', 'string', 'max:255', 'unique:excluded_domains,domain'],
-            'expired_at' => ['required', 'date', 'date_format:Y-m-d'],
-            'status' => ['required', Rule::in([
+            'domains' => ['required', 'array', 'max:5'],
+            'domains.*.domain' => ['required', 'string', 'max:255', 'unique:excluded_domains,domain'],
+            'domains.*.expired_at' => ['required', 'date', 'date_format:Y-m-d'],
+            'domains.*.auto_renewal' => ['required', new Boolean],
+            'domains.*.status' => ['required', Rule::in([
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])],
-            'remarks' => ['nullable', 'string'],
+            'domains.*.remarks' => ['nullable', 'string'],
         ];
     }
 }

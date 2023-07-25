@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ExcludedDomain;
 
+use App\Rules\Boolean;
 use Illuminate\Validation\Rule;
 use App\Constants\ShortUrlConstant;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,6 +28,7 @@ class UpdateExcludedDomainRequest extends FormRequest
             'campaign_id' => ['required', 'exists:campaigns,id'],
             'domain' => ['required', 'string', 'max:255', Rule::unique('excluded_domains', 'domain')->ignore($this->excluded_domain)],
             'expired_at' => ['required', 'date', 'date_format:Y-m-d'],
+            'auto_renewal' => ['required', new Boolean],
             'status' => ['required', Rule::in([
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,

@@ -21,6 +21,7 @@ class ExcludedDomain extends Model
         'campaign_id',
         'domain',
         'expired_at',
+        'auto_renewal',
         'status',
         'remarks',
         'created_by',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ExcludedDomain;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\ExcludedDomain;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -51,12 +52,23 @@ class ExcludedDomainController extends Controller
         try {
             $validated = $request->validated();
 
-            $filtered = Arr::except($validated, ['domain']);
+            DB::transaction(function () use ($validated) {
+                foreach ($validated['domains'] as $domain) {
+                    $filteredDomain = removeHttpOrHttps($domain['domain']);
+                    $filtered = Arr::except($domain, ['domain']);
 
-            ExcludedDomain::create([
-                ...$filtered,
-                'domain' => removeHttpOrHttps($validated['domain']),
-            ]);
+                    ExcludedDomain::firstOrCreate(
+                        [
+                            'campaign_id' => $validated['campaign_id'],
+                            'domain' => $filteredDomain,
+                        ],
+                        [
+                            ...$filtered,
+                            'domain' => $filteredDomain,
+                        ]
+                    );
+                }
+            });
 
             return response()->json([
                 'message' => 'Successfully created',
