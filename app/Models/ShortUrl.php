@@ -7,6 +7,7 @@ use App\Traits\DeletedBy;
 use App\Traits\UpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ShortUrl extends Model
@@ -24,7 +25,6 @@ class ShortUrl extends Model
         'destination_domain',
         'short_url',
         'url_key',
-        'tld',
         'expired_at',
         'auto_renewal',
         'status',
@@ -33,4 +33,14 @@ class ShortUrl extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class, 'campaign_id', 'id');
+    }
+
+    public function tld(): BelongsTo
+    {
+        return $this->belongsTo(Tld::class, 'tld_id', 'id');
+    }
 }

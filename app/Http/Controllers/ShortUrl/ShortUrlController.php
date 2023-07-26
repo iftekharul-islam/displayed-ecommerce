@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
+use App\Models\Tld;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ShortUrlController extends Controller
@@ -26,11 +27,23 @@ class ShortUrlController extends Controller
             $sortByOrder = $request->query('sortByOrder', 'desc');
             $searchQuery = $request->query('searchQuery');
             $originalDomain = @$searchQuery['originalDomain'];
+            $tld = @$searchQuery['tld'];
+            $campaignId = (int)$request->query('campaignId', -1);
 
-            $query  = ShortUrl::query();
+            $query  = ShortUrl::query()->with(['campaign:id,name', 'tld:id,name,price']);
+
+            $query->when($campaignId != -1, function ($query, $campaignId) {
+                $query->where('campaign_id', $campaignId);
+            });
 
             $query->when($originalDomain, function ($query, $originalDomain) {
                 $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+            });
+
+            $query->when($tld, function ($query, $tld) {
+                $query->whereHas('tld', function ($query) use ($tld) {
+                    $query->where('name', 'ILIKE', "%$tld%");
+                });
             });
 
             $query->orderBy($sortByKey, $sortByOrder);
@@ -56,9 +69,14 @@ class ShortUrlController extends Controller
             DB::transaction(function () use ($validated, $generateCodeAction, $generatedUrl) {
                 foreach ($validated['original_domains'] as $originalDomain) {
                     $domain = removeHttpOrHttps($originalDomain['domain']);
-                    $tld = extractTldFromDomain($domain);
+                    $extractTld = extractTldFromDomain($domain);
                     $code = $generateCodeAction->execute();
                     $short_url = $generatedUrl . $code;
+
+                    $tld = Tld::select(['id'])->where([
+                        'campaign_id' => $validated['campaign_id'],
+                        'name' => $extractTld,
+                    ])->first();
 
                     ShortUrl::firstOrCreate(
                         [
@@ -66,6 +84,7 @@ class ShortUrlController extends Controller
                             'original_domain' => $domain,
                         ],
                         [
+                            'tld_id' => @$tld->id ?? null,
                             'campaign_id' => $validated['campaign_id'],
                             'destination_domain' => $validated['destination_domain'],
                             'short_url' => $short_url,
@@ -73,7 +92,6 @@ class ShortUrlController extends Controller
                             'expired_at' => $originalDomain['expired_at'],
                             'auto_renewal' => $originalDomain['auto_renewal'],
                             'status' => $originalDomain['status'],
-                            'tld' => $tld,
                             'remarks' => $validated['remarks'],
                         ]
                     );
