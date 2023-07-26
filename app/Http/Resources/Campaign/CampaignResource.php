@@ -20,6 +20,7 @@ class CampaignResource extends JsonResource
             'is_active' => $this->is_active,
             'last_updated_at' => $this->last_updated_at,
             'created_at' => $this->created_at,
+            'tlds_count' => $this->whenCounted('tlds'),
         ];
     }
 }
