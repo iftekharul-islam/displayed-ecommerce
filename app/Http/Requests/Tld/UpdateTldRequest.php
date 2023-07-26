@@ -26,7 +26,7 @@ class UpdateTldRequest extends FormRequest
             'name'   => ['required', 'string', 'max:255', Rule::unique('tlds', 'name')->where(function ($query) {
                 return $query->where('campaign_id', $this->campaign);
             })->ignore($this->tld)],
-            'price' => ['nullable', 'string', 'max:255'],
+            'price' => ['required', 'string', 'max:255'],
             'last_updated_at' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];
     }

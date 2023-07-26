@@ -13,7 +13,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TldController extends Controller
 {
-    public function get(Request $request, string $campaign_id)
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request, string $campaign_id)
     {
         $perPage = $request->query('perPage', config('app.per_page'));
         $sortByKey = $request->query('sortByKey', 'id');
@@ -33,14 +37,6 @@ class TldController extends Controller
         $data = $query->paginate($perPage);
 
         return TldResource::collection($data);
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
     }
 
     /**
