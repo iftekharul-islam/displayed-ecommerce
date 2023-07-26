@@ -107,4 +107,26 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 5004,
     ];
+
+    // TLD
+    public const TLD_ACCESS = [
+        'name' => 'tld_access',
+        'label' => 'Access',
+        'code' => 6000,
+    ];
+    public const TLD_CREATE = [
+        'name' => 'tld_create',
+        'label' => 'Create',
+        'code' => 6001,
+    ];
+    public const TLD_EDIT = [
+        'name' => 'tld_edit',
+        'label' => 'Edit',
+        'code' => 6003,
+    ];
+    public const TLD_DELETE = [
+        'name' => 'tld_delete',
+        'label' => 'Delete',
+        'code' => 6004,
+    ];
 }
