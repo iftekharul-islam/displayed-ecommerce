@@ -32,15 +32,15 @@ class ShortUrlController extends Controller
 
             $query  = ShortUrl::query()->with(['campaign:id,name', 'tld:id,name,price']);
 
-            $query->when($campaignId != -1, function ($query, $campaignId) {
+            $query->when($campaignId != -1, function ($query) use ($campaignId) {
                 $query->where('campaign_id', $campaignId);
             });
 
-            $query->when($originalDomain, function ($query, $originalDomain) {
+            $query->when($originalDomain, function ($query) use ($originalDomain) {
                 $query->where('original_domain', 'ILIKE', "%$originalDomain%");
             });
 
-            $query->when($tld, function ($query, $tld) {
+            $query->when($tld, function ($query) use ($tld) {
                 $query->whereHas('tld', function ($query) use ($tld) {
                     $query->where('name', 'ILIKE', "%$tld%");
                 });
