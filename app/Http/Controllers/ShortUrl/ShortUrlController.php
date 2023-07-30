@@ -76,12 +76,12 @@ class ShortUrlController extends Controller
             ])->first();
 
             $excludedDomainsExists = DB::table('excluded_domains')->where([
-                'name' => $domain,
+                'domain' => $domain,
                 'campaign_id' => $validated['campaign_id'],
             ])->exists();
 
             if ($excludedDomainsExists) {
-                abort(400, 'Domain is excluded');
+                abort(400, 'This domain is excluded from this campaign');
             }
 
             ShortUrl::firstOrCreate(
@@ -144,10 +144,10 @@ class ShortUrlController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ShortUrl $shortUrl)
+    public function destroy(string $id)
     {
         try {
-            ShortUrl::destroy($shortUrl->id);
+            ShortUrl::destroy($id);
 
             return response()->noContent();
         } catch (HttpException $th) {
