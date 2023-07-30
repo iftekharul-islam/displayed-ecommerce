@@ -23,6 +23,7 @@ class UpdateTldRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'campaign_id' => ['required', 'exists:campaigns,id'],
             'name'   => ['required', 'string', 'max:255', Rule::unique('tlds', 'name')->where(function ($query) {
                 return $query->where('campaign_id', $this->campaign);
             })->ignore($this->tld)],

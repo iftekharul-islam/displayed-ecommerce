@@ -17,16 +17,17 @@ class TldController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $campaign_id)
+    public function index(Request $request)
     {
         $perPage = $request->query('perPage', config('app.per_page'));
         $sortByKey = $request->query('sortByKey', 'id');
         $sortByOrder = $request->query('sortByOrder', 'desc');
         $searchQuery = $request->query('searchQuery');
         $name = @$searchQuery['name'];
+        $campaignId = $request->query('campaignId');
 
         $query  = Tld::query()->with(['campaign'])
-            ->where('campaign_id', $campaign_id);
+            ->where('campaign_id', $campaignId);
 
         $query->when($name, function ($query, $name) {
             $query->where('name', 'ILIKE', "%$name%");
@@ -42,14 +43,14 @@ class TldController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTldRequest $request, string $campaign_id)
+    public function store(StoreTldRequest $request)
     {
         try {
             $validated = $request->validated();
 
             Tld::create([
                 ...$validated,
-                'campaign_id' => $campaign_id,
+                'campaign_id' => $validated['campaign_id'],
             ]);
 
             return response()->json([
@@ -72,14 +73,14 @@ class TldController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTldRequest $request, string $campaign_id, string $id)
+    public function update(UpdateTldRequest $request, Tld $tld)
     {
         try {
             $validated = $request->validated();
 
             Tld::where([
-                'campaign_id' => $campaign_id,
-                'id' => $id,
+                'campaign_id' => $validated['campaign_id'],
+                'id' => $tld->id,
             ])->update($validated);
 
             return response()->json([
@@ -94,10 +95,10 @@ class TldController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $campaign_id, string $id)
+    public function destroy(Tld $tld)
     {
         try {
-            Tld::destroy($id);
+            Tld::destroy($tld->id);
 
             return response()->noContent();
         } catch (HttpException $th) {
