@@ -27,16 +27,15 @@ class StoreShortUrlRequest extends FormRequest
         return [
             'campaign_id' => ['required', 'exists:campaigns,id'],
             'destination_domain' => ['required', 'string', 'max:255'],
-            'remarks' => 'nullable|string',
-            'original_domains' => ['required', 'array', 'max:5'],
-            'original_domains.*.domain' => ['required', 'string', 'max:255', 'unique:short_urls,original_domain'],
-            'original_domains.*.expired_at' => ['required', 'date', 'date_format:Y-m-d'],
-            'original_domains.*.auto_renewal' => ['required', new Boolean],
-            'original_domains.*.status' => ['required', Rule::in([
+            'original_domain' => ['required', 'string', 'max:255', 'unique:short_urls,original_domain'],
+            'expired_at' => ['required', 'date', 'date_format:Y-m-d'],
+            'auto_renewal' => ['required', new Boolean],
+            'status' => ['required', Rule::in([
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])],
+            'remarks' => 'nullable|string',
         ];
     }
 }

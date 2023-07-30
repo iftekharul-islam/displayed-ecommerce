@@ -65,38 +65,42 @@ class ShortUrlController extends Controller
         try {
             $validated = $request->validated();
             $generatedUrl = config('app.url') . '/vx/';
+            $domain = removeHttpOrHttps($validated['original_domain']);
+            $extractTld = extractTldFromDomain($domain);
+            $code = $generateCodeAction->execute();
+            $short_url = $generatedUrl . $code;
 
-            DB::transaction(function () use ($validated, $generateCodeAction, $generatedUrl) {
-                foreach ($validated['original_domains'] as $originalDomain) {
-                    $domain = removeHttpOrHttps($originalDomain['domain']);
-                    $extractTld = extractTldFromDomain($domain);
-                    $code = $generateCodeAction->execute();
-                    $short_url = $generatedUrl . $code;
+            $tld = DB::table('tlds')->select(['id'])->where([
+                'campaign_id' => $validated['campaign_id'],
+                'name' => $extractTld,
+            ])->first();
 
-                    $tld = Tld::select(['id'])->where([
-                        'campaign_id' => $validated['campaign_id'],
-                        'name' => $extractTld,
-                    ])->first();
+            $excludedDomainsExists = DB::table('excluded_domains')->where([
+                'name' => $domain,
+                'campaign_id' => $validated['campaign_id'],
+            ])->exists();
 
-                    ShortUrl::firstOrCreate(
-                        [
-                            'campaign_id' => $validated['campaign_id'],
-                            'original_domain' => $domain,
-                        ],
-                        [
-                            'tld_id' => @$tld->id ?? null,
-                            'campaign_id' => $validated['campaign_id'],
-                            'destination_domain' => $validated['destination_domain'],
-                            'short_url' => $short_url,
-                            'url_key' => $code,
-                            'expired_at' => $originalDomain['expired_at'],
-                            'auto_renewal' => $originalDomain['auto_renewal'],
-                            'status' => $originalDomain['status'],
-                            'remarks' => $validated['remarks'],
-                        ]
-                    );
-                }
-            });
+            if ($excludedDomainsExists) {
+                abort(400, 'Domain is excluded');
+            }
+
+            ShortUrl::firstOrCreate(
+                [
+                    'campaign_id' => $validated['campaign_id'],
+                    'original_domain' => $domain,
+                ],
+                [
+                    'tld_id' => @$tld->id ?? null,
+                    'campaign_id' => $validated['campaign_id'],
+                    'destination_domain' => $validated['destination_domain'],
+                    'short_url' => $short_url,
+                    'url_key' => $code,
+                    'expired_at' => $validated['expired_at'],
+                    'auto_renewal' => $validated['auto_renewal'],
+                    'status' => $validated['status'],
+                    'remarks' => $validated['remarks'],
+                ]
+            );
 
             return response()->json([
                 'message' => 'Successfully created',
@@ -118,14 +122,14 @@ class ShortUrlController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateShortUrlRequest $request, string $id)
+    public function update(UpdateShortUrlRequest $request, ShortUrl $shortUrl)
     {
         try {
             $validated = $request->validated();
 
             ShortUrl::where([
                 'campaign_id' => $validated['campaign_id'],
-                'id' => $id,
+                'id' => $shortUrl->id,
             ])->update($validated);
 
             return response()->json([
@@ -140,10 +144,10 @@ class ShortUrlController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(ShortUrl $shortUrl)
     {
         try {
-            ShortUrl::destroy($id);
+            ShortUrl::destroy($shortUrl->id);
 
             return response()->noContent();
         } catch (HttpException $th) {
