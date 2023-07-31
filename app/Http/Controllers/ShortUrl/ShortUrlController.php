@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Constants\PermissionConstant;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
@@ -21,6 +22,8 @@ class ShortUrlController extends Controller
     public function index(Request $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_ACCESS['name']);
+
             $perPage = $request->query('perPage', config('app.per_page'));
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
@@ -62,6 +65,8 @@ class ShortUrlController extends Controller
     public function store(StoreShortUrlRequest $request, GenerateCodeAction $generateCodeAction)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_CREATE['name']);
+
             $validated = $request->validated();
             $generatedUrl = config('app.url') . '/vx/';
             $domain = removeHttpOrHttps($validated['original_domain']);
@@ -124,6 +129,8 @@ class ShortUrlController extends Controller
     public function update(UpdateShortUrlRequest $request, ShortUrl $shortUrl)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_EDIT['name']);
+
             $validated = $request->validated();
 
             ShortUrl::where([
@@ -146,6 +153,8 @@ class ShortUrlController extends Controller
     public function destroy(string $shortUrl)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_DELETE['name']);
+
             ShortUrl::destroy($shortUrl);
 
             return response()->noContent();
