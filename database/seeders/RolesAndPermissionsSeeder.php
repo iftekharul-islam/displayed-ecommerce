@@ -160,30 +160,61 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'TLD' => [
                 [
-                    'name' => PermissionConstant::TLD_ACCESS['name'],
-                    'label' => PermissionConstant::TLD_ACCESS['label'],
-                    'code' => PermissionConstant::TLD_ACCESS['code'],
+                    'name' => PermissionConstant::TLDS_ACCESS['name'],
+                    'label' => PermissionConstant::TLDS_ACCESS['label'],
+                    'code' => PermissionConstant::TLDS_ACCESS['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['access'],
                     'guard_name' => 'api'
                 ],
                 [
-                    'name' => PermissionConstant::TLD_CREATE['name'],
-                    'label' => PermissionConstant::TLD_CREATE['label'],
-                    'code' => PermissionConstant::TLD_CREATE['code'],
+                    'name' => PermissionConstant::TLDS_CREATE['name'],
+                    'label' => PermissionConstant::TLDS_CREATE['label'],
+                    'code' => PermissionConstant::TLDS_CREATE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['create'],
                     'guard_name' => 'api'
                 ],
                 [
-                    'name' => PermissionConstant::TLD_EDIT['name'],
-                    'label' => PermissionConstant::TLD_EDIT['label'],
-                    'code' => PermissionConstant::TLD_EDIT['code'],
+                    'name' => PermissionConstant::TLDS_EDIT['name'],
+                    'label' => PermissionConstant::TLDS_EDIT['label'],
+                    'code' => PermissionConstant::TLDS_EDIT['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['edit'],
                     'guard_name' => 'api'
                 ],
                 [
-                    'name' => PermissionConstant::TLD_DELETE['name'],
-                    'label' => PermissionConstant::TLD_DELETE['label'],
-                    'code' => PermissionConstant::TLD_DELETE['code'],
+                    'name' => PermissionConstant::TLDS_DELETE['name'],
+                    'label' => PermissionConstant::TLDS_DELETE['label'],
+                    'code' => PermissionConstant::TLDS_DELETE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['delete'],
+                    'guard_name' => 'api'
+                ]
+            ],
+
+            'Short Urls' => [
+                [
+                    'name' => PermissionConstant::SHORT_URLS_ACCESS['name'],
+                    'label' => PermissionConstant::SHORT_URLS_ACCESS['label'],
+                    'code' => PermissionConstant::SHORT_URLS_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['access'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_CREATE['name'],
+                    'label' => PermissionConstant::SHORT_URLS_CREATE['label'],
+                    'code' => PermissionConstant::SHORT_URLS_CREATE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['create'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_EDIT['name'],
+                    'label' => PermissionConstant::SHORT_URLS_EDIT['label'],
+                    'code' => PermissionConstant::SHORT_URLS_EDIT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['edit'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_DELETE['name'],
+                    'label' => PermissionConstant::SHORT_URLS_DELETE['label'],
+                    'code' => PermissionConstant::SHORT_URLS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
                     'guard_name' => 'api'
                 ]
