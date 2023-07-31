@@ -11,7 +11,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
-use App\Models\Tld;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ShortUrlController extends Controller
@@ -70,7 +69,7 @@ class ShortUrlController extends Controller
             $code = $generateCodeAction->execute();
             $short_url = $generatedUrl . $code;
 
-            $tld = DB::table('tlds')->select(['id'])->where([
+            $tldModel = DB::table('tlds')->select(['id'])->where([
                 'campaign_id' => $validated['campaign_id'],
                 'name' => $extractTld,
             ])->first();
@@ -90,7 +89,7 @@ class ShortUrlController extends Controller
                     'original_domain' => $domain,
                 ],
                 [
-                    'tld_id' => @$tld->id ?? null,
+                    'tld_id' => @$tldModel->id ?? null,
                     'campaign_id' => $validated['campaign_id'],
                     'destination_domain' => $validated['destination_domain'],
                     'short_url' => $short_url,
@@ -144,10 +143,10 @@ class ShortUrlController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $shortUrl)
     {
         try {
-            ShortUrl::destroy($id);
+            ShortUrl::destroy($shortUrl);
 
             return response()->noContent();
         } catch (HttpException $th) {

@@ -95,10 +95,10 @@ class TldController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tld $tld)
+    public function destroy(string $tld)
     {
         try {
-            Tld::destroy($tld->id);
+            Tld::destroy($tld);
 
             return response()->noContent();
         } catch (HttpException $th) {

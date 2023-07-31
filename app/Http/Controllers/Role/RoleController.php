@@ -80,10 +80,10 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $role)
     {
         try {
-            $data = Role::with(['permissions'])->findOrFail($id);
+            $data = Role::with(['permissions'])->findOrFail($role);
 
             return new RoleResource($data);
         } catch (HttpException $th) {
@@ -95,16 +95,16 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRoleRequest $request, string $id)
+    public function update(UpdateRoleRequest $request, string $role)
     {
         try {
             hasPermissionTo(PermissionConstant::ROLES_EDIT['name']);
 
             $validated = $request->validated();
 
-            $model = Role::findOrFail($id);
+            $roleModel = Role::findOrFail($role);
 
-            $model->update($validated);
+            $roleModel->update($validated);
 
             return response()->json([
                 'message' => 'Successfully updated',
@@ -118,24 +118,24 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $role)
     {
         try {
             hasPermissionTo(PermissionConstant::ROLES_DELETE['name']);
 
-            $role = Role::findOrFail($id);
+            $roleModel = Role::findOrFail($role);
 
-            if ($role->name == RolesConstant::ADMIN) {
+            if ($roleModel->name == RolesConstant::ADMIN) {
                 abort(422, 'Admin Role Cannot Be Deleted');
             }
 
-            $users_count = User::role($role->name)->count();
+            $users_count = User::role($roleModel->name)->count();
 
             if ($users_count > 0) {
                 abort(422, 'Role Has User');
             }
 
-            $role->delete();
+            $roleModel->delete();
 
             return response()->noContent();
         } catch (HttpException $th) {
@@ -156,34 +156,34 @@ class RoleController extends Controller
         }
     }
 
-    public function updatePermissions(UpdatePermissionRequest $request, string $role_id)
+    public function updatePermissions(UpdatePermissionRequest $request, string $role)
     {
         try {
             hasPermissionTo(PermissionConstant::PERMISSIONS_EDIT['name']);
 
             $validated = $request->validated();
 
-            $role =  Role::findOrFail($role_id);
+            $roleModel =  Role::findOrFail($role);
 
             if (to_boolean($validated['is_all_checked'])) {
                 if (to_boolean($validated['is_attach'])) {
                     foreach ($validated['permission_ids'] as $permission_id) {
-                        $role->givePermissionTo($permission_id);
+                        $roleModel->givePermissionTo($permission_id);
                     }
                 } else {
                     foreach ($validated['permission_ids'] as $permission_id) {
-                        $role->revokePermissionTo($permission_id);
+                        $roleModel->revokePermissionTo($permission_id);
                     }
                 }
             } else {
                 if (to_boolean($validated['is_attach'])) {
-                    $role->givePermissionTo($validated['permission_id']);
+                    $roleModel->givePermissionTo($validated['permission_id']);
                 } else {
-                    $role->revokePermissionTo($validated['permission_id']);
+                    $roleModel->revokePermissionTo($validated['permission_id']);
                 }
             }
 
-            $data =  $role->fresh('permissions');
+            $data =  $roleModel->fresh('permissions');
 
             return new RoleResource($data);
         } catch (HttpException $th) {
