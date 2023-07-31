@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Campaign;
+namespace App\Http\Resources\Tld;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Campaign\CampaignResource;
 
-class CampaignResource extends JsonResource
+class TldResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +17,12 @@ class CampaignResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'campaign_id' => $this->campaign_id,
             'name' => $this->name,
-            'is_active' => $this->is_active,
+            'price' => $this->price,
             'last_updated_at' => $this->last_updated_at,
+            'campaign' => new CampaignResource($this->whenLoaded('campaign')),
             'created_at' => $this->created_at,
-            'tlds_count' => $this->whenCounted('tlds'),
         ];
     }
 }

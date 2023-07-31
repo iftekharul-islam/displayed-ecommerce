@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Campaign;
+namespace App\Http\Requests\Tld;
 
-use App\Rules\Boolean;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCampaignRequest extends FormRequest
+class StoreTldRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +23,10 @@ class UpdateCampaignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('campaigns', 'name')->ignore($this->campaign)],
-            'is_active' => ['required', new Boolean],
+            'name'   => ['required', 'string', 'max:255', Rule::unique('tlds', 'name')->where(function ($query) {
+                return $query->where('campaign_id', $this->campaign);
+            })],
+            'price' => ['required', 'string', 'max:255'],
             'last_updated_at' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];
     }

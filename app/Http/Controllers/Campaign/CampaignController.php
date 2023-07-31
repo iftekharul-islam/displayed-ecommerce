@@ -28,7 +28,7 @@ class CampaignController extends Controller
             $searchQuery = $request->query('searchQuery');
             $name = @$searchQuery['name'];
 
-            $query  = Campaign::query();
+            $query  = Campaign::query()->withCount(['tlds']);
 
             $query->when($name, function ($query, $name) {
                 $query->where('name', 'ILIKE', "%$name%");

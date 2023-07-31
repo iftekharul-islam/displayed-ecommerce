@@ -23,6 +23,9 @@ require __DIR__ . '/module/module.php';
 // user routes
 require __DIR__ . '/user/user.php';
 
+// tld routes
+require __DIR__ . '/tld/tld.php';
+
 // campaign routes
 require __DIR__ . '/campaign/campaign.php';
 
