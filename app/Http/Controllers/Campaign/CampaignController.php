@@ -113,4 +113,16 @@ class CampaignController extends Controller
             abort($th->getStatusCode(), $th->getMessage());
         }
     }
+
+    public function actives()
+    {
+        try {
+            $data = Campaign::where('is_active', true)->get();
+
+            return CampaignResource::collection($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
 }
