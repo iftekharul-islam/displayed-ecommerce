@@ -26,16 +26,15 @@ class StoreExcludedDomainRequest extends FormRequest
     {
         return [
             'campaign_id' => ['required', 'exists:campaigns,id'],
-            'domains' => ['required', 'array', 'max:5'],
-            'domains.*.domain' => ['required', 'string', 'max:255', 'unique:excluded_domains,domain'],
-            'domains.*.expired_at' => ['required', 'date', 'date_format:Y-m-d'],
-            'domains.*.auto_renewal' => ['required', new Boolean],
-            'domains.*.status' => ['required', Rule::in([
+            'domain' => ['required', 'string', 'max:255', 'unique:excluded_domains,domain'],
+            'expired_at' => ['required', 'date', 'date_format:Y-m-d'],
+            'auto_renewal' => ['required', new Boolean],
+            'status' => ['required', Rule::in([
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])],
-            'domains.*.remarks' => ['nullable', 'string'],
+            'note' => ['nullable', 'string'],
         ];
     }
 }

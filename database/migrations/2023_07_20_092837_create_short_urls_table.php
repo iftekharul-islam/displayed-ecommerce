@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('original_domain', 255)->unique()->index();
             $table->string('destination_domain', 255);
             $table->string('short_url', 255);
-            $table->string('tld')->index()->nullable();
+            $table->string('domain_tld')->index()->nullable();
             $table->string('url_key', 255)->unique()->index();
             $table->date('expired_at')->index();
             $table->boolean('auto_renewal')->default(false);

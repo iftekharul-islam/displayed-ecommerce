@@ -15,15 +15,16 @@ return new class extends Migration
         Schema::create('excluded_domains', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
-            $table->string('domain')->index();
+            $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
+            $table->string('domain', 255)->unique()->index();
             $table->date('expired_at')->index();
             $table->boolean('auto_renewal')->default(false);
             $table->enum('status', [
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
-            ])->index()->default(ShortUrlConstant::INVALID);
-            $table->text('remarks')->nullable();
+            ])->index()->default(ShortUrlConstant::VALID);
+            $table->string('note', 255)->nullable();
             $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('deleted_by')->nullable()->comment('from users table');
