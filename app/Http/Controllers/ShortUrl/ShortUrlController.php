@@ -98,6 +98,7 @@ class ShortUrlController extends Controller
                     'campaign_id' => $validated['campaign_id'],
                     'destination_domain' => $validated['destination_domain'],
                     'short_url' => $short_url,
+                    'tld' => $extractTld,
                     'url_key' => $code,
                     'expired_at' => $validated['expired_at'],
                     'auto_renewal' => $validated['auto_renewal'],
