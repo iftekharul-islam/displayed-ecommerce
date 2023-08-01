@@ -151,4 +151,26 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 7004,
     ];
+
+    // Excluded Domain
+    public const EXCLUDED_DOMAIN_ACCESS = [
+        'name' => 'excluded_domains_access',
+        'label' => 'Access',
+        'code' => 8000,
+    ];
+    public const EXCLUDED_DOMAIN_CREATE = [
+        'name' => 'excluded_domains_create',
+        'label' => 'Create',
+        'code' => 8001,
+    ];
+    public const EXCLUDED_DOMAIN_EDIT = [
+        'name' => 'excluded_domains_edit',
+        'label' => 'Edit',
+        'code' => 8003,
+    ];
+    public const EXCLUDED_DOMAIN_DELETE = [
+        'name' => 'excluded_domains_delete',
+        'label' => 'Delete',
+        'code' => 8004,
+    ];
 }

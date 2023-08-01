@@ -220,6 +220,37 @@ class RolesAndPermissionsSeeder extends Seeder
                 ]
             ],
 
+            'Excluded Domains' => [
+                [
+                    'name' => PermissionConstant::EXCLUDED_DOMAIN_ACCESS['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAIN_ACCESS['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAIN_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['access'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::EXCLUDED_DOMAIN_CREATE['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAIN_CREATE['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAIN_CREATE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['create'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::EXCLUDED_DOMAIN_EDIT['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAIN_EDIT['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAIN_EDIT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['edit'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::EXCLUDED_DOMAIN_DELETE['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAIN_DELETE['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAIN_DELETE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['delete'],
+                    'guard_name' => 'api'
+                ]
+            ],
+
         ];
 
         foreach ($modules as $key => $permissions) {
