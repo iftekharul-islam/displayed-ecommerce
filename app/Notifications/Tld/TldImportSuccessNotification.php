@@ -11,12 +11,14 @@ class TldImportSuccessNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    protected $name;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($name)
     {
-        //
+        $this->name = $name;
     }
 
     /**
@@ -36,8 +38,8 @@ class TldImportSuccessNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->success()
-            ->subject('Tld Import Successfully completed')
-            ->line('Tld Import Successfully completed')
+            ->subject('Tld Import Successfully Completed For: ' . $this->name)
+            ->line('Tld Import Successfully Completed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 

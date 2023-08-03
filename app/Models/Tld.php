@@ -22,7 +22,6 @@ class Tld extends Model
         'campaign_id',
         'name',
         'price',
-        'last_updated_at',
         'created_by',
         'updated_by',
         'deleted_by',

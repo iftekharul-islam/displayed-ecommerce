@@ -10,13 +10,14 @@ use Illuminate\Notifications\Notification;
 class TldImportHasFailedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+    protected $name;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($name)
     {
-        //
+        $this->name = $name;
     }
 
     /**
@@ -36,8 +37,8 @@ class TldImportHasFailedNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->error()
-            ->subject('Tld Import Has Failed')
-            ->line('Tld Import Has Failed')
+            ->subject('Tld Import Has Failed For: ' . $this->name)
+            ->line('Tld Import Has Failed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 

@@ -12,6 +12,7 @@ use App\Http\Resources\Tld\TldResource;
 use App\Http\Requests\Tld\StoreTldRequest;
 use App\Http\Requests\Tld\ImportTldRequest;
 use App\Http\Requests\Tld\UpdateTldRequest;
+use App\Models\Campaign;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\Tld\TldImportSuccessNotification;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -123,7 +124,9 @@ class TldController extends Controller
 
             $file = $request->file('file');
 
-            (new TldImport(auth()->user(), $validated['campaign_id']))->queue($file, null, \Maatwebsite\Excel\Excel::XLSX);
+            $campaign = Campaign::findOrFail($validated['campaign_id']);
+
+            (new TldImport(auth()->user(), $campaign))->queue($file, null, \Maatwebsite\Excel\Excel::XLSX);
 
             return response()->json([
                 'message' => 'TLD import on progress, please wait...  when done will send you an email',

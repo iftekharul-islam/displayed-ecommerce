@@ -2,6 +2,7 @@
 
 namespace App\Imports\Tld;
 
+use App\Models\Campaign;
 use App\Models\Tld;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -20,22 +21,22 @@ class TldImport implements ToModel, ShouldQueue, WithChunkReading, WithEvents
     use Importable;
     use RegistersEventListeners;
     public $importedBy;
-    public $campaign_id;
+    public $campaign;
 
-    public function __construct(User $importedBy, $campaign_id)
+    public function __construct(User $importedBy, Campaign $campaign)
     {
         $this->importedBy = $importedBy;
-        $this->campaign_id = $campaign_id;
+        $this->campaign = $campaign;
     }
 
     public function registerEvents(): array
     {
         return [
             ImportFailed::class => function (ImportFailed $event) {
-                $this->importedBy->notify(new TldImportHasFailedNotification);
+                $this->importedBy->notify(new TldImportHasFailedNotification($this->campaign->name));
             },
             AfterImport::class => function (AfterImport $event) {
-                $this->importedBy->notify(new TldImportSuccessNotification);
+                $this->importedBy->notify(new TldImportSuccessNotification($this->campaign->name));
             },
         ];
     }
@@ -53,11 +54,11 @@ class TldImport implements ToModel, ShouldQueue, WithChunkReading, WithEvents
 
         return  Tld::updateOrCreate(
             [
-                'campaign_id' => $this->campaign_id,
+                'campaign_id' => $this->campaign->id,
                 'name' => $row[0],
             ],
             [
-                'campaign_id' => $this->campaign_id,
+                'campaign_id' => $this->campaign->id,
                 'name' => $row[0],
                 'price' => $row[1],
             ]
