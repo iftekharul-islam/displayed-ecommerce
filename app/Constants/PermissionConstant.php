@@ -109,24 +109,46 @@ class PermissionConstant
     ];
 
     // TLD
-    public const TLD_ACCESS = [
-        'name' => 'tld_access',
+    public const TLDS_ACCESS = [
+        'name' => 'tlds_access',
         'label' => 'Access',
         'code' => 6000,
     ];
-    public const TLD_CREATE = [
-        'name' => 'tld_create',
+    public const TLDS_CREATE = [
+        'name' => 'tlds_create',
         'label' => 'Create',
         'code' => 6001,
     ];
-    public const TLD_EDIT = [
-        'name' => 'tld_edit',
+    public const TLDS_EDIT = [
+        'name' => 'tlds_edit',
         'label' => 'Edit',
         'code' => 6003,
     ];
-    public const TLD_DELETE = [
-        'name' => 'tld_delete',
+    public const TLDS_DELETE = [
+        'name' => 'tlds_delete',
         'label' => 'Delete',
         'code' => 6004,
+    ];
+
+    // Short Urls
+    public const SHORT_URLS_ACCESS = [
+        'name' => 'short_urls_access',
+        'label' => 'Access',
+        'code' => 7000,
+    ];
+    public const SHORT_URLS_CREATE = [
+        'name' => 'short_urls_create',
+        'label' => 'Create',
+        'code' => 7001,
+    ];
+    public const SHORT_URLS_EDIT = [
+        'name' => 'short_urls_edit',
+        'label' => 'Edit',
+        'code' => 7003,
+    ];
+    public const SHORT_URLS_DELETE = [
+        'name' => 'short_urls_delete',
+        'label' => 'Delete',
+        'code' => 7004,
     ];
 }

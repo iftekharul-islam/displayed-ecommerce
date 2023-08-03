@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Constants\PermissionConstant;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
@@ -21,16 +22,30 @@ class ShortUrlController extends Controller
     public function index(Request $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_ACCESS['name']);
+
             $perPage = $request->query('perPage', config('app.per_page'));
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
             $searchQuery = $request->query('searchQuery');
             $originalDomain = @$searchQuery['originalDomain'];
+            $tld = @$searchQuery['tld'];
+            $campaignId = (int)$request->query('campaignId', -1);
 
-            $query  = ShortUrl::query();
+            $query  = ShortUrl::query()->with(['campaign:id,name', 'tld:id,name,price']);
 
-            $query->when($originalDomain, function ($query, $originalDomain) {
+            $query->when($campaignId != -1, function ($query) use ($campaignId) {
+                $query->where('campaign_id', $campaignId);
+            });
+
+            $query->when($originalDomain, function ($query) use ($originalDomain) {
                 $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+            });
+
+            $query->when($tld, function ($query) use ($tld) {
+                $query->whereHas('tld', function ($query) use ($tld) {
+                    $query->where('name', 'ILIKE', "%$tld%");
+                });
             });
 
             $query->orderBy($sortByKey, $sortByOrder);
@@ -50,35 +65,47 @@ class ShortUrlController extends Controller
     public function store(StoreShortUrlRequest $request, GenerateCodeAction $generateCodeAction)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_CREATE['name']);
+
             $validated = $request->validated();
             $generatedUrl = config('app.url') . '/vx/';
+            $domain = removeHttpOrHttps($validated['original_domain']);
+            $extractTld = extractTldFromDomain($domain);
+            $code = $generateCodeAction->execute();
+            $short_url = $generatedUrl . $code;
 
-            DB::transaction(function () use ($validated, $generateCodeAction, $generatedUrl) {
-                foreach ($validated['original_domains'] as $originalDomain) {
-                    $domain = removeHttpOrHttps($originalDomain['domain']);
-                    $tld = extractTldFromDomain($domain);
-                    $code = $generateCodeAction->execute();
-                    $short_url = $generatedUrl . $code;
+            $tldModel = DB::table('tlds')->select(['id'])->where([
+                'campaign_id' => $validated['campaign_id'],
+                'name' => $extractTld,
+            ])->first();
 
-                    ShortUrl::firstOrCreate(
-                        [
-                            'campaign_id' => $validated['campaign_id'],
-                            'original_domain' => $domain,
-                        ],
-                        [
-                            'campaign_id' => $validated['campaign_id'],
-                            'destination_domain' => $validated['destination_domain'],
-                            'short_url' => $short_url,
-                            'url_key' => $code,
-                            'expired_at' => $originalDomain['expired_at'],
-                            'auto_renewal' => $originalDomain['auto_renewal'],
-                            'status' => $originalDomain['status'],
-                            'tld' => $tld,
-                            'remarks' => $validated['remarks'],
-                        ]
-                    );
-                }
-            });
+            $excludedDomainsExists = DB::table('excluded_domains')->where([
+                'domain' => $domain,
+                'campaign_id' => $validated['campaign_id'],
+            ])->exists();
+
+            if ($excludedDomainsExists) {
+                abort(400, 'This domain is excluded from this campaign');
+            }
+
+            ShortUrl::firstOrCreate(
+                [
+                    'campaign_id' => $validated['campaign_id'],
+                    'original_domain' => $domain,
+                ],
+                [
+                    'tld_id' => @$tldModel->id ?? null,
+                    'campaign_id' => $validated['campaign_id'],
+                    'destination_domain' => $validated['destination_domain'],
+                    'short_url' => $short_url,
+                    'tld' => $extractTld,
+                    'url_key' => $code,
+                    'expired_at' => $validated['expired_at'],
+                    'auto_renewal' => $validated['auto_renewal'],
+                    'status' => $validated['status'],
+                    'remarks' => $validated['remarks'],
+                ]
+            );
 
             return response()->json([
                 'message' => 'Successfully created',
@@ -100,14 +127,16 @@ class ShortUrlController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateShortUrlRequest $request, string $id)
+    public function update(UpdateShortUrlRequest $request, ShortUrl $shortUrl)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_EDIT['name']);
+
             $validated = $request->validated();
 
             ShortUrl::where([
                 'campaign_id' => $validated['campaign_id'],
-                'id' => $id,
+                'id' => $shortUrl->id,
             ])->update($validated);
 
             return response()->json([
@@ -122,10 +151,12 @@ class ShortUrlController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $shortUrl)
     {
         try {
-            ShortUrl::destroy($id);
+            hasPermissionTo(PermissionConstant::SHORT_URLS_DELETE['name']);
+
+            ShortUrl::destroy($shortUrl);
 
             return response()->noContent();
         } catch (HttpException $th) {

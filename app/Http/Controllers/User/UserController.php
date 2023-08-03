@@ -58,11 +58,11 @@ class UserController extends Controller
 
             $validated = $request->validated();
 
-            $role = Role::findOrFail($validated['role_id']);
+            $roleModel = Role::findOrFail($validated['role_id']);
 
-            DB::transaction(function () use ($validated, $role) {
-                $user = User::create($validated);
-                $user->assignRole($role);
+            DB::transaction(function () use ($validated, $roleModel) {
+                $userModel = User::create($validated);
+                $userModel->assignRole($roleModel);
             });
 
             return response()->json([
@@ -85,19 +85,19 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, string $id)
+    public function update(UpdateUserRequest $request, string $user)
     {
         try {
             hasPermissionTo(PermissionConstant::USERS_EDIT['name']);
 
             $validated = $request->validated();
 
-            $role = Role::findOrFail($validated['role_id']);
-            $user = User::findOrFail($id);
+            $roleModel = Role::findOrFail($validated['role_id']);
+            $userModel = User::findOrFail($user);
 
-            DB::transaction(function () use ($validated, $user, $role) {
-                $user->update($validated);
-                $user->syncRoles($role);
+            DB::transaction(function () use ($validated, $userModel, $roleModel) {
+                $userModel->update($validated);
+                $userModel->syncRoles($roleModel);
             });
 
             return response()->json([
@@ -112,12 +112,12 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $user)
     {
         try {
             hasPermissionTo(PermissionConstant::USERS_DELETE['name']);
 
-            User::destroy($id);
+            User::destroy($user);
 
             return response()->noContent();
         } catch (HttpException $th) {
@@ -132,11 +132,11 @@ class UserController extends Controller
             hasPermissionTo(PermissionConstant::USERS_PROFILE_EDIT['name']);
 
             $validated = $request->validated();
-            $user = auth()->user();
+            $authUser = auth()->user();
 
-            $user->update($validated);
+            $authUser->update($validated);
 
-            $data = $user->fresh(['roles.permissions']);
+            $data = $authUser->fresh(['roles.permissions']);
 
             return new UserResource($data);
         } catch (HttpException $th) {

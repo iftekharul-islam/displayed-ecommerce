@@ -28,12 +28,12 @@ class UpdateShortUrlRequest extends FormRequest
             'campaign_id' => ['required', 'exists:campaigns,id'],
             'expired_at' => ['required', 'date', 'date_format:Y-m-d'],
             'auto_renewal' => ['required', new Boolean],
-            'remarks' => 'nullable|string',
             'status' => ['required', Rule::in([
                 ShortUrlConstant::VALID,
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])],
+            'remarks' => 'nullable|string',
         ];
     }
 }

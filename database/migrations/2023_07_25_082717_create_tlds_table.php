@@ -14,9 +14,14 @@ return new class extends Migration
         Schema::create('tlds', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
+            $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
             $table->string('name', 255)->index();
             $table->string('price', 255)->nullable();
             $table->date('last_updated_at')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
+            $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');
+            $table->unsignedBigInteger('deleted_by')->nullable()->comment('from users table');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

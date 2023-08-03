@@ -77,14 +77,14 @@ class CampaignController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCampaignRequest $request, string $id)
+    public function update(UpdateCampaignRequest $request, string $campaign)
     {
         try {
             hasPermissionTo(PermissionConstant::CAMPAIGNS_EDIT['name']);
 
             $validated = $request->validated();
 
-            $model = Campaign::findOrFail($id);
+            $model = Campaign::findOrFail($campaign);
 
             $model->update($validated);
 
@@ -100,14 +100,26 @@ class CampaignController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $campaign)
     {
         try {
             hasPermissionTo(PermissionConstant::CAMPAIGNS_DELETE['name']);
 
-            Campaign::destroy($id);
+            Campaign::destroy($campaign);
 
             return response()->noContent();
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function actives()
+    {
+        try {
+            $data = Campaign::where('is_active', true)->get();
+
+            return CampaignResource::collection($data);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
