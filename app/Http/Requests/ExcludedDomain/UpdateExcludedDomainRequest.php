@@ -34,7 +34,7 @@ class UpdateExcludedDomainRequest extends FormRequest
                 ShortUrlConstant::INVALID,
                 ShortUrlConstant::EXPIRED,
             ])],
-            'remarks' => ['nullable', 'string'],
+            'note' => ['nullable', 'string'],
         ];
     }
 }

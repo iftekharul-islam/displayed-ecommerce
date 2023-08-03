@@ -7,6 +7,7 @@ use App\Traits\DeletedBy;
 use App\Traits\UpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ExcludedDomain extends Model
@@ -23,9 +24,14 @@ class ExcludedDomain extends Model
         'expired_at',
         'auto_renewal',
         'status',
-        'remarks',
+        'note',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class, 'campaign_id', 'id');
+    }
 }

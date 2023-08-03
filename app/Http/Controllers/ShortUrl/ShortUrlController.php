@@ -29,6 +29,7 @@ class ShortUrlController extends Controller
             $sortByOrder = $request->query('sortByOrder', 'desc');
             $searchQuery = $request->query('searchQuery');
             $originalDomain = @$searchQuery['originalDomain'];
+            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']);
             $tld = @$searchQuery['tld'];
             $campaignId = (int)$request->query('campaignId', -1);
 
@@ -36,6 +37,10 @@ class ShortUrlController extends Controller
 
             $query->when($campaignId != -1, function ($query) use ($campaignId) {
                 $query->where('campaign_id', $campaignId);
+            });
+
+            $query->when($shortUrl, function ($query) use ($shortUrl) {
+                $query->where('url_key', $shortUrl);
             });
 
             $query->when($originalDomain, function ($query) use ($originalDomain) {
@@ -98,7 +103,7 @@ class ShortUrlController extends Controller
                     'campaign_id' => $validated['campaign_id'],
                     'destination_domain' => $validated['destination_domain'],
                     'short_url' => $short_url,
-                    'tld' => $extractTld,
+                    'domain_tld' => $extractTld,
                     'url_key' => $code,
                     'expired_at' => $validated['expired_at'],
                     'auto_renewal' => $validated['auto_renewal'],

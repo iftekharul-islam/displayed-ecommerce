@@ -26,8 +26,13 @@ class ExcludedDomainController extends Controller
             $sortByOrder = $request->query('sortByOrder', 'desc');
             $searchQuery = $request->query('searchQuery');
             $domain = @$searchQuery['domain'];
+            $campaignId = (int)$request->query('campaignId', -1);
 
-            $query  = ExcludedDomain::query();
+            $query  = ExcludedDomain::query()->with(['campaign:id,name']);
+
+            $query->when($campaignId != -1, function ($query) use ($campaignId) {
+                $query->where('campaign_id', $campaignId);
+            });
 
             $query->when($domain, function ($query, $domain) {
                 $query->where('domain', 'ILIKE', "%$domain%");
@@ -52,23 +57,19 @@ class ExcludedDomainController extends Controller
         try {
             $validated = $request->validated();
 
-            DB::transaction(function () use ($validated) {
-                foreach ($validated['domains'] as $domain) {
-                    $filteredDomain = removeHttpOrHttps($domain['domain']);
-                    $filtered = Arr::except($domain, ['domain']);
+            $filteredDomain = removeHttpOrHttps($validated['domain']);
+            $filtered = Arr::except($validated, ['domain']);
 
-                    ExcludedDomain::firstOrCreate(
-                        [
-                            'campaign_id' => $validated['campaign_id'],
-                            'domain' => $filteredDomain,
-                        ],
-                        [
-                            ...$filtered,
-                            'domain' => $filteredDomain,
-                        ]
-                    );
-                }
-            });
+            ExcludedDomain::firstOrCreate(
+                [
+                    'campaign_id' => $validated['campaign_id'],
+                    'domain' => $filteredDomain,
+                ],
+                [
+                    ...$filtered,
+                    'domain' => $filteredDomain,
+                ]
+            );
 
             return response()->json([
                 'message' => 'Successfully created',
@@ -90,19 +91,20 @@ class ExcludedDomainController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateExcludedDomainRequest $request, string $id)
+    public function update(UpdateExcludedDomainRequest $request, ExcludedDomain $excludedDomain)
     {
         try {
             $validated = $request->validated();
 
+            $filteredDomain = removeHttpOrHttps($validated['domain']);
             $filtered = Arr::except($validated, ['domain']);
 
             ExcludedDomain::where([
                 'campaign_id' => $validated['campaign_id'],
-                'id' => $id,
+                'id' => $excludedDomain->id,
             ])->update([
                 ...$filtered,
-                'domain' => removeHttpOrHttps($validated['domain']),
+                'domain' => $filteredDomain,
             ]);
 
             return response()->json([
@@ -117,10 +119,10 @@ class ExcludedDomainController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $excludedDomain)
     {
         try {
-            ExcludedDomain::destroy($id);
+            ExcludedDomain::destroy($excludedDomain);
 
             return response()->noContent();
         } catch (HttpException $th) {

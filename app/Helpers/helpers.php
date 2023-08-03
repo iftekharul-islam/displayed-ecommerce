@@ -44,7 +44,7 @@ if (!function_exists('removeHttpOrHttps')) {
 // extract Tld from domain
 if (!function_exists('extractTldFromDomain')) {
 
-    function extractTldFromDomain(string $domain): ?string
+    function extractTldFromDomain(?string $domain): ?string
     {
         if (!$domain) {
             return null;
@@ -58,5 +58,27 @@ if (!function_exists('extractTldFromDomain')) {
         $tldWithDot = '.' . $tld;
 
         return $tldWithDot;
+    }
+}
+
+// get Code From Url
+if (!function_exists('getCodeFromUrl')) {
+
+    function getCodeFromUrl(?string $input): ?string
+    {
+        if (!$input) {
+            return null;
+        }
+
+        $parsed_url = parse_url($input);
+
+        if (isset($parsed_url['host'])) {
+            $path = $parsed_url['path'];
+            $code = substr($path, strrpos($path, '/') + 1);
+        } else {
+            $code = $input;
+        }
+
+        return $code;
     }
 }
