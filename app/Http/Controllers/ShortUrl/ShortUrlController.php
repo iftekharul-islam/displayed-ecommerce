@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ShortUrl;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
@@ -186,7 +187,7 @@ class ShortUrlController extends Controller
 
             $campaign = Campaign::findOrFail($validated['campaign_id']);
 
-            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, \Maatwebsite\Excel\Excel::XLSX);
+            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX);
 
             return response()->json([
                 'message' => 'Short Url import on progress, please wait...  when done will send you an email',

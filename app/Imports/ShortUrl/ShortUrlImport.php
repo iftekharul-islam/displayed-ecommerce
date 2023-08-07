@@ -2,6 +2,7 @@
 
 namespace App\Imports\ShortUrl;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
@@ -10,6 +11,7 @@ use App\Actions\GenerateCodeAction;
 use App\Constants\ShortUrlConstant;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Events\AfterImport;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\ImportFailed;
@@ -60,32 +62,35 @@ class ShortUrlImport implements ToModel,  WithChunkReading, ShouldQueue, WithEve
         }
 
         $campaign_id = $this->campaign->id;
-        $app_url = config('app.url');
-        $code = $this->generateCodeAction->execute();
-        $generatedUrl = $app_url . '/vx/';
-        $short_url = $generatedUrl . $code;
-        $originalUrl = removeHttpOrHttps($row[0]);
-        $extractTld = extractTldFromDomain($originalUrl);
+        $original_domain = removeHttpOrHttps($row[0]);
 
         $excludedDomainsExists = DB::table('excluded_domains')->where([
             'campaign_id' => $campaign_id,
-            'domain' => $originalUrl,
+            'domain' => $original_domain,
         ])->exists();
 
         if (!$excludedDomainsExists) {
+
+            $app_url = config('app.url');
+            $code = $this->generateCodeAction->execute();
+            $generatedUrl = $app_url . '/vx/';
+            $short_url = $generatedUrl . $code;
+            $extractTld = extractTldFromDomain($original_domain);
+            $expired_at = Carbon::make(Date::excelToDateTimeObject($row[2]));
+            $destination_domain = removeHttpOrHttps($row[1]);
+            $auto_renewal = to_boolean($row[3]) ? true : false;
 
             $tld = DB::table('tlds')->select(['id'])->where([
                 'campaign_id' => $campaign_id,
                 'name' => $extractTld,
             ])->first();
 
-
             return new ShortUrl([
                 'campaign_id' => $this->campaign->id,
-                'original_domain' => $row[0],
-                'destination_domain' => $row[1],
-                'expired_at' => $row[2],
-                'auto_renewal' => $row[3],
+                'original_domain' => $original_domain,
+                'destination_domain' => $destination_domain,
+                'expired_at' => $expired_at,
+                'auto_renewal' => $auto_renewal,
                 'status' => ShortUrlConstant::INVALID,
                 'short_url' => $short_url,
                 'url_key' => $code,
