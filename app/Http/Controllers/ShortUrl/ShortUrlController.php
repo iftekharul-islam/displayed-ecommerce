@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\ShortUrl;
 
+use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Constants\PermissionConstant;
+use App\Imports\ShortUrl\ShortUrlImport;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
+use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -164,6 +168,30 @@ class ShortUrlController extends Controller
             ShortUrl::destroy($shortUrl);
 
             return response()->noContent();
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function import(ImportShortUrlRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            if (!$request->hasFile('file') && !$request->file('file')->isValid()) {
+                abort(404, 'File not found');
+            }
+
+            $file = $request->file('file');
+
+            $campaign = Campaign::findOrFail($validated['campaign_id']);
+
+            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX);
+
+            return response()->json([
+                'message' => 'Short Url import on progress, please wait...  when done will send you an email',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());

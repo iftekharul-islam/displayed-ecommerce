@@ -25,6 +25,7 @@ class ShortUrl extends Model
         'destination_domain',
         'short_url',
         'domain_tld',
+        'tld_price',
         'url_key',
         'expired_at',
         'auto_renewal',

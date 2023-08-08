@@ -20,8 +20,8 @@ class TldImport implements ToModel, ShouldQueue, WithChunkReading, WithEvents
 {
     use Importable;
     use RegistersEventListeners;
-    public $importedBy;
-    public $campaign;
+    protected $importedBy;
+    protected $campaign;
 
     public function __construct(User $importedBy, Campaign $campaign)
     {
@@ -48,7 +48,7 @@ class TldImport implements ToModel, ShouldQueue, WithChunkReading, WithEvents
      */
     public function model(array $row)
     {
-        if (!isset($row[0])) {
+        if (!isset($row[0]) && !isset($row[1])) {
             return null;
         }
 
