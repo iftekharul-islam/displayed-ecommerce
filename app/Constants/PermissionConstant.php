@@ -129,6 +129,11 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 6004,
     ];
+    public const TLDS_IMPORT = [
+        'name' => 'tlds_import',
+        'label' => 'Import',
+        'code' => 6005,
+    ];
 
     // Short Urls
     public const SHORT_URLS_ACCESS = [
@@ -150,6 +155,11 @@ class PermissionConstant
         'name' => 'short_urls_delete',
         'label' => 'Delete',
         'code' => 7004,
+    ];
+    public const SHORT_URLS_IMPORT = [
+        'name' => 'short_urls_import',
+        'label' => 'Import',
+        'code' => 7005,
     ];
 
     // Excluded Domain

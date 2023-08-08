@@ -186,6 +186,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'code' => PermissionConstant::TLDS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
                     'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::TLDS_IMPORT['name'],
+                    'label' => PermissionConstant::TLDS_IMPORT['label'],
+                    'code' => PermissionConstant::TLDS_IMPORT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
                 ]
             ],
 
@@ -216,6 +223,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'label' => PermissionConstant::SHORT_URLS_DELETE['label'],
                     'code' => PermissionConstant::SHORT_URLS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_IMPORT['name'],
+                    'label' => PermissionConstant::SHORT_URLS_IMPORT['label'],
+                    'code' => PermissionConstant::SHORT_URLS_IMPORT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
                     'guard_name' => 'api'
                 ]
             ],
