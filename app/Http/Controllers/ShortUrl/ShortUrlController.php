@@ -39,29 +39,23 @@ class ShortUrlController extends Controller
             $tld = @$searchQuery['tld'];
             $campaignId = (int)$request->query('campaignId', -1);
 
-            $query  = ShortUrl::query()->with(['campaign:id,name', 'tld:id,name,price']);
-
-            $query->when($campaignId != -1, function ($query) use ($campaignId) {
-                $query->where('campaign_id', $campaignId);
-            });
-
-            $query->when($shortUrl, function ($query) use ($shortUrl) {
-                $query->where('url_key', $shortUrl);
-            });
-
-            $query->when($originalDomain, function ($query) use ($originalDomain) {
-                $query->where('original_domain', 'ILIKE', "%$originalDomain%");
-            });
-
-            $query->when($tld, function ($query) use ($tld) {
-                $query->whereHas('tld', function ($query) use ($tld) {
-                    $query->where('name', 'ILIKE', "%$tld%");
-                });
-            });
-
-            $query->orderBy($sortByKey, $sortByOrder);
-
-            $data = $query->paginate($perPage);
+            $data = DB::table('short_urls')
+                ->join('campaigns', 'short_urls.campaign_id', '=', 'campaigns.id')
+                ->select('short_urls.*', 'campaigns.name as campaign_name')
+                ->when($campaignId != -1, function ($query) use ($campaignId) {
+                    $query->where('short_urls.campaign_id', $campaignId);
+                })
+                ->when($shortUrl, function ($query) use ($shortUrl) {
+                    $query->where('short_urls.url_key', $shortUrl);
+                })
+                ->when($originalDomain, function ($query) use ($originalDomain) {
+                    $query->where('short_urls.original_domain', 'ILIKE', "%$originalDomain%");
+                })
+                ->when($tld, function ($query) use ($tld) {
+                    $query->where('short_urls.su_tld_name', 'ILIKE', "%$tld%");
+                })
+                ->orderBy($sortByKey, $sortByOrder)
+                ->paginate($perPage);
 
             return ShortUrlResource::collection($data);
         } catch (HttpException $th) {

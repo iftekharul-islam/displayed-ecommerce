@@ -82,3 +82,16 @@ if (!function_exists('getCodeFromUrl')) {
         return $code;
     }
 }
+
+// get price without $ sign
+if (!function_exists('getPriceWithoutDollarSign')) {
+
+    function getPriceWithoutDollarSign(?string $price): ?string
+    {
+        if (!$price) {
+            return null;
+        }
+
+        return floatval(preg_replace('/[^0-9.]/', '', $price));
+    }
+}

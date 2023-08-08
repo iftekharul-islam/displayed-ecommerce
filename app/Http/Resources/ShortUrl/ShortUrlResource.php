@@ -26,11 +26,11 @@ class ShortUrlResource extends JsonResource
             'auto_renewal' => $this->auto_renewal,
             'status' => (int)$this->status,
             'remarks' => $this->remarks,
-            'campaign_id' => $this->campaign_id,
-            'campaign' => new CampaignResource($this->whenLoaded('campaign')),
-            'tld_id' => $this->tld_id,
-            'tld' => new TldResource($this->whenLoaded('tld')),
+            'campaign_name' =>  $this->campaign_name,
+            'su_tld_name' => $this->su_tld_name,
+            'su_tld_price' => $this->su_tld_price,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

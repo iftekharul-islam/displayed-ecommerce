@@ -25,6 +25,7 @@ class ExcludedDomainResource extends JsonResource
             'note' => $this->note,
             'campaign' => new CampaignResource($this->whenLoaded('campaign')),
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }
