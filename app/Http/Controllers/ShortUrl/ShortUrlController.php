@@ -11,7 +11,9 @@ use App\Actions\GenerateCodeAction;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Constants\PermissionConstant;
+use Illuminate\Support\Facades\Cache;
 use App\Imports\ShortUrl\ShortUrlImport;
+use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
@@ -192,6 +194,37 @@ class ShortUrlController extends Controller
             return response()->json([
                 'message' => 'Short Url import on progress, please wait...  when done will send you an email',
             ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function sortUrlRedirection(Request $request, string $code)
+    {
+        try {
+            $short_url = Cache::store('redirection')->rememberForever("redirection:$code", function () use ($code) {
+                $short_url =  DB::table('short_urls')
+                    ->select('id', 'destination_domain')
+                    ->where('url_key', $code)
+                    ->first();
+
+                if (empty($short_url)) {
+                    abort(404, 'Page not found');
+                }
+
+                return $short_url;
+            });
+
+            if (empty($short_url)) {
+                abort(404, 'Page not found');
+            }
+
+            ShortUrlRedirectionJob::dispatch($short_url->id, $request->ip());
+
+            $domainRedirect = 'https://' . $short_url->destination_domain;
+
+            return redirect()->away($domainRedirect, 301);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
