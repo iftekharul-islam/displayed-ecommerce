@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\Tld;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTldRequest extends FormRequest
+class ImportTldRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +23,7 @@ class UpdateTldRequest extends FormRequest
     {
         return [
             'campaign_id' => ['required', 'exists:campaigns,id'],
-            'name'   => ['required', 'string', 'max:255', Rule::unique('tlds', 'name')->where(function ($query) {
-                return $query->where('campaign_id', $this->campaign);
-            })->ignore($this->tld)],
-            'price' => ['required', 'string', 'max:255'],
+            'file' => ['required', 'file', 'mimes:xlsx']
         ];
     }
 }

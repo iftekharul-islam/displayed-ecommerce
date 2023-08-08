@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
             $table->string('name', 255)->index();
             $table->string('price', 255)->nullable();
-            $table->date('last_updated_at')->nullable();
             $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');
             $table->unsignedBigInteger('deleted_by')->nullable()->comment('from users table');

@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Tld;
 
 use App\Models\Tld;
 use Illuminate\Http\Request;
+use App\Imports\Tld\TldImport;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Resources\Tld\TldResource;
 use App\Http\Requests\Tld\StoreTldRequest;
+use App\Http\Requests\Tld\ImportTldRequest;
 use App\Http\Requests\Tld\UpdateTldRequest;
+use App\Models\Campaign;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Tld\TldImportSuccessNotification;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TldController extends Controller
@@ -101,6 +107,30 @@ class TldController extends Controller
             Tld::destroy($tld);
 
             return response()->noContent();
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function import(ImportTldRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            if (!$request->hasFile('file') && !$request->file('file')->isValid()) {
+                abort(404, 'File not found');
+            }
+
+            $file = $request->file('file');
+
+            $campaign = Campaign::findOrFail($validated['campaign_id']);
+
+            (new TldImport(auth()->user(), $campaign))->queue($file, null, \Maatwebsite\Excel\Excel::XLSX);
+
+            return response()->json([
+                'message' => 'TLD import on progress, please wait...  when done will send you an email',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());

@@ -28,7 +28,6 @@ class StoreTldRequest extends FormRequest
                 return $query->where('campaign_id', $this->campaign);
             })],
             'price' => ['required', 'string', 'max:255'],
-            'last_updated_at' => ['nullable', 'date', 'date_format:Y-m-d'],
         ];
     }
 }
