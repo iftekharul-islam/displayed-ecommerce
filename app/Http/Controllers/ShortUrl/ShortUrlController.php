@@ -39,9 +39,19 @@ class ShortUrlController extends Controller
             $tld = @$searchQuery['tld'];
             $campaignId = (int)$request->query('campaignId', -1);
 
-            $data = DB::table('short_urls')
-                ->join('campaigns', 'short_urls.campaign_id', '=', 'campaigns.id')
-                ->select('short_urls.*', 'campaigns.name as campaign_name')
+            // $isFilter = to_boolean($request->query('isFilter', false));
+
+
+            return   $data = DB::table('short_urls')
+                ->join('campaigns', 'short_urls.campaign_id', '=', 'campaigns.id', 'left')
+                ->join('visitor_counts', 'short_urls.id', '=', 'visitor_counts.short_url_id', 'left')
+                ->join('visitor_count_by_countries', 'short_urls.id', '=', 'visitor_count_by_countries.short_url_id', 'left')
+                ->select([
+                    'short_urls.*',
+                    'campaigns.name as campaign_name',
+                    'visitor_counts.total_count as total_count',
+                    'visitor_count_by_countries.total_count as total_count_by_country'
+                ])
                 ->when($campaignId != -1, function ($query) use ($campaignId) {
                     $query->where('short_urls.campaign_id', $campaignId);
                 })
