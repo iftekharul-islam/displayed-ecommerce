@@ -39,30 +39,35 @@ class ShortUrlController extends Controller
             $tld = @$searchQuery['tld'];
             $campaignId = (int)$request->query('campaignId', -1);
 
-            // $isFilter = to_boolean($request->query('isFilter', false));
-
-
-            return   $data = DB::table('short_urls')
-                ->join('campaigns', 'short_urls.campaign_id', '=', 'campaigns.id', 'left')
-                ->join('visitor_counts', 'short_urls.id', '=', 'visitor_counts.short_url_id', 'left')
-                ->join('visitor_count_by_countries', 'short_urls.id', '=', 'visitor_count_by_countries.short_url_id', 'left')
-                ->select([
-                    'short_urls.*',
-                    'campaigns.name as campaign_name',
-                    'visitor_counts.total_count as total_count',
-                    'visitor_count_by_countries.total_count as total_count_by_country'
+            $data =  ShortUrl::query()
+                ->withCount([
+                    'visitorCount as visitor_count' => function ($query) {
+                        $query->select(DB::raw('SUM(total_count)'));
+                    }
+                ])
+                ->with([
+                    'campaign',
+                    'visitorCountByCountries' => function ($query) {
+                        $query->select([
+                            'short_url_id',
+                            'country',
+                            DB::raw('SUM(total_count) as total_count'),
+                        ])->groupBy(['short_url_id', 'country'])
+                            ->orderBy('total_count', 'desc')
+                            ->limit(5);
+                    },
                 ])
                 ->when($campaignId != -1, function ($query) use ($campaignId) {
-                    $query->where('short_urls.campaign_id', $campaignId);
+                    $query->where('campaign_id', $campaignId);
                 })
                 ->when($shortUrl, function ($query) use ($shortUrl) {
-                    $query->where('short_urls.url_key', $shortUrl);
+                    $query->where('url_key', $shortUrl);
                 })
                 ->when($originalDomain, function ($query) use ($originalDomain) {
-                    $query->where('short_urls.original_domain', 'ILIKE', "%$originalDomain%");
+                    $query->where('original_domain', 'ILIKE', "%$originalDomain%");
                 })
                 ->when($tld, function ($query) use ($tld) {
-                    $query->where('short_urls.su_tld_name', 'ILIKE', "%$tld%");
+                    $query->where('su_tld_name', 'ILIKE', "%$tld%");
                 })
                 ->orderBy($sortByKey, $sortByOrder)
                 ->paginate($perPage);

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Resources\Tld\TldResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Campaign\CampaignResource;
+use App\Http\Resources\visitorCount\visitorCountResource;
+use App\Http\Resources\VisitorCountByCountry\VisitorCountByCountryResource;
 
 class ShortUrlResource extends JsonResource
 {
@@ -23,12 +25,20 @@ class ShortUrlResource extends JsonResource
             'short_url' => $this->short_url,
             'url_key' => $this->url_key,
             'expired_at' => $this->expired_at,
-            'auto_renewal' => $this->auto_renewal,
+            'auto_renewal' => (bool)$this->auto_renewal,
             'status' => (int)$this->status,
             'remarks' => $this->remarks,
-            'campaign_name' =>  $this->campaign_name,
             'su_tld_name' => $this->su_tld_name,
             'su_tld_price' => $this->su_tld_price,
+            'campaign' =>  $this->whenLoaded('campaign', function () {
+                return new CampaignResource($this->campaign);
+            }),
+            'visitor_count' => $this->whenCounted('visitorCount', function () {
+                return $this->visitor_count;
+            }),
+            'visitor_count_by_countries' => $this->whenLoaded('visitorCountByCountries', function () {
+                return VisitorCountByCountryResource::collection($this->visitorCountByCountries);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

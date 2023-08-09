@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Tld;
+use App\Models\Campaign;
 use App\Traits\CreatedBy;
 use App\Traits\DeletedBy;
 use App\Traits\UpdatedBy;
+use App\Models\VisitorCount;
+use App\Models\VisitorCountByCountry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -44,5 +49,15 @@ class ShortUrl extends Model
     public function tld(): BelongsTo
     {
         return $this->belongsTo(Tld::class, 'tld_id', 'id');
+    }
+
+    public function visitorCount(): HasMany
+    {
+        return $this->hasMany(VisitorCount::class, 'short_url_id', 'id');
+    }
+
+    public function visitorCountByCountries(): HasMany
+    {
+        return $this->hasMany(VisitorCountByCountry::class, 'short_url_id', 'id');
     }
 }
