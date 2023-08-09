@@ -41,6 +41,11 @@ class ShortUrl extends Model
         'deleted_by',
     ];
 
+    protected $casts = [
+        'auto_renewal' => 'boolean',
+        'status' => 'integer',
+    ];
+
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class, 'campaign_id', 'id');

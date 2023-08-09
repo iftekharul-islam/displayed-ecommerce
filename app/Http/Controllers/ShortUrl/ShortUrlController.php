@@ -102,27 +102,23 @@ class ShortUrlController extends Controller
                             now()->addDays($expireDateFilter)->subDay()->format('Y-m-d')
                         ]);
                     })
-                    ->when($statusFilter, function ($query) use ($statusFilter) {
-                        if ($statusFilter === ShortUrlConstant::VALID) {
-                            $query->where([
-                                ['status', $statusFilter],
-                                ['expired_at', '>', now()->format('Y-m-d')]
-                            ]);
-                        } else if ($statusFilter === ShortUrlConstant::INVALID) {
-                            $query->where([
-                                ['status', $statusFilter],
-                                ['expired_at', '>', now()->format('Y-m-d')]
-                            ]);
-                        } else if ($statusFilter === ShortUrlConstant::EXPIRED) {
-                            $query->where([
-                                ['status', $statusFilter],
-                                ['expired_at', '<', now()->format('Y-m-d')]
-                            ]);
-                        } else {
-                            $query->where([
-                                ['status', $statusFilter],
-                                ['expired_at', '>', now()->format('Y-m-d')]
-                            ]);
+                    ->when($statusFilter && $statusFilter !== ShortUrlConstant::ALL, function ($query) use ($statusFilter) {
+                        $commonConditions = [
+                            ['status', $statusFilter],
+                            ['expired_at', '>', now()->format('Y-m-d')],
+                        ];
+
+                        switch ($statusFilter) {
+                            case ShortUrlConstant::EXPIRED:
+                                $query->where([
+                                    ['status', $statusFilter],
+                                    ['expired_at', '<', now()->format('Y-m-d')]
+                                ]);
+                                break;
+
+                            default:
+                                $query->where($commonConditions);
+                                break;
                         }
                     })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
