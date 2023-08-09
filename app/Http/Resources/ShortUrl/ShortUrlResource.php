@@ -3,10 +3,8 @@
 namespace App\Http\Resources\ShortUrl;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\Tld\TldResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Campaign\CampaignResource;
-use App\Http\Resources\visitorCount\visitorCountResource;
 use App\Http\Resources\VisitorCountByCountry\VisitorCountByCountryResource;
 
 class ShortUrlResource extends JsonResource
