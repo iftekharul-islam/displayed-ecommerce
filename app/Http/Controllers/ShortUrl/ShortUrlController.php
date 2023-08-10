@@ -173,7 +173,10 @@ class ShortUrlController extends Controller
                     ->paginate($perPage);
             }
 
-            return ShortUrlResource::collection($data);
+            return ShortUrlResource::collection($data)
+                ->additional(['filterQuery' => [
+                    'key' => 'value',
+                ]]);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -314,16 +317,10 @@ class ShortUrlController extends Controller
     {
         try {
             $short_url = Cache::store('redirection')->rememberForever("redirection:$code", function () use ($code) {
-                $short_url =  DB::table('short_urls')
+                return DB::table('short_urls')
                     ->select('id', 'destination_domain')
                     ->where('url_key', $code)
                     ->first();
-
-                if (empty($short_url)) {
-                    abort(404, 'Page not found');
-                }
-
-                return $short_url;
             });
 
             if (empty($short_url)) {
@@ -332,12 +329,49 @@ class ShortUrlController extends Controller
 
             ShortUrlRedirectionJob::dispatch($short_url->id, $request->ip());
 
-            $domainRedirect = 'https://' . $short_url->destination_domain;
-
-            return redirect()->away($domainRedirect, 301);
+            return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
+    }
+
+
+    public function getTrafficDataFilteringSlug($startDate, $endDate)
+    {
+        if (!empty($startDate) && !empty($endDate)) {
+            $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
+            $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
+
+            return "_{$formattedStartDate}_to_{$formattedEndDate}_";
+        }
+
+        return "_All_";
+    }
+
+    public function getExpiryAtFilteringSlug($filtering)
+    {
+        $filterMap = [
+            ShortUrlConstant::EXPIRED_NEXT_THREE_DAYS => "_3_days_",
+            ShortUrlConstant::EXPIRED_NEXT_SEVEN_DAYS => "_Next_7_days_",
+            ShortUrlConstant::EXPIRED_NEXT_FIFTEEN_DAYS => "_Next_15_days_",
+            ShortUrlConstant::EXPIRED_NEXT_ONE_MONTH => "_Next_One_month_",
+            ShortUrlConstant::EXPIRED_NEXT_THREE_MONTHS => "_Next_Three_months_",
+            ShortUrlConstant::ALL => "_All_",
+        ];
+
+        return $filterMap[$filtering] ?? "_All_";
+    }
+
+    public function getStatusFilteringSlug($status)
+    {
+        $filterMap = [
+            ShortUrlConstant::VALID => "_Valid",
+            ShortUrlConstant::INVALID => "_Invalid",
+            ShortUrlConstant::EXPIRED => "_Expired",
+            ShortUrlConstant::ALL => "_All_",
+        ];
+
+        return $filterMap[$status] ?? "_All_";
     }
 }
