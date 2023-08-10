@@ -49,7 +49,7 @@ class ShortUrlController extends Controller
                 $filterQuery = $request->query('filterQuery');
                 $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
                 $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
-                $expireDateFilter = (int)@$filterQuery['expireDateFilter'];
+                $expireAtFilter = (int)@$filterQuery['expireAtFilter'];
                 $statusFilter = (int)@$filterQuery['statusFilter'];
                 $tldFilter = @$filterQuery['tldFilter'];
 
@@ -96,10 +96,10 @@ class ShortUrlController extends Controller
                             },
                         ]);
                     })
-                    ->when($expireDateFilter && $expireDateFilter !== ShortUrlConstant::ALL, function ($query) use ($expireDateFilter) {
+                    ->when($expireAtFilter && $expireAtFilter !== ShortUrlConstant::ALL, function ($query) use ($expireAtFilter) {
                         $query->whereBetween('expired_at', [
                             now()->format('Y-m-d'),
-                            now()->addDays($expireDateFilter)->subDay()->format('Y-m-d')
+                            now()->addDays($expireAtFilter)->subDay()->format('Y-m-d')
                         ]);
                     })
                     ->when($statusFilter && $statusFilter !== ShortUrlConstant::ALL, function ($query) use ($statusFilter) {
