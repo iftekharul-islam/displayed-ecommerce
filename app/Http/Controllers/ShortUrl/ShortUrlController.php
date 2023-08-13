@@ -50,8 +50,8 @@ class ShortUrlController extends Controller
                 $filterQuery = $request->query('filterQuery');
                 $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
                 $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
-                $expireAtFilter = (int) @$filterQuery['expireAtFilter'];
-                $statusFilter = (array) @$filterQuery['statusFilter'];
+                $expireAtFilter = @$filterQuery['expireAtFilter'] ? (int) @$filterQuery['expireAtFilter'] : null;
+                $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) @$filterQuery['statusFilter'] : null;
 
                 $tldFilter = @$filterQuery['tldFilter'];
 
