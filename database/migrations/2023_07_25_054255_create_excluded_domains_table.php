@@ -14,8 +14,10 @@ return new class extends Migration
     {
         Schema::create('excluded_domains', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
-            $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
+            $table->foreignId('campaign_id')
+                ->constrained('campaigns')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('domain', 255)->unique()->index();
             $table->date('expired_at')->index();
             $table->boolean('auto_renewal')->default(false);

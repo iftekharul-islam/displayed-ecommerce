@@ -65,4 +65,9 @@ class ShortUrl extends Model
     {
         return $this->hasMany(VisitorCountByCountry::class, 'short_url_id', 'id');
     }
+
+    public function visitorCountByCities(): HasMany
+    {
+        return $this->hasMany(VisitorCountByCity::class, 'short_url_id', 'id');
+    }
 }

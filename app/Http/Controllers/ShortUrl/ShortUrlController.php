@@ -24,6 +24,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ShortUrlController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -49,15 +50,16 @@ class ShortUrlController extends Controller
                 $filterQuery = $request->query('filterQuery');
                 $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
                 $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
-                $expireAtFilter = (int)@$filterQuery['expireAtFilter'];
-                $statusFilter = (int)@$filterQuery['statusFilter'];
+                $expireAtFilter = (int) @$filterQuery['expireAtFilter'];
+                $statusFilter = (array) @$filterQuery['statusFilter'];
+
                 $tldFilter = @$filterQuery['tldFilter'];
 
                 $data =  ShortUrl::query()
                     ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
                         $query->withCount([
                             'visitorCount as visitor_count' => function ($query) use ($fromDate, $toDate) {
-                                $query->whereBetween('visit_date', [$fromDate, $toDate])->select(DB::raw('SUM(total_count)'));
+                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select(DB::raw('SUM(total_count)'));
                             }
                         ]);
                     })
@@ -72,7 +74,7 @@ class ShortUrlController extends Controller
                         $query->with([
                             'campaign',
                             'visitorCountByCountries' => function ($query) use ($fromDate, $toDate) {
-                                $query->whereBetween('visit_date', [$fromDate, $toDate])->select([
+                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select([
                                     'short_url_id',
                                     'country',
                                     DB::raw('SUM(total_count) as total_count'),
@@ -102,24 +104,8 @@ class ShortUrlController extends Controller
                             now()->addDays($expireAtFilter)->subDay()->format('Y-m-d')
                         ]);
                     })
-                    ->when($statusFilter && $statusFilter !== ShortUrlConstant::ALL, function ($query) use ($statusFilter) {
-                        $commonConditions = [
-                            ['status', $statusFilter],
-                            ['expired_at', '>', now()->format('Y-m-d')],
-                        ];
-
-                        switch ($statusFilter) {
-                            case ShortUrlConstant::EXPIRED:
-                                $query->where([
-                                    ['status', $statusFilter],
-                                    ['expired_at', '<', now()->format('Y-m-d')]
-                                ]);
-                                break;
-
-                            default:
-                                $query->where($commonConditions);
-                                break;
-                        }
+                    ->when($statusFilter, function ($query) use ($statusFilter) {
+                        $query->whereIn('status', $statusFilter);
                     })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
                         $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
@@ -369,7 +355,6 @@ class ShortUrlController extends Controller
             ShortUrlConstant::VALID => "_Valid",
             ShortUrlConstant::INVALID => "_Invalid",
             ShortUrlConstant::EXPIRED => "_Expired",
-            ShortUrlConstant::ALL => "_All_",
         ];
 
         return $filterMap[$status] ?? "_All_";

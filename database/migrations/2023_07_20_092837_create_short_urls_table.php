@@ -14,9 +14,15 @@ return new class extends Migration
     {
         Schema::create('short_urls', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tld_id')->index()->nullable()->comment('tlds table id');
-            $table->unsignedBigInteger('campaign_id')->index()->comment('campaigns table id');
-            $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
+            $table->foreignId('tld_id')
+                ->nullable()
+                ->constrained('tlds')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreignId('campaign_id')
+                ->constrained('campaigns')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('original_domain', 255)->unique()->index();
             $table->string('destination_domain', 255);
             $table->string('short_url', 255);

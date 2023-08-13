@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('analytics', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('short_url_id')->index()->comment('short_urls table id');
-            $table->foreign('short_url_id')->references('id')->on('short_urls')->onDelete('cascade');
+            $table->foreignId('short_url_id')
+                ->constrained('short_urls')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('operating_system')->nullable();
             $table->string('operating_system_version')->nullable();
             $table->string('browser')->nullable();
             $table->string('browser_version')->nullable();
             $table->string('device_type')->nullable();
-            $table->string('ip_address')->nullable();
+            $table->ipAddress('ip_address')->nullable();
             $table->timestamps();
         });
     }

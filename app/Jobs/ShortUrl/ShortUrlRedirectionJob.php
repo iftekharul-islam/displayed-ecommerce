@@ -81,13 +81,13 @@ class ShortUrlRedirectionJob implements ShouldQueue
 
                 $visitorCountExist = VisitorCount::firstOrNew([
                     'short_url_id' => $short_url_id,
-                    'visit_date' => $currenDate,
+                    'visited_at' => $currenDate,
                 ]);
 
                 if (!$visitorCountExist->exists) {
                     $visitorCountExist->fill([
                         'short_url_id' => $short_url_id,
-                        'visit_date' => $currenDate,
+                        'visited_at' => $currenDate,
                         'total_count' => 1,
                     ]);
                 } else {
@@ -105,14 +105,14 @@ class ShortUrlRedirectionJob implements ShouldQueue
                 $visitorCountByCountryExist = VisitorCountByCountry::firstOrNew([
                     'short_url_id' => $short_url_id,
                     'country' => $countryName,
-                    'visit_date' => $currenDate,
+                    'visited_at' => $currenDate,
                 ]);
 
                 if (!$visitorCountByCountryExist->exists) {
                     $visitorCountByCountryExist->fill([
                         'short_url_id' => $short_url_id,
                         'country' => $countryName,
-                        'visit_date' => $currenDate,
+                        'visited_at' => $currenDate,
                         'total_count' => 1,
                     ]);
                 } else {
@@ -123,16 +123,16 @@ class ShortUrlRedirectionJob implements ShouldQueue
 
                 // Total visitor count by city
                 $visitorCountByCityExist = VisitorCountByCity::firstOrNew([
-                    'visitor_count_by_country_id' => $visitorCountByCountryExist->id,
+                    'short_url_id' => $short_url_id,
                     'city' => $cityName,
-                    'visit_date' => $currenDate,
+                    'visited_at' => $currenDate,
                 ]);
 
                 if (!$visitorCountByCityExist->exists) {
                     $visitorCountByCityExist->fill([
-                        'visitor_count_by_country_id' => $visitorCountByCountryExist->id,
+                        'short_url_id' => $short_url_id,
                         'city' => $cityName,
-                        'visit_date' => $currenDate,
+                        'visited_at' => $currenDate,
                         'total_count' => 1,
                     ]);
                 } else {
