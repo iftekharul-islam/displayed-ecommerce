@@ -1,5 +1,8 @@
 <?php
 
+use Carbon\Carbon;
+use App\Constants\ShortUrlConstant;
+
 if (!function_exists('to_boolean')) {
 
     /**
@@ -93,5 +96,22 @@ if (!function_exists('getPriceWithoutDollarSign')) {
         }
 
         return floatval(preg_replace('/[^0-9.]/', '', $price));
+    }
+}
+
+// get short url status
+if (!function_exists('getShortUrlStatus')) {
+    function getShortUrlStatus(int $status, $expiredAt)
+    {
+        $currentDate = now()->format('Y-m-d');
+        $expiredDate = Carbon::make($expiredAt)->format('Y-m-d');
+
+        if ($expiredDate < $currentDate || $status === ShortUrlConstant::EXPIRED) {
+            return ShortUrlConstant::EXPIRED;
+        } elseif ($expiredDate > $currentDate && $status === ShortUrlConstant::VALID) {
+            return ShortUrlConstant::VALID;
+        } else {
+            return ShortUrlConstant::INVALID;
+        }
     }
 }

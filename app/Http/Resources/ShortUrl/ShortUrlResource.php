@@ -2,7 +2,10 @@
 
 namespace App\Http\Resources\ShortUrl;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Constants\ShortenerurlConstant;
+use App\Constants\ShortUrlConstant;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Campaign\CampaignResource;
 use App\Http\Resources\VisitorCountByCountry\VisitorCountByCountryResource;
@@ -24,7 +27,7 @@ class ShortUrlResource extends JsonResource
             'url_key' => $this->url_key,
             'expired_at' => $this->expired_at,
             'auto_renewal' => (bool)$this->auto_renewal,
-            'status' => (int)$this->status,
+            'status' =>  getShortUrlStatus((int) $this->status, $this->expired_at),
             'remarks' => $this->remarks,
             'su_tld_name' => $this->su_tld_name,
             'su_tld_price' => $this->su_tld_price,

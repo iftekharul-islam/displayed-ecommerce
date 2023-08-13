@@ -50,9 +50,8 @@ class ShortUrlController extends Controller
                 $filterQuery = $request->query('filterQuery');
                 $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
                 $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
-                $expireAtFilter = @$filterQuery['expireAtFilter'] ? (int) @$filterQuery['expireAtFilter'] : null;
-                $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) @$filterQuery['statusFilter'] : null;
-
+                $expireAtFilter = (int) @$filterQuery['expireAtFilter'];
+                $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
                 $tldFilter = @$filterQuery['tldFilter'];
 
                 $data =  ShortUrl::query()
@@ -105,7 +104,21 @@ class ShortUrlController extends Controller
                         ]);
                     })
                     ->when($statusFilter, function ($query) use ($statusFilter) {
-                        $query->whereIn('status', $statusFilter);
+                        $query->where(function ($subquery) use ($statusFilter) {
+                            foreach ($statusFilter as $status) {
+                                if ((int)$status === ShortUrlConstant::EXPIRED) {
+                                    $subquery->orWhere(function ($expiredSubquery) {
+                                        $expiredSubquery->where('status', ShortUrlConstant::EXPIRED)
+                                            ->orWhere('expired_at', '<', now()->format('Y-m-d'));
+                                    });
+                                } else {
+                                    $subquery->orWhere(function ($commonSubquery) use ($status) {
+                                        $commonSubquery->where('status', (int)$status)
+                                            ->where('expired_at', '>', now()->format('Y-m-d'));
+                                    });
+                                }
+                            }
+                        });
                     })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
                         $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
