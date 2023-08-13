@@ -101,7 +101,7 @@ if (!function_exists('getPriceWithoutDollarSign')) {
 
 // get short url status
 if (!function_exists('getShortUrlStatus')) {
-    function getShortUrlStatus(int $status, $expiredAt)
+    function getShortUrlStatus(int $status, $expiredAt): int
     {
         $currentDate = now()->format('Y-m-d');
         $expiredDate = Carbon::make($expiredAt)->format('Y-m-d');
