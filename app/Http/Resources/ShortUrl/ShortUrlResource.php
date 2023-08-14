@@ -2,12 +2,10 @@
 
 namespace App\Http\Resources\ShortUrl;
 
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Constants\ShortenerurlConstant;
-use App\Constants\ShortUrlConstant;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Campaign\CampaignResource;
+use App\Http\Resources\VisitorCountByCity\VisitorCountByCityResource;
 use App\Http\Resources\VisitorCountByCountry\VisitorCountByCountryResource;
 
 class ShortUrlResource extends JsonResource
@@ -39,6 +37,9 @@ class ShortUrlResource extends JsonResource
             }),
             'visitor_count_by_countries' => $this->whenLoaded('visitorCountByCountries', function () {
                 return VisitorCountByCountryResource::collection($this->visitorCountByCountries);
+            }),
+            'visitor_count_by_cities' => $this->whenLoaded('visitorCountByCities', function () {
+                return VisitorCountByCityResource::collection($this->visitorCountByCities);
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

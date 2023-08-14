@@ -36,9 +36,9 @@ class ShortUrlController extends Controller
             $perPage = $request->query('perPage', config('app.per_page'));
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
-            $searchQuery = $request->query('searchQuery');
-            $originalDomain = @$searchQuery['originalDomain'];
-            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']);
+            $searchQuery = $request->query('searchQuery', []);
+            $originalDomain = @$searchQuery['originalDomain'] ?? null;
+            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
             $tld = @$searchQuery['tld'];
             $campaignId = (int)$request->query('campaignId', -1);
 
@@ -47,12 +47,12 @@ class ShortUrlController extends Controller
 
             if ($isFilter) {
 
-                $filterQuery = $request->query('filterQuery');
+                $filterQuery = $request->query('filterQuery', []);
                 $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
                 $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
-                $expireAtFilter = (int) @$filterQuery['expireAtFilter'];
+                $expireAtFilter =  @$filterQuery['expireAtFilter'] ?? null;
                 $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
-                $tldFilter = @$filterQuery['tldFilter'];
+                $tldFilter = @$filterQuery['tldFilter'] ?? null;
 
                 $data =  ShortUrl::query()
                     ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
@@ -81,6 +81,15 @@ class ShortUrlController extends Controller
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
+                            'visitorCountByCities' => function ($query) use ($fromDate, $toDate) {
+                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select([
+                                    'short_url_id',
+                                    'city',
+                                    DB::raw('SUM(total_count) as total_count'),
+                                ])->groupBy(['short_url_id', 'city'])
+                                    ->orderBy('total_count', 'desc')
+                                    ->limit(5);
+                            },
                         ]);
                     })
                     ->when(!$fromDate || !$toDate, function ($query) {
@@ -95,12 +104,21 @@ class ShortUrlController extends Controller
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
+                            'visitorCountByCities' => function ($query) {
+                                $query->select([
+                                    'short_url_id',
+                                    'city',
+                                    DB::raw('SUM(total_count) as total_count'),
+                                ])->groupBy(['short_url_id', 'city'])
+                                    ->orderBy('total_count', 'desc')
+                                    ->limit(5);
+                            },
                         ]);
                     })
                     ->when($expireAtFilter && $expireAtFilter !== ShortUrlConstant::ALL, function ($query) use ($expireAtFilter) {
                         $query->whereBetween('expired_at', [
                             now()->format('Y-m-d'),
-                            now()->addDays($expireAtFilter)->subDay()->format('Y-m-d')
+                            now()->addDays((int) $expireAtFilter)->subDay()->format('Y-m-d')
                         ]);
                     })
                     ->when($statusFilter, function ($query) use ($statusFilter) {
@@ -152,6 +170,15 @@ class ShortUrlController extends Controller
                                 'country',
                                 DB::raw('SUM(total_count) as total_count'),
                             ])->groupBy(['short_url_id', 'country'])
+                                ->orderBy('total_count', 'desc')
+                                ->limit(5);
+                        },
+                        'visitorCountByCities' => function ($query) {
+                            $query->select([
+                                'short_url_id',
+                                'city',
+                                DB::raw('SUM(total_count) as total_count'),
+                            ])->groupBy(['short_url_id', 'city'])
                                 ->orderBy('total_count', 'desc')
                                 ->limit(5);
                         },
