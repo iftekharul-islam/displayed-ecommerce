@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ShortUrl;
 use Carbon\Carbon;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
@@ -14,12 +15,15 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Constants\PermissionConstant;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use App\Exports\ShortUrl\ShortUrlExport;
 use App\Imports\ShortUrl\ShortUrlImport;
 use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
+use App\Jobs\ShortUrl\NotifyUserOfCompletedExportJob;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ShortUrlController extends Controller
@@ -39,8 +43,8 @@ class ShortUrlController extends Controller
             $searchQuery = $request->query('searchQuery', []);
             $originalDomain = @$searchQuery['originalDomain'] ?? null;
             $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
-            $tld = @$searchQuery['tld'];
-            $campaignId = (int)$request->query('campaignId', -1);
+            $tld = @$searchQuery['tld'] ?? null;
+            $campaignId = (int) $request->query('campaignId', -1);
 
             // filter
             $isFilter = to_boolean($request->query('isFilter', false));
@@ -48,32 +52,32 @@ class ShortUrlController extends Controller
             if ($isFilter) {
 
                 $filterQuery = $request->query('filterQuery', []);
-                $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
-                $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
-                $expireAtFilter =  @$filterQuery['expireAtFilter'] ?? null;
+                $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
+                $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
+                $expireAtFilter = @$filterQuery['expireAtFilter'] ? (int)@$filterQuery['expireAtFilter'] : null;
                 $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
                 $tldFilter = @$filterQuery['tldFilter'] ?? null;
 
                 $data =  ShortUrl::query()
-                    ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                    ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                         $query->withCount([
-                            'visitorCount as visitor_count' => function ($query) use ($fromDate, $toDate) {
-                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select(DB::raw('SUM(total_count)'));
+                            'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select(DB::raw('SUM(total_count)'));
                             }
                         ]);
                     })
-                    ->when(!$fromDate || !$toDate, function ($query) {
+                    ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                         $query->withCount([
                             'visitorCount as visitor_count' => function ($query) {
                                 $query->select(DB::raw('SUM(total_count)'));
                             }
                         ]);
                     })
-                    ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                    ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                         $query->with([
                             'campaign',
-                            'visitorCountByCountries' => function ($query) use ($fromDate, $toDate) {
-                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select([
+                            'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
                                     'short_url_id',
                                     'country',
                                     DB::raw('SUM(total_count) as total_count'),
@@ -81,8 +85,8 @@ class ShortUrlController extends Controller
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
-                            'visitorCountByCities' => function ($query) use ($fromDate, $toDate) {
-                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select([
+                            'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
                                     'short_url_id',
                                     'city',
                                     DB::raw('SUM(total_count) as total_count'),
@@ -92,7 +96,7 @@ class ShortUrlController extends Controller
                             },
                         ]);
                     })
-                    ->when(!$fromDate || !$toDate, function ($query) {
+                    ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                         $query->with([
                             'campaign',
                             'visitorCountByCountries' => function ($query) {
@@ -138,25 +142,16 @@ class ShortUrlController extends Controller
                             }
                         });
                     })
-                    ->when($tldFilter, function ($query) use ($tldFilter) {
-                        $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
-                    })
-                    ->when($campaignId !== -1, function ($query) use ($campaignId) {
+                    ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
                     })
-                    ->when($shortUrl, function ($query) use ($shortUrl) {
-                        $query->where('url_key', $shortUrl);
-                    })
-                    ->when($originalDomain, function ($query) use ($originalDomain) {
-                        $query->where('original_domain', 'ILIKE', "%$originalDomain%");
-                    })
-                    ->when($tld, function ($query) use ($tld) {
-                        $query->where('su_tld_name', 'ILIKE', "%$tld%");
+                    ->when($tldFilter, function ($query) use ($tldFilter) {
+                        $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
             } else {
-                $data =  ShortUrl::query()
+                $data = ShortUrl::query()
                     ->withCount([
                         'visitorCount as visitor_count' => function ($query) {
                             $query->select(DB::raw('SUM(total_count)'));
@@ -183,7 +178,7 @@ class ShortUrlController extends Controller
                                 ->limit(5);
                         },
                     ])
-                    ->when($campaignId !== -1, function ($query) use ($campaignId) {
+                    ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
                     })
                     ->when($shortUrl, function ($query) use ($shortUrl) {
@@ -362,20 +357,100 @@ class ShortUrlController extends Controller
         }
     }
 
+    public function export(Request $request)
+    {
+        try {
+            $campaignId = (int)$request->query('campaignId', -1);
+            $filterQuery = $request->query('filterQuery', []);
+            $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
+            $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
+            $expireAtFilter =  (int)@$filterQuery['expireAtFilter'];
+            $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
+            $tldFilter = @$filterQuery['tldFilter'] ?? null;
 
-    public function getTrafficDataFilteringSlug($startDate, $endDate)
+            $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
+            $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
+            $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
+            $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
+            $code = Str::random(10);
+            $date = now()->format('Y_m_d_H_i_s');
+            $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
+            $exportFileName =  strtoupper($exportFileName);
+
+            $data = [
+                'exportFileName' => $exportFileName,
+                'campaignId' => $campaignId,
+                'fromDateFilter' => $fromDateFilter,
+                'toDateFilter' => $toDateFilter,
+                'expireAtFilter' => $expireAtFilter,
+                'statusFilter' => $statusFilter,
+                'tldFilter' => $tldFilter,
+            ];
+
+            $user = auth()->user();
+
+            $exportFilePath = "exports/short-urls/{$exportFileName}";
+            $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
+
+            (new ShortUrlExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+                new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
+            ]);
+
+            return response()->json([
+                'message' => 'Short Url Export started!, please wait...  when done will send you an email',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function download(string $code)
+    {
+        try {
+            $filePath = "exports/short-urls/{$code}";
+
+            if (Storage::disk('public')->exists($filePath)) {
+                return Storage::disk('public')->download($filePath);
+            }
+
+            abort(404, 'File not found');
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
+    {
+        if ($id === ShortUrlConstant::ALL) {
+            return "ALL";
+        }
+
+        $campaign = Campaign::findOrFail($id);
+        $campaignNameSlug = Str::slug($campaign->name ?? '', '_');
+        $formattedLastUpdatedDate = $campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
+
+        if ($formattedLastUpdatedDate) {
+            return "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}";
+        } else {
+            return $campaignNameSlug;
+        }
+    }
+
+    public function getTrafficDataFilteringSlug($startDate, $endDate): string
     {
         if (!empty($startDate) && !empty($endDate)) {
             $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
             $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
 
-            return "_{$formattedStartDate}_to_{$formattedEndDate}_";
+            return "_{$formattedStartDate}_To_{$formattedEndDate}_";
         }
 
         return "_All_";
     }
 
-    public function getExpiryAtFilteringSlug($filtering)
+    public function getExpiryAtFilteringSlug(int $filtering): string
     {
         $filterMap = [
             ShortUrlConstant::EXPIRED_NEXT_THREE_DAYS => "_3_days_",
@@ -386,10 +461,10 @@ class ShortUrlController extends Controller
             ShortUrlConstant::ALL => "_All_",
         ];
 
-        return $filterMap[$filtering] ?? "_All_";
+        return $filterMap[$filtering];
     }
 
-    public function getStatusFilteringSlug($status)
+    public function getStatusFilteringSlug(array $statuses): string
     {
         $filterMap = [
             ShortUrlConstant::VALID => "_Valid",
@@ -397,6 +472,8 @@ class ShortUrlController extends Controller
             ShortUrlConstant::EXPIRED => "_Expired",
         ];
 
-        return $filterMap[$status] ?? "_All_";
+        return implode("", array_map(function ($status) use ($filterMap) {
+            return $filterMap[$status];
+        }, $statuses)) . "_";
     }
 }

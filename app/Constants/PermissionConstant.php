@@ -161,6 +161,11 @@ class PermissionConstant
         'label' => 'Import',
         'code' => 7005,
     ];
+    public const SHORT_URLS_EXPORT = [
+        'name' => 'short_urls_export',
+        'label' => 'Import',
+        'code' => 7006,
+    ];
 
     // Excluded Domain
     public const EXCLUDED_DOMAIN_ACCESS = [
