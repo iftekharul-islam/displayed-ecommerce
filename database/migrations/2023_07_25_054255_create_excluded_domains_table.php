@@ -27,9 +27,19 @@ return new class extends Migration
                 ShortUrlConstant::EXPIRED,
             ])->index()->default(ShortUrlConstant::VALID);
             $table->string('note', 255)->nullable();
-            $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
-            $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');
-            $table->unsignedBigInteger('deleted_by')->nullable()->comment('from users table');
+
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
+            $table->foreignId('deleted_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });
