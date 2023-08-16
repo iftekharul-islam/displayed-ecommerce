@@ -16,9 +16,19 @@ return new class extends Migration
             $table->string('name', 255)->unique()->index();
             $table->boolean('is_active')->default(true);
             $table->date('last_updated_at')->nullable()->comment('last updated date');
-            $table->unsignedBigInteger('created_by')->nullable()->comment('from users table');
-            $table->unsignedBigInteger('updated_by')->nullable()->comment('from users table');
-            $table->unsignedBigInteger('deleted_by')->nullable()->comment('from users table');
+
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
+            $table->foreignId('deleted_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });
