@@ -231,6 +231,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'code' => PermissionConstant::SHORT_URLS_IMPORT['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['others'],
                     'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_EXPORT['name'],
+                    'label' => PermissionConstant::SHORT_URLS_EXPORT['label'],
+                    'code' => PermissionConstant::SHORT_URLS_EXPORT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
                 ]
             ],
 
