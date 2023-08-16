@@ -80,7 +80,7 @@ class ShortUrlImport implements ToModel,  WithChunkReading, ShouldQueue, WithEve
             $destination_domain = removeHttpOrHttps($row[1]);
             $auto_renewal = to_boolean($row[3]) ? true : false;
 
-            $tld = DB::table('tlds')->select(['id'])->where([
+            $tld = DB::table('tlds')->select(['id', 'price'])->where([
                 'campaign_id' => $campaign_id,
                 'name' => $extractTld,
             ])->first();
@@ -95,8 +95,8 @@ class ShortUrlImport implements ToModel,  WithChunkReading, ShouldQueue, WithEve
                 'short_url' => $short_url,
                 'url_key' => $code,
                 'tld_id' => @$tld->id ?? null,
-                'domain_tld' => $extractTld,
-                'tld_price' => @$tld->price ?? null,
+                'su_tld_name' => $extractTld,
+                'su_tld_price' => @$tld->price ?? null,
                 'created_by' => $this->importedBy->id,
                 'updated_by' => $this->importedBy->id,
             ]);

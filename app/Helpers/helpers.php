@@ -1,5 +1,8 @@
 <?php
 
+use Carbon\Carbon;
+use App\Constants\ShortUrlConstant;
+
 if (!function_exists('to_boolean')) {
 
     /**
@@ -80,5 +83,35 @@ if (!function_exists('getCodeFromUrl')) {
         }
 
         return $code;
+    }
+}
+
+// get price without $ sign
+if (!function_exists('getPriceWithoutDollarSign')) {
+
+    function getPriceWithoutDollarSign(?string $price): ?string
+    {
+        if (!$price) {
+            return null;
+        }
+
+        return floatval(preg_replace('/[^0-9.]/', '', $price));
+    }
+}
+
+// get short url status
+if (!function_exists('getShortUrlStatus')) {
+    function getShortUrlStatus(int $status, $expiredAt): int
+    {
+        $currentDate = now()->format('Y-m-d');
+        $expiredDate = Carbon::make($expiredAt)->format('Y-m-d');
+
+        if ($expiredDate < $currentDate || $status === ShortUrlConstant::EXPIRED) {
+            return ShortUrlConstant::EXPIRED;
+        } elseif ($expiredDate > $currentDate && $status === ShortUrlConstant::VALID) {
+            return ShortUrlConstant::VALID;
+        } else {
+            return ShortUrlConstant::INVALID;
+        }
     }
 }

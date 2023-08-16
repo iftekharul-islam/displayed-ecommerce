@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('visitor_count_by_countries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('short_url_id')->index()->comment('short_urls table id');
-            $table->foreign('short_url_id')->references('id')->on('short_urls')->onDelete('cascade');
+            $table->foreignId('short_url_id')
+                ->constrained('short_urls')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('country')->index()->nullable();
-            $table->date('visit_date')->index();
+            $table->date('visited_at')->index();
             $table->integer('total_count')->default(0);
             $table->timestamps();
         });

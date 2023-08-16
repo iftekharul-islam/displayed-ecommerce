@@ -52,6 +52,8 @@ class TldImport implements ToModel, ShouldQueue, WithChunkReading, WithEvents
             return null;
         }
 
+        $price = getPriceWithoutDollarSign($row[1]);
+
         return  Tld::updateOrCreate(
             [
                 'campaign_id' => $this->campaign->id,
@@ -60,7 +62,7 @@ class TldImport implements ToModel, ShouldQueue, WithChunkReading, WithEvents
             [
                 'campaign_id' => $this->campaign->id,
                 'name' => $row[0],
-                'price' => $row[1],
+                'price' => '$' . $price,
             ]
         );
     }

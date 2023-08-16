@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\ShortUrl;
 
+use Carbon\Carbon;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
+use App\Constants\ShortUrlConstant;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Constants\PermissionConstant;
@@ -22,6 +24,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ShortUrlController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -33,37 +36,173 @@ class ShortUrlController extends Controller
             $perPage = $request->query('perPage', config('app.per_page'));
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
-            $searchQuery = $request->query('searchQuery');
-            $originalDomain = @$searchQuery['originalDomain'];
-            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']);
+            $searchQuery = $request->query('searchQuery', []);
+            $originalDomain = @$searchQuery['originalDomain'] ?? null;
+            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
             $tld = @$searchQuery['tld'];
             $campaignId = (int)$request->query('campaignId', -1);
 
-            $query  = ShortUrl::query()->with(['campaign:id,name', 'tld:id,name,price']);
+            // filter
+            $isFilter = to_boolean($request->query('isFilter', false));
 
-            $query->when($campaignId != -1, function ($query) use ($campaignId) {
-                $query->where('campaign_id', $campaignId);
-            });
+            if ($isFilter) {
 
-            $query->when($shortUrl, function ($query) use ($shortUrl) {
-                $query->where('url_key', $shortUrl);
-            });
+                $filterQuery = $request->query('filterQuery', []);
+                $fromDate = @$filterQuery['fromDate'] ? Carbon::make($filterQuery['fromDate'])->format('Y-m-d') : null;
+                $toDate = @$filterQuery['toDate'] ? Carbon::make($filterQuery['toDate'])->format('Y-m-d') : null;
+                $expireAtFilter =  @$filterQuery['expireAtFilter'] ?? null;
+                $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
+                $tldFilter = @$filterQuery['tldFilter'] ?? null;
 
-            $query->when($originalDomain, function ($query) use ($originalDomain) {
-                $query->where('original_domain', 'ILIKE', "%$originalDomain%");
-            });
+                $data =  ShortUrl::query()
+                    ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                        $query->withCount([
+                            'visitorCount as visitor_count' => function ($query) use ($fromDate, $toDate) {
+                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select(DB::raw('SUM(total_count)'));
+                            }
+                        ]);
+                    })
+                    ->when(!$fromDate || !$toDate, function ($query) {
+                        $query->withCount([
+                            'visitorCount as visitor_count' => function ($query) {
+                                $query->select(DB::raw('SUM(total_count)'));
+                            }
+                        ]);
+                    })
+                    ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                        $query->with([
+                            'campaign',
+                            'visitorCountByCountries' => function ($query) use ($fromDate, $toDate) {
+                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select([
+                                    'short_url_id',
+                                    'country',
+                                    DB::raw('SUM(total_count) as total_count'),
+                                ])->groupBy(['short_url_id', 'country'])
+                                    ->orderBy('total_count', 'desc')
+                                    ->limit(5);
+                            },
+                            'visitorCountByCities' => function ($query) use ($fromDate, $toDate) {
+                                $query->whereBetween('visited_at', [$fromDate, $toDate])->select([
+                                    'short_url_id',
+                                    'city',
+                                    DB::raw('SUM(total_count) as total_count'),
+                                ])->groupBy(['short_url_id', 'city'])
+                                    ->orderBy('total_count', 'desc')
+                                    ->limit(5);
+                            },
+                        ]);
+                    })
+                    ->when(!$fromDate || !$toDate, function ($query) {
+                        $query->with([
+                            'campaign',
+                            'visitorCountByCountries' => function ($query) {
+                                $query->select([
+                                    'short_url_id',
+                                    'country',
+                                    DB::raw('SUM(total_count) as total_count'),
+                                ])->groupBy(['short_url_id', 'country'])
+                                    ->orderBy('total_count', 'desc')
+                                    ->limit(5);
+                            },
+                            'visitorCountByCities' => function ($query) {
+                                $query->select([
+                                    'short_url_id',
+                                    'city',
+                                    DB::raw('SUM(total_count) as total_count'),
+                                ])->groupBy(['short_url_id', 'city'])
+                                    ->orderBy('total_count', 'desc')
+                                    ->limit(5);
+                            },
+                        ]);
+                    })
+                    ->when($expireAtFilter && $expireAtFilter !== ShortUrlConstant::ALL, function ($query) use ($expireAtFilter) {
+                        $query->whereBetween('expired_at', [
+                            now()->format('Y-m-d'),
+                            now()->addDays((int) $expireAtFilter)->subDay()->format('Y-m-d')
+                        ]);
+                    })
+                    ->when($statusFilter, function ($query) use ($statusFilter) {
+                        $query->where(function ($subquery) use ($statusFilter) {
+                            foreach ($statusFilter as $status) {
+                                if ((int)$status === ShortUrlConstant::EXPIRED) {
+                                    $subquery->orWhere(function ($expiredSubquery) {
+                                        $expiredSubquery->where('status', ShortUrlConstant::EXPIRED)
+                                            ->orWhere('expired_at', '<', now()->format('Y-m-d'));
+                                    });
+                                } else {
+                                    $subquery->orWhere(function ($commonSubquery) use ($status) {
+                                        $commonSubquery->where('status', (int)$status)
+                                            ->where('expired_at', '>', now()->format('Y-m-d'));
+                                    });
+                                }
+                            }
+                        });
+                    })
+                    ->when($tldFilter, function ($query) use ($tldFilter) {
+                        $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
+                    })
+                    ->when($campaignId !== -1, function ($query) use ($campaignId) {
+                        $query->where('campaign_id', $campaignId);
+                    })
+                    ->when($shortUrl, function ($query) use ($shortUrl) {
+                        $query->where('url_key', $shortUrl);
+                    })
+                    ->when($originalDomain, function ($query) use ($originalDomain) {
+                        $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+                    })
+                    ->when($tld, function ($query) use ($tld) {
+                        $query->where('su_tld_name', 'ILIKE', "%$tld%");
+                    })
+                    ->orderBy($sortByKey, $sortByOrder)
+                    ->paginate($perPage);
+            } else {
+                $data =  ShortUrl::query()
+                    ->withCount([
+                        'visitorCount as visitor_count' => function ($query) {
+                            $query->select(DB::raw('SUM(total_count)'));
+                        }
+                    ])
+                    ->with([
+                        'campaign',
+                        'visitorCountByCountries' => function ($query) {
+                            $query->select([
+                                'short_url_id',
+                                'country',
+                                DB::raw('SUM(total_count) as total_count'),
+                            ])->groupBy(['short_url_id', 'country'])
+                                ->orderBy('total_count', 'desc')
+                                ->limit(5);
+                        },
+                        'visitorCountByCities' => function ($query) {
+                            $query->select([
+                                'short_url_id',
+                                'city',
+                                DB::raw('SUM(total_count) as total_count'),
+                            ])->groupBy(['short_url_id', 'city'])
+                                ->orderBy('total_count', 'desc')
+                                ->limit(5);
+                        },
+                    ])
+                    ->when($campaignId !== -1, function ($query) use ($campaignId) {
+                        $query->where('campaign_id', $campaignId);
+                    })
+                    ->when($shortUrl, function ($query) use ($shortUrl) {
+                        $query->where('url_key', $shortUrl);
+                    })
+                    ->when($originalDomain, function ($query) use ($originalDomain) {
+                        $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+                    })
+                    ->when($tld, function ($query) use ($tld) {
+                        $query->where('su_tld_name', 'ILIKE', "%$tld%");
+                    })
+                    ->orderBy($sortByKey, $sortByOrder)
+                    ->paginate($perPage);
+            }
 
-            $query->when($tld, function ($query) use ($tld) {
-                $query->whereHas('tld', function ($query) use ($tld) {
-                    $query->where('name', 'ILIKE', "%$tld%");
-                });
-            });
-
-            $query->orderBy($sortByKey, $sortByOrder);
-
-            $data = $query->paginate($perPage);
-
-            return ShortUrlResource::collection($data);
+            return ShortUrlResource::collection($data)
+                ->additional(['filterQuery' => [
+                    'key' => 'value',
+                ]]);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
@@ -204,16 +343,10 @@ class ShortUrlController extends Controller
     {
         try {
             $short_url = Cache::store('redirection')->rememberForever("redirection:$code", function () use ($code) {
-                $short_url =  DB::table('short_urls')
+                return DB::table('short_urls')
                     ->select('id', 'destination_domain')
                     ->where('url_key', $code)
                     ->first();
-
-                if (empty($short_url)) {
-                    abort(404, 'Page not found');
-                }
-
-                return $short_url;
             });
 
             if (empty($short_url)) {
@@ -222,12 +355,48 @@ class ShortUrlController extends Controller
 
             ShortUrlRedirectionJob::dispatch($short_url->id, $request->ip());
 
-            $domainRedirect = 'https://' . $short_url->destination_domain;
-
-            return redirect()->away($domainRedirect, 301);
+            return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
+    }
+
+
+    public function getTrafficDataFilteringSlug($startDate, $endDate)
+    {
+        if (!empty($startDate) && !empty($endDate)) {
+            $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
+            $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
+
+            return "_{$formattedStartDate}_to_{$formattedEndDate}_";
+        }
+
+        return "_All_";
+    }
+
+    public function getExpiryAtFilteringSlug($filtering)
+    {
+        $filterMap = [
+            ShortUrlConstant::EXPIRED_NEXT_THREE_DAYS => "_3_days_",
+            ShortUrlConstant::EXPIRED_NEXT_SEVEN_DAYS => "_Next_7_days_",
+            ShortUrlConstant::EXPIRED_NEXT_FIFTEEN_DAYS => "_Next_15_days_",
+            ShortUrlConstant::EXPIRED_NEXT_ONE_MONTH => "_Next_One_month_",
+            ShortUrlConstant::EXPIRED_NEXT_THREE_MONTHS => "_Next_Three_months_",
+            ShortUrlConstant::ALL => "_All_",
+        ];
+
+        return $filterMap[$filtering] ?? "_All_";
+    }
+
+    public function getStatusFilteringSlug($status)
+    {
+        $filterMap = [
+            ShortUrlConstant::VALID => "_Valid",
+            ShortUrlConstant::INVALID => "_Invalid",
+            ShortUrlConstant::EXPIRED => "_Expired",
+        ];
+
+        return $filterMap[$status] ?? "_All_";
     }
 }

@@ -30,6 +30,10 @@ class Campaign extends Model
         'deleted_by',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function tlds(): HasMany
     {
         return $this->hasMany(Tld::class, 'campaign_id', 'id');

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\ShortUrl;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class VisitorCount extends Model
@@ -13,12 +11,7 @@ class VisitorCount extends Model
 
     protected $fillable = [
         'short_url_id',
-        'visit_date',
+        'visited_at',
         'total_count',
     ];
-
-    public function shortUrl(): BelongsTo
-    {
-        return $this->belongsTo(ShortUrl::class, 'short_url_id', 'id');
-    }
 }
