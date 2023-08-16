@@ -35,7 +35,6 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
 
     public function __construct(User $exportedBy, $data)
     {
-        info($data);
         $this->exportedBy =  $exportedBy;
         $this->exportFileName = $data['exportFileName'];
         $this->campaignId = $data['campaignId'];

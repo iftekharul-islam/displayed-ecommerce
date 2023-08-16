@@ -368,9 +368,14 @@ class ShortUrlController extends Controller
             $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
             $tldFilter = @$filterQuery['tldFilter'] ?? null;
 
-            $campaignName = $this->getCampaignName($campaignId);
+            $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
+            $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
+            $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
+            $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
             $code = Str::random(10);
-            $exportFileName = $campaignName . '_' . now()->format('Y_m_d_H_i_s') . '_' . $code . '.xlsx';
+            $date = now()->format('Y_m_d_H_i_s');
+            $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
+            $exportFileName =  strtoupper($exportFileName);
 
             $data = [
                 'exportFileName' => $exportFileName,
@@ -416,28 +421,36 @@ class ShortUrlController extends Controller
         }
     }
 
-    public function getCampaignName(int $id): string
+    public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
     {
         if ($id === ShortUrlConstant::ALL) {
             return "ALL";
         }
 
-        return  Campaign::findOrFail($id)->name;
+        $campaign = Campaign::findOrFail($id);
+        $campaignNameSlug = Str::slug($campaign->name ?? '', '_');
+        $formattedLastUpdatedDate = $campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
+
+        if ($formattedLastUpdatedDate) {
+            return "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}";
+        } else {
+            return $campaignNameSlug;
+        }
     }
 
-    public function getTrafficDataFilteringSlug($startDate, $endDate)
+    public function getTrafficDataFilteringSlug($startDate, $endDate): string
     {
         if (!empty($startDate) && !empty($endDate)) {
             $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
             $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
 
-            return "_{$formattedStartDate}_to_{$formattedEndDate}_";
+            return "_{$formattedStartDate}_To_{$formattedEndDate}_";
         }
 
         return "_All_";
     }
 
-    public function getExpiryAtFilteringSlug($filtering)
+    public function getExpiryAtFilteringSlug(int $filtering): string
     {
         $filterMap = [
             ShortUrlConstant::EXPIRED_NEXT_THREE_DAYS => "_3_days_",
@@ -448,10 +461,10 @@ class ShortUrlController extends Controller
             ShortUrlConstant::ALL => "_All_",
         ];
 
-        return $filterMap[$filtering] ?? "_All_";
+        return $filterMap[$filtering];
     }
 
-    public function getStatusFilteringSlug($status)
+    public function getStatusFilteringSlug(array $statuses): string
     {
         $filterMap = [
             ShortUrlConstant::VALID => "_Valid",
@@ -459,6 +472,8 @@ class ShortUrlController extends Controller
             ShortUrlConstant::EXPIRED => "_Expired",
         ];
 
-        return $filterMap[$status] ?? "_All_";
+        return implode("", array_map(function ($status) use ($filterMap) {
+            return $filterMap[$status];
+        }, $statuses)) . "_";
     }
 }
