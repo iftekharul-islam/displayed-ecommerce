@@ -148,7 +148,7 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
                 $query->where('campaign_id', $campaignId);
             })
             ->when($tldFilter, function ($query) use ($tldFilter) {
-                $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
+                $query->where('su_tld_name', 'LIKE', "%$tldFilter%");
             })
             ->orderBy('id', 'desc');
     }

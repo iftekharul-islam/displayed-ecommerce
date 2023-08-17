@@ -34,7 +34,7 @@ class TldController extends Controller
             ->where('campaign_id', $campaignId);
 
         $query->when($name, function ($query, $name) {
-            $query->where('name', 'ILIKE', "%$name%");
+            $query->where('name', 'LIKE', "%$name%");
         });
 
         $query->orderBy($sortByKey, $sortByOrder);
