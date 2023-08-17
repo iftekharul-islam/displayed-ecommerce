@@ -375,7 +375,6 @@ class ShortUrlController extends Controller
             $code = Str::random(10);
             $date = now()->format('Y_m_d_H_i_s');
             $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
-            $exportFileName =  strtoupper($exportFileName);
 
             $data = [
                 'exportFileName' => $exportFileName,
