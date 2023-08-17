@@ -20,7 +20,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' =>  $this->email,
-            'is_active' => $this->is_active,
+            'is_active' => (bool)$this->is_active,
             'role' => $this->whenLoaded('roles', function () {
                 return RoleResource::collection($this->roles)->first();
             }),
