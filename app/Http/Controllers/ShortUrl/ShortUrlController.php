@@ -146,7 +146,7 @@ class ShortUrlController extends Controller
                         $query->where('campaign_id', $campaignId);
                     })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
-                        $query->where('su_tld_name', 'ILIKE', "%$tldFilter%");
+                        $query->where('su_tld_name', 'LIKE', "%$tldFilter%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -185,10 +185,10 @@ class ShortUrlController extends Controller
                         $query->where('url_key', $shortUrl);
                     })
                     ->when($originalDomain, function ($query) use ($originalDomain) {
-                        $query->where('original_domain', 'ILIKE', "%$originalDomain%");
+                        $query->where('original_domain', 'LIKE', "%$originalDomain%");
                     })
                     ->when($tld, function ($query) use ($tld) {
-                        $query->where('su_tld_name', 'ILIKE', "%$tld%");
+                        $query->where('su_tld_name', 'LIKE', "%$tld%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);

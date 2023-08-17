@@ -24,11 +24,11 @@ trait Searchable
 
                 $column = Str::afterLast($searchable, '.');
 
-                $builder->orWhereRelation($relation, $column, 'ILIKE', "%$term%");
+                $builder->orWhereRelation($relation, $column, 'LIKE', "%$term%");
 
                 continue;
             }
-            $builder->orWhere($searchable, 'ILIKE', "%$term%");
+            $builder->orWhere($searchable, 'LIKE', "%$term%");
         }
 
         return $builder;

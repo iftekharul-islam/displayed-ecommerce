@@ -31,7 +31,7 @@ class CampaignController extends Controller
             $query  = Campaign::query()->withCount(['tlds']);
 
             $query->when($name, function ($query, $name) {
-                $query->where('name', 'ILIKE', "%$name%");
+                $query->where('name', 'LIKE', "%$name%");
             });
 
             $query->orderBy($sortByKey, $sortByOrder);

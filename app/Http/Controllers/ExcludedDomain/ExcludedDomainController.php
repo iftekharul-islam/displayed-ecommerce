@@ -35,7 +35,7 @@ class ExcludedDomainController extends Controller
             });
 
             $query->when($domain, function ($query, $domain) {
-                $query->where('domain', 'ILIKE', "%$domain%");
+                $query->where('domain', 'LIKE', "%$domain%");
             });
 
             $query->orderBy($sortByKey, $sortByOrder);
