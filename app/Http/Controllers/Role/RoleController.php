@@ -38,7 +38,7 @@ class RoleController extends Controller
             $query->when(
                 $name,
                 function ($query, $name) {
-                    $query->where('name', 'ILIKE', "%$name%");
+                    $query->where('name', 'LIKE', "%$name%");
                 }
             );
 
