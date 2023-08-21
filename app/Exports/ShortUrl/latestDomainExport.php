@@ -3,6 +3,7 @@
 namespace App\Exports\ShortUrl;
 
 use Throwable;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\ShortUrl;
 use Illuminate\Support\Facades\Log;
@@ -45,8 +46,8 @@ class latestDomainExport implements FromQuery, WithHeadings, WithMapping, WithCo
     public function query()
     {
         $campaignId = $this->campaignId;
-        $fromDate = $this->fromDate;
-        $toDate = $this->toDate;
+        $fromDate =  Carbon::make($this->fromDate)->format('Y-m-d 00:00:00');
+        $toDate =  Carbon::make($this->toDate)->format('Y-m-d 23:59:59');
 
         return ShortUrl::query()
             ->whereBetween('created_at', [$fromDate, $toDate])

@@ -171,6 +171,11 @@ class PermissionConstant
         'label' => 'Latest Domains Export',
         'code' => 7007,
     ];
+    public const SHORT_URLS_TLD_UPDATE = [
+        'name' => 'short_urls_tld_update',
+        'label' => 'Tld Update',
+        'code' => 7008,
+    ];
 
     // Excluded Domain
     public const EXCLUDED_DOMAIN_ACCESS = [

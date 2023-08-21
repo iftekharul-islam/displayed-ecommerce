@@ -245,7 +245,14 @@ class RolesAndPermissionsSeeder extends Seeder
                     'code' => PermissionConstant::SHORT_URLS_LATEST_DOMAINS_EXPORT['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['others'],
                     'guard_name' => 'api'
-                ]
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_TLD_UPDATE['name'],
+                    'label' => PermissionConstant::SHORT_URLS_TLD_UPDATE['label'],
+                    'code' => PermissionConstant::SHORT_URLS_TLD_UPDATE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
+                ],
             ],
 
             'Excluded Domains' => [
