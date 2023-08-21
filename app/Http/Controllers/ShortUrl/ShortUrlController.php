@@ -188,7 +188,7 @@ class ShortUrlController extends Controller
                         $query->where('url_key', $shortUrl);
                     })
                     ->when($originalDomain, function ($query) use ($originalDomain) {
-                        $query->where('original_domain', 'LIKE', "%$originalDomain%");
+                        $query->where('original_domain', $originalDomain);
                     })
                     ->when($tld, function ($query) use ($tld) {
                         $query->where('su_tld_name', 'LIKE', "%$tld%");
