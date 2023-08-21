@@ -332,7 +332,7 @@ class ShortUrlController extends Controller
             (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX);
 
             return response()->json([
-                'message' => 'Short Url import on progress, please wait...  when done will send you an email',
+                'message' => 'Short Urls import on progress, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
             Log::error($th);
@@ -402,7 +402,7 @@ class ShortUrlController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Short url export started!, please wait...  when done will send you an email',
+                'message' => 'Short urls export started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
             Log::error($th);
@@ -459,7 +459,7 @@ class ShortUrlController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Short Url latest domain export started!, please wait...  when done will send you an email',
+                'message' => 'Short Urls latest domain export started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
             Log::error($th);
@@ -492,6 +492,10 @@ class ShortUrlController extends Controller
             $campaign = Campaign::findOrFail($validated['campaignId']);
 
             TldUpdateJob::dispatch($user, $campaign);
+
+            return response()->json([
+                'message' => 'Short Urls tld update started!, please wait...  when done will send you an email',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
