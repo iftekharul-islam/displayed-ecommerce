@@ -73,7 +73,7 @@ class latestDomainExport implements FromQuery, WithHeadings, WithMapping, WithCo
     public function columnWidths(): array
     {
         return [
-            'A' => 20,
+            'A' => 40,
             'B' => 40,
         ];
     }

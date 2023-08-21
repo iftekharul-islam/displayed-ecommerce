@@ -391,7 +391,7 @@ class ShortUrlController extends Controller
 
             $user = auth()->user();
 
-            $exportFilePath = "exports/short-urls/{$exportFileName}";
+            $exportFilePath = "exports/short-urls/export/{$exportFileName}";
             $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
 
             (new ShortUrlExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
@@ -410,7 +410,7 @@ class ShortUrlController extends Controller
     public function exportDownload(string $code)
     {
         try {
-            $filePath = "exports/short-urls/{$code}";
+            $filePath = "exports/short-urls/export/{$code}";
 
             if (Storage::disk('public')->exists($filePath)) {
                 return Storage::disk('public')->download($filePath);
@@ -439,7 +439,7 @@ class ShortUrlController extends Controller
             $date = now()->format('Y_m_d_H_i_s');
             $exportFileName = "{$getCampaignNameSlug}{$getDateSlug}_Date_{$date}_{$code}.xlsx";
 
-            $exportFilePath = "exports/short-urls/{$exportFileName}";
+            $exportFilePath = "exports/short-urls/latest-domain-export/{$exportFileName}";
             $exportFileDownloadLink = config('app.url') . "/api/short-urls/latest-domain-export/download/{$exportFileName}";
 
             $data = [
@@ -467,7 +467,7 @@ class ShortUrlController extends Controller
     public function latestDomainExportDownload(string $code)
     {
         try {
-            $filePath = "exports/short-urls/{$code}";
+            $filePath = "exports/short-urls/latest-domain-export/{$code}";
 
             if (Storage::disk('public')->exists($filePath)) {
                 return Storage::disk('public')->download($filePath);
