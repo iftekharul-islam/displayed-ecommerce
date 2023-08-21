@@ -163,8 +163,13 @@ class PermissionConstant
     ];
     public const SHORT_URLS_EXPORT = [
         'name' => 'short_urls_export',
-        'label' => 'Import',
+        'label' => 'Export',
         'code' => 7006,
+    ];
+    public const SHORT_URLS_LATEST_DOMAINS_EXPORT = [
+        'name' => 'short_urls_latest_domains_export',
+        'label' => 'Latest Domains Export',
+        'code' => 7007,
     ];
 
     // Excluded Domain
