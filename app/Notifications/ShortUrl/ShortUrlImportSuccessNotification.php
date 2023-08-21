@@ -38,8 +38,8 @@ class ShortUrlImportSuccessNotification extends Notification implements ShouldQu
     {
         return (new MailMessage())
             ->success()
-            ->subject('Short Url Import Successfully Completed For: ' . $this->name)
-            ->line('Short Url Import Successfully Completed Name: ' . $this->name)
+            ->subject('Short Urls Import Successfully Completed For: ' . $this->name)
+            ->line('Short Urls Import Successfully Completed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 
