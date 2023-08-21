@@ -486,6 +486,8 @@ class ShortUrlController extends Controller
     public function tldUpdate(TldUpdateRequest $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_TLD_UPDATE['name']);
+
             $validated = $request->validated();
 
             $user = auth()->user();
