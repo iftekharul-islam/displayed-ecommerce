@@ -28,8 +28,6 @@ use App\Jobs\ShortUrl\NotifyUserOfCompletedExportJob;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
-use App\Notifications\ShortUrl\LatestDomainExportSuccessNotification;
-use Illuminate\Support\Facades\URL;
 
 class ShortUrlController extends Controller
 {
@@ -428,6 +426,8 @@ class ShortUrlController extends Controller
     public function latestDomainExport(LatestDomainExportRequest $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URLS_LATEST_DOMAINS_EXPORT['name']);
+
             $validated = $request->validated();
             $campaignId = (int)$validated['campaignId'];
             $fromDate =  Carbon::make($validated['fromDate'])->format('Y-m-d');
