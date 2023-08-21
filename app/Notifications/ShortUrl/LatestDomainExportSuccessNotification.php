@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ShortUrlExportSuccessNotification extends Notification implements ShouldQueue
+class LatestDomainExportSuccessNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -43,8 +43,8 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
 
         return (new MailMessage)
             ->success()
-            ->subject('Short Url Export Successfully Completed')
-            ->line('Short Url Export Successfully Completed Name: ' . $this->name)
+            ->subject('Short Url Latest Domain Export Successfully Completed')
+            ->line('Short Url Latest Domain Export Successfully Completed Name: ' . $this->name)
             ->action('Download', $exportFileDownloadLink)
             ->line('Thank you for using our application!');
     }

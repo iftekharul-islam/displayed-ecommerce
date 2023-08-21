@@ -3,25 +3,22 @@
 namespace App\Notifications\ShortUrl;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-class ShortUrlExportSuccessNotification extends Notification implements ShouldQueue
+class LatestDomainExportFailedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $name;
-    protected $exportFileDownloadLink;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($name, $exportFileDownloadLink)
+    public function __construct($name)
     {
         $this->name = $name;
-        $this->exportFileDownloadLink = $exportFileDownloadLink;
     }
 
     /**
@@ -39,13 +36,10 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $exportFileDownloadLink = URL::to($this->exportFileDownloadLink);
-
         return (new MailMessage)
-            ->success()
-            ->subject('Short Url Export Successfully Completed')
-            ->line('Short Url Export Successfully Completed Name: ' . $this->name)
-            ->action('Download', $exportFileDownloadLink)
+            ->error()
+            ->subject('Short Url Latest Domain Export Has Failed')
+            ->line('Short Url Latest Domain Export Has Failed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 

@@ -18,13 +18,18 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\ShortUrl\ShortUrlExport;
 use App\Imports\ShortUrl\ShortUrlImport;
+use App\Exports\ShortUrl\latestDomainExport;
 use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedExportJob;
+use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
+use App\Notifications\ShortUrl\LatestDomainExportSuccessNotification;
+use Illuminate\Support\Facades\URL;
 
 class ShortUrlController extends Controller
 {
@@ -396,7 +401,7 @@ class ShortUrlController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Short Url Export started!, please wait...  when done will send you an email',
+                'message' => 'Short url export started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
             Log::error($th);
@@ -404,7 +409,7 @@ class ShortUrlController extends Controller
         }
     }
 
-    public function download(string $code)
+    public function exportDownload(string $code)
     {
         try {
             $filePath = "exports/short-urls/{$code}";
@@ -418,6 +423,69 @@ class ShortUrlController extends Controller
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
+    }
+
+    public function latestDomainExport(LatestDomainExportRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            $campaignId = (int)$validated['campaignId'];
+            $fromDate =  Carbon::make($validated['fromDate'])->format('Y-m-d');
+            $toDate = Carbon::make($validated['toDate'])->format('Y-m-d');
+
+            $getCampaignNameSlug = $this->getCampaignNameSlug($campaignId);
+            $getDateSlug = $this->getDateSlug($fromDate, $toDate);
+            $code = Str::random(10);
+            $date = now()->format('Y_m_d_H_i_s');
+            $exportFileName = "{$getCampaignNameSlug}{$getDateSlug}_Date_{$date}_{$code}.xlsx";
+
+            $exportFilePath = "exports/short-urls/{$exportFileName}";
+            $exportFileDownloadLink = config('app.url') . "/api/short-urls/latest-domain-export/download/{$exportFileName}";
+
+            $data = [
+                'exportFileName' => $exportFileName,
+                'campaignId' => $campaignId,
+                'fromDate' => $fromDate,
+                'toDate' => $toDate,
+            ];
+
+            $user = auth()->user();
+
+            (new latestDomainExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+                new NotifyUserOfCompletedLatestDomainExportJob($user, $exportFileName, $exportFileDownloadLink),
+            ]);
+
+            return response()->json([
+                'message' => 'Short Url latest domain export started!, please wait...  when done will send you an email',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function latestDomainExportDownload(string $code)
+    {
+        try {
+            $filePath = "exports/short-urls/{$code}";
+
+            if (Storage::disk('public')->exists($filePath)) {
+                return Storage::disk('public')->download($filePath);
+            }
+
+            abort(404, 'File not found');
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function getCampaignNameSlug(int $id): string
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaignNameSlug = Str::slug($campaign->name ?? '', '_');
+
+        return $campaignNameSlug;
     }
 
     public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
@@ -435,6 +503,14 @@ class ShortUrlController extends Controller
         } else {
             return $campaignNameSlug;
         }
+    }
+
+    public function getDateSlug($startDate, $endDate): string
+    {
+        $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
+        $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
+
+        return "_{$formattedStartDate}_To_{$formattedEndDate}_";
     }
 
     public function getTrafficDataFilteringSlug($startDate, $endDate): string
