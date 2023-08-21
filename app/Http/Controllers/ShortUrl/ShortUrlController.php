@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ShortUrl;
 
 use Carbon\Carbon;
+use App\Models\Tld;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
 use App\Constants\ShortUrlConstant;
+use App\Jobs\ShortUrl\TldUpdateJob;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Constants\PermissionConstant;
@@ -20,6 +22,7 @@ use App\Exports\ShortUrl\ShortUrlExport;
 use App\Imports\ShortUrl\ShortUrlImport;
 use App\Exports\ShortUrl\latestDomainExport;
 use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
+use App\Http\Requests\ShortUrl\TldUpdateRequest;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
@@ -474,6 +477,21 @@ class ShortUrlController extends Controller
             }
 
             abort(404, 'File not found');
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function tldUpdate(TldUpdateRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            $user = auth()->user();
+            $campaign = Campaign::findOrFail($validated['campaignId']);
+
+            TldUpdateJob::dispatch($user, $campaign);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());

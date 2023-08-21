@@ -38,8 +38,8 @@ class ShortUrlImportHasFailedNotification extends Notification implements Should
     {
         return (new MailMessage)
             ->error()
-            ->subject('Short Url Import Has Failed For: ' . $this->name)
-            ->line('Short Url Import Has Failed Name: ' . $this->name)
+            ->subject('Short Urls Import Has Failed For: ' . $this->name)
+            ->line('Short Urls Import Has Failed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 

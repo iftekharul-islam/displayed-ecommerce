@@ -38,8 +38,8 @@ class LatestDomainExportFailedNotification extends Notification implements Shoul
     {
         return (new MailMessage)
             ->error()
-            ->subject('Short Url Latest Domain Export Has Failed')
-            ->line('Short Url Latest Domain Export Has Failed Name: ' . $this->name)
+            ->subject('Short Urls Latest Domain Export Has Failed')
+            ->line('Short Urls Latest Domain Export Has Failed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 

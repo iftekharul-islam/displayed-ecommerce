@@ -38,8 +38,8 @@ class ShortUrlExportFailedNotification extends Notification implements ShouldQue
     {
         return (new MailMessage)
             ->error()
-            ->subject('Short Url Export Has Failed')
-            ->line('Short Url Export Has Failed Name: ' . $this->name)
+            ->subject('Short Urls Export Has Failed')
+            ->line('Short Urls Export Has Failed Name: ' . $this->name)
             ->line('Thank you for using our application!');
     }
 
