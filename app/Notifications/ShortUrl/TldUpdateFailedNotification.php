@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TldUpdateFailedNotification extends Notification
+class TldUpdateFailedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

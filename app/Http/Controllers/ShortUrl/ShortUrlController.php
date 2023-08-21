@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\ShortUrl;
 
 use Carbon\Carbon;
-use App\Models\Tld;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Support\Str;

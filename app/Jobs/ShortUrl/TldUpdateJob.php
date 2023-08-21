@@ -2,7 +2,7 @@
 
 namespace App\Jobs\ShortUrl;
 
-use App\Models\Tld;
+use App\Models\Campaign;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -20,13 +20,13 @@ class TldUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $campaign;
     protected $user;
+    protected $campaign;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, $campaign)
+    public function __construct(User $user, Campaign $campaign)
     {
         $this->user = $user;
         $this->campaign = $campaign;
@@ -38,13 +38,15 @@ class TldUpdateJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            $campaignId = $this->campaign->id;
+
             DB::table('tlds')
-                ->where('campaign_id', $this->campaign->id)
+                ->where('campaign_id', $campaignId)
                 ->lazyById(1000, 'id')
-                ->each(function (Tld $tld) {
+                ->each(function ($tld) use ($campaignId) {
                     DB::table('short_urls')
                         ->where([
-                            'campaign_id' => $tld->campaign_id,
+                            'campaign_id' => $campaignId,
                             'su_tld_name' => $tld->name,
                         ])
                         ->update([
