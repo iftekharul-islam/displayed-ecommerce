@@ -151,7 +151,7 @@ class ShortUrlController extends Controller
                         $query->where('campaign_id', $campaignId);
                     })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
-                        $query->where('su_tld_name', 'LIKE', "%$tldFilter%");
+                        $query->where('tld_name', 'LIKE', "%$tldFilter%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -193,7 +193,7 @@ class ShortUrlController extends Controller
                         $query->where('original_domain', $originalDomain);
                     })
                     ->when($tld, function ($query) use ($tld) {
-                        $query->where('su_tld_name', 'LIKE', "%$tld%");
+                        $query->where('tld_name', 'LIKE', "%$tld%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -244,11 +244,11 @@ class ShortUrlController extends Controller
                     'original_domain' => $domain,
                 ],
                 [
-                    'tld_id' => @$tldModel->id ?? null,
                     'campaign_id' => $validated['campaign_id'],
                     'destination_domain' => $validated['destination_domain'],
                     'short_url' => $short_url,
-                    'domain_tld' => $extractTld,
+                    'tld_name' => $extractTld,
+                    'tld_price' => @$tldModel->price ?? null,
                     'url_key' => $code,
                     'expired_at' => $validated['expired_at'],
                     'auto_renewal' => $validated['auto_renewal'],

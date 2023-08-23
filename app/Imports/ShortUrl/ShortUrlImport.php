@@ -95,8 +95,8 @@ class ShortUrlImport implements ToModel,  WithChunkReading, ShouldQueue, WithEve
                 'short_url' => $short_url,
                 'url_key' => $code,
                 'tld_id' => @$tld->id ?? null,
-                'su_tld_name' => $extractTld,
-                'su_tld_price' => @$tld->price ?? null,
+                'tld_name' => $extractTld,
+                'tld_price' => @$tld->price ?? null,
                 'created_by' => $this->importedBy->id,
                 'updated_by' => $this->importedBy->id,
             ]);

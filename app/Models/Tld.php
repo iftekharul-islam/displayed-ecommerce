@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Traits\CreatedBy;
-use App\Traits\DeletedBy;
 use App\Traits\UpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +13,6 @@ class Tld extends Model
     use HasFactory;
     use CreatedBy;
     use UpdatedBy;
-    use DeletedBy;
 
     protected $fillable = [
         'campaign_id',
@@ -22,7 +20,6 @@ class Tld extends Model
         'price',
         'created_by',
         'updated_by',
-        'deleted_by',
     ];
 
     public function campaign(): BelongsTo

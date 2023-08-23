@@ -23,15 +23,11 @@ return new class extends Migration
             $table->foreignId('created_by')
                 ->nullable()
                 ->constrained('users')
-                ->onDelete('cascade');
+                ->onDelete('set null');
             $table->foreignId('updated_by')
                 ->nullable()
                 ->constrained('users')
-                ->onDelete('cascade');
-            $table->foreignId('deleted_by')
-                ->nullable()
-                ->constrained('users')
-                ->onDelete('cascade');
+                ->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -148,7 +148,7 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
                 $query->where('campaign_id', $campaignId);
             })
             ->when($tldFilter, function ($query) use ($tldFilter) {
-                $query->where('su_tld_name', 'LIKE', "%$tldFilter%");
+                $query->where('tld_name', 'LIKE', "%$tldFilter%");
             })
             ->orderBy('id', 'desc');
     }
@@ -177,8 +177,8 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
             $shortUrl->destination_domain ?? '-',
             $shortUrl->short_url ?? '-',
             $shortUrl->visitor_count ?? 0,
-            $shortUrl->su_tld_name  ?? '-',
-            $shortUrl->su_tld_price ?? '-',
+            $shortUrl->tld_name  ?? '-',
+            $shortUrl->tld_price ?? '-',
             $shortUrl->auto_renewal ? 'Yes' : 'No',
             $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             $shortUrl->expired_at ?? '-',
