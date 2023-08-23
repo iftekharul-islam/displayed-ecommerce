@@ -26,11 +26,7 @@ return new class extends Migration
             $table->string('url_key', 255)->unique()->index();
             $table->date('expired_at')->index();
             $table->boolean('auto_renewal')->default(false);
-            $table->enum('status', [
-                ShortUrlConstant::VALID,
-                ShortUrlConstant::INVALID,
-                ShortUrlConstant::EXPIRED,
-            ])->index()->default(ShortUrlConstant::INVALID);
+            $table->integer('status')->index()->default(ShortUrlConstant::INVALID);
             $table->text('remarks')->nullable();
 
             $table->foreignId('created_by')
