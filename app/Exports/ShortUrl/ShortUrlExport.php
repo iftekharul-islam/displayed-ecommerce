@@ -147,6 +147,11 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
             ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                 $query->where('campaign_id', $campaignId);
             })
+            ->whereHas('campaign', function ($query) {
+                $query->where([
+                    'is_active' => true,
+                ]);
+            })
             ->when($tldFilter, function ($query) use ($tldFilter) {
                 $query->where('tld_name', 'LIKE', "%$tldFilter%");
             })

@@ -150,13 +150,13 @@ class ShortUrlController extends Controller
                     ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
                     })
-                    ->when($tldFilter, function ($query) use ($tldFilter) {
-                        $query->where('tld_name', 'LIKE', "%$tldFilter%");
-                    })
                     ->whereHas('campaign', function ($query) {
                         $query->where([
                             'is_active' => true,
                         ]);
+                    })
+                    ->when($tldFilter, function ($query) use ($tldFilter) {
+                        $query->where('tld_name', 'LIKE', "%$tldFilter%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -191,6 +191,11 @@ class ShortUrlController extends Controller
                     ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
                     })
+                    ->whereHas('campaign', function ($query) {
+                        $query->where([
+                            'is_active' => true,
+                        ]);
+                    })
                     ->when($shortUrl, function ($query) use ($shortUrl) {
                         $query->where('url_key', $shortUrl);
                     })
@@ -199,11 +204,6 @@ class ShortUrlController extends Controller
                     })
                     ->when($tld, function ($query) use ($tld) {
                         $query->where('tld_name', 'LIKE', "%$tld%");
-                    })
-                    ->whereHas('campaign', function ($query) {
-                        $query->where([
-                            'is_active' => true,
-                        ]);
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
