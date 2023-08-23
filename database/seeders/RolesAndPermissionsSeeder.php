@@ -155,6 +155,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'code' => PermissionConstant::CAMPAIGNS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
                     'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['name'],
+                    'label' => PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['label'],
+                    'code' => PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
                 ]
             ],
 

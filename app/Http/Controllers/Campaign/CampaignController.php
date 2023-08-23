@@ -28,15 +28,12 @@ class CampaignController extends Controller
             $searchQuery = $request->query('searchQuery');
             $name = @$searchQuery['name'];
 
-            $query  = Campaign::query()->withCount(['tlds']);
-
-            $query->when($name, function ($query, $name) {
-                $query->where('name', 'LIKE', "%$name%");
-            });
-
-            $query->orderBy($sortByKey, $sortByOrder);
-
-            $data = $query->paginate($perPage);
+            $data  = Campaign::query()->withCount(['tlds'])
+                ->when($name, function ($query, $name) {
+                    $query->where('name', 'LIKE', "%$name%");
+                })
+                ->orderBy($sortByKey, $sortByOrder)
+                ->paginate($perPage);
 
             return CampaignResource::collection($data);
         } catch (HttpException $th) {
@@ -120,6 +117,59 @@ class CampaignController extends Controller
             $data = Campaign::where('is_active', true)->get();
 
             return CampaignResource::collection($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function trashes(Request $request)
+    {
+        try {
+            $perPage = $request->query('perPage', config('app.per_page'));
+            $sortByKey = $request->query('sortByKey', 'id');
+            $sortByOrder = $request->query('sortByOrder', 'desc');
+            $searchQuery = $request->query('searchQuery');
+            $name = @$searchQuery['name'];
+
+            $data  = Campaign::query()
+                ->onlyTrashed()
+                ->withCount(['tlds'])
+                ->when($name, function ($query, $name) {
+                    $query->where('name', 'LIKE', "%$name%");
+                })
+                ->orderBy($sortByKey, $sortByOrder)
+                ->paginate($perPage);
+
+            return CampaignResource::collection($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            Campaign::query()->onlyTrashed()->findOrFail($id)->restore();
+
+            return response()->json([
+                'message' => 'Successfully restored',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function forceDeletes()
+    {
+        try {
+            Campaign::query()->onlyTrashed()->forceDelete();
+
+            return response()->json([
+                'message' => 'Successfully deleted',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());

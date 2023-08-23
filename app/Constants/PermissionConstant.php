@@ -107,6 +107,11 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 5004,
     ];
+    public const CAMPAIGNS_SOFT_DELETE_ACCESS = [
+        'name' => 'campaigns_soft_delete_access',
+        'label' => 'SoftDelete',
+        'code' => 5005,
+    ];
 
     // TLD
     public const TLDS_ACCESS = [
