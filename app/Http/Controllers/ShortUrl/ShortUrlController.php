@@ -153,6 +153,11 @@ class ShortUrlController extends Controller
                     ->when($tldFilter, function ($query) use ($tldFilter) {
                         $query->where('tld_name', 'LIKE', "%$tldFilter%");
                     })
+                    ->whereHas('campaign', function ($query) {
+                        $query->where([
+                            'is_active' => true,
+                        ]);
+                    })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
             } else {
@@ -194,6 +199,11 @@ class ShortUrlController extends Controller
                     })
                     ->when($tld, function ($query) use ($tld) {
                         $query->where('tld_name', 'LIKE', "%$tld%");
+                    })
+                    ->whereHas('campaign', function ($query) {
+                        $query->where([
+                            'is_active' => true,
+                        ]);
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
