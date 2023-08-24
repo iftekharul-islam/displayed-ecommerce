@@ -47,11 +47,10 @@ class TldUpdateJob implements ShouldQueue
                     DB::table('short_urls')
                         ->where([
                             'campaign_id' => $campaignId,
-                            'su_tld_name' => $tld->name,
+                            'tld_name' => $tld->name,
                         ])
                         ->update([
-                            'tld_id' => $tld->id,
-                            'su_tld_price' => $tld->price,
+                            'tld_price' => $tld->price,
                         ]);
                 });
 

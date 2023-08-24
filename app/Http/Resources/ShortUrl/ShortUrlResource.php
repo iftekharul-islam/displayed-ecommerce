@@ -27,8 +27,8 @@ class ShortUrlResource extends JsonResource
             'auto_renewal' => (bool)$this->auto_renewal,
             'status' =>  getShortUrlStatus((int) $this->status, $this->expired_at),
             'remarks' => $this->remarks,
-            'su_tld_name' => $this->su_tld_name,
-            'su_tld_price' => $this->su_tld_price,
+            'tld_name' => $this->tld_name,
+            'tld_price' => $this->tld_price,
             'campaign' =>  $this->whenLoaded('campaign', function () {
                 return new CampaignResource($this->campaign);
             }),

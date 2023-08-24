@@ -14,11 +14,6 @@ return new class extends Migration
     {
         Schema::create('short_urls', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tld_id')
-                ->nullable()
-                ->constrained('tlds')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
             $table->foreignId('campaign_id')
                 ->constrained('campaigns')
                 ->onUpdate('cascade')
@@ -26,31 +21,24 @@ return new class extends Migration
             $table->string('original_domain', 255)->unique()->index();
             $table->string('destination_domain', 255);
             $table->string('short_url', 255);
-            $table->string('su_tld_name')->index()->nullable();
-            $table->string('su_tld_price')->nullable();
+            $table->string('tld_name')->index()->nullable();
+            $table->string('tld_price')->nullable();
             $table->string('url_key', 255)->unique()->index();
             $table->date('expired_at')->index();
             $table->boolean('auto_renewal')->default(false);
-            $table->enum('status', [
-                ShortUrlConstant::VALID,
-                ShortUrlConstant::INVALID,
-                ShortUrlConstant::EXPIRED,
-            ])->index()->default(ShortUrlConstant::INVALID);
+            $table->integer('status')->index()->default(ShortUrlConstant::INVALID);
             $table->text('remarks')->nullable();
 
             $table->foreignId('created_by')
                 ->nullable()
                 ->constrained('users')
-                ->onDelete('cascade');
+                ->onUpdate('cascade')
+                ->onDelete('set null');
             $table->foreignId('updated_by')
                 ->nullable()
                 ->constrained('users')
-                ->onDelete('cascade');
-            $table->foreignId('deleted_by')
-                ->nullable()
-                ->constrained('users')
-                ->onDelete('cascade');
-            $table->softDeletes();
+                ->onUpdate('cascade')
+                ->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -107,6 +107,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'code' => PermissionConstant::USERS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
                     'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::USERS_SOFT_DELETE_ACCESS['name'],
+                    'label' => PermissionConstant::USERS_SOFT_DELETE_ACCESS['label'],
+                    'code' => PermissionConstant::USERS_SOFT_DELETE_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
                 ]
             ],
 
@@ -154,6 +161,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'label' => PermissionConstant::CAMPAIGNS_DELETE['label'],
                     'code' => PermissionConstant::CAMPAIGNS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['name'],
+                    'label' => PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['label'],
+                    'code' => PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
                     'guard_name' => 'api'
                 ]
             ],
