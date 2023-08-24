@@ -19,15 +19,6 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->string('name', 255)->index();
             $table->string('price', 255)->nullable();
-
-            $table->foreignId('created_by')
-                ->nullable()
-                ->constrained('users')
-                ->onDelete('set null');
-            $table->foreignId('updated_by')
-                ->nullable()
-                ->constrained('users')
-                ->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -148,10 +148,10 @@ class CampaignController extends Controller
         }
     }
 
-    public function restore($id)
+    public function restore(Campaign $campaign)
     {
         try {
-            Campaign::query()->onlyTrashed()->findOrFail($id)->restore();
+            $campaign->restore();
 
             return response()->json([
                 'message' => 'Successfully restored',

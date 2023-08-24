@@ -31,15 +31,12 @@ class UserController extends Controller
             $searchQuery = $request->query('searchQuery');
             $name = @$searchQuery['name'];
 
-            $query  = User::query()->with(['roles']);
-
-            $query->when($name, function ($query, $name) {
-                $query->where('name', 'LIKE', "%$name%");
-            });
-
-            $query->orderBy($sortByKey, $sortByOrder);
-
-            $data = $query->paginate($perPage);
+            $data  = User::query()->with(['roles'])
+                ->when($name, function ($query, $name) {
+                    $query->where('name', 'LIKE', "%$name%");
+                })
+                ->orderBy($sortByKey, $sortByOrder)
+                ->paginate($perPage);
 
             return UserResource::collection($data);
         } catch (HttpException $th) {
@@ -139,6 +136,58 @@ class UserController extends Controller
             $data = $authUser->fresh(['roles.permissions']);
 
             return new UserResource($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+
+    public function trashes(Request $request)
+    {
+        try {
+            $perPage = $request->query('perPage', config('app.per_page'));
+            $sortByKey = $request->query('sortByKey', 'id');
+            $sortByOrder = $request->query('sortByOrder', 'desc');
+            $searchQuery = $request->query('searchQuery');
+            $name = @$searchQuery['name'];
+
+            $data  = User::query()->with(['roles'])
+                ->when($name, function ($query, $name) {
+                    $query->where('name', 'LIKE', "%$name%");
+                })
+                ->orderBy($sortByKey, $sortByOrder)
+                ->paginate($perPage);
+
+            return UserResource::collection($data);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function restore(User $user)
+    {
+        try {
+            $user->restore();
+
+            return response()->json([
+                'message' => 'Successfully restored',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function forceDeletes()
+    {
+        try {
+            User::query()->onlyTrashed()->forceDelete();
+
+            return response()->json([
+                'message' => 'Successfully deleted',
+            ], 200);
         } catch (HttpException $th) {
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
