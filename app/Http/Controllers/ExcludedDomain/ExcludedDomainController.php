@@ -28,19 +28,20 @@ class ExcludedDomainController extends Controller
             $domain = @$searchQuery['domain'];
             $campaignId = (int)$request->query('campaignId', -1);
 
-            $query  = ExcludedDomain::query()->with(['campaign:id,name']);
-
-            $query->when($campaignId != -1, function ($query) use ($campaignId) {
-                $query->where('campaign_id', $campaignId);
-            });
-
-            $query->when($domain, function ($query, $domain) {
-                $query->where('domain', 'LIKE', "%$domain%");
-            });
-
-            $query->orderBy($sortByKey, $sortByOrder);
-
-            $data = $query->paginate($perPage);
+            $data  = ExcludedDomain::query()->with(['campaign:id,name'])
+                ->when($campaignId != -1, function ($query) use ($campaignId) {
+                    $query->where('campaign_id', $campaignId);
+                })
+                ->when($domain, function ($query, $domain) {
+                    $query->where('domain', 'LIKE', "%$domain%");
+                })
+                ->whereHas('campaign', function ($query) {
+                    $query->where([
+                        'is_active' => true,
+                    ]);
+                })
+                ->orderBy($sortByKey, $sortByOrder)
+                ->paginate($perPage);
 
             return ExcludedDomainResource::collection($data);
         } catch (HttpException $th) {

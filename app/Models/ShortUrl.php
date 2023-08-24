@@ -5,12 +5,10 @@ namespace App\Models;
 use App\Models\Tld;
 use App\Models\Campaign;
 use App\Traits\CreatedBy;
-use App\Traits\DeletedBy;
 use App\Traits\UpdatedBy;
 use App\Models\VisitorCount;
 use App\Models\VisitorCountByCountry;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,17 +18,14 @@ class ShortUrl extends Model
     use HasFactory;
     use CreatedBy;
     use UpdatedBy;
-    use DeletedBy;
-    use SoftDeletes;
 
     protected $fillable = [
-        'tld_id',
         'campaign_id',
         'original_domain',
         'destination_domain',
         'short_url',
-        'su_tld_name',
-        'su_tld_price',
+        'tld_name',
+        'tld_price',
         'url_key',
         'expired_at',
         'auto_renewal',
@@ -38,7 +33,6 @@ class ShortUrl extends Model
         'remarks',
         'created_by',
         'updated_by',
-        'deleted_by',
     ];
 
     protected $casts = [
