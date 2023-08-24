@@ -21,11 +21,7 @@ return new class extends Migration
             $table->string('domain', 255)->unique()->index();
             $table->date('expired_at')->index();
             $table->boolean('auto_renewal')->default(false);
-            $table->enum('status', [
-                ShortUrlConstant::VALID,
-                ShortUrlConstant::INVALID,
-                ShortUrlConstant::EXPIRED,
-            ])->index()->default(ShortUrlConstant::VALID);
+            $table->integer('status')->index()->default(ShortUrlConstant::INVALID);
             $table->string('note', 255)->nullable();
 
             $table->foreignId('created_by')
