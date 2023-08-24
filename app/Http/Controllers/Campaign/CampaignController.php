@@ -126,6 +126,8 @@ class CampaignController extends Controller
     public function trashes(Request $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::CAMPAIGNS_SOFT_DELETE_ACCESS['name']);
+
             $perPage = $request->query('perPage', config('app.per_page'));
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
@@ -148,10 +150,10 @@ class CampaignController extends Controller
         }
     }
 
-    public function restore(Campaign $campaign)
+    public function restore($campaign)
     {
         try {
-            $campaign->restore();
+            Campaign::query()->onlyTrashed()->findOrFail($campaign)->restore();
 
             return response()->json([
                 'message' => 'Successfully restored',

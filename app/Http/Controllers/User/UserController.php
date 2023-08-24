@@ -146,13 +146,17 @@ class UserController extends Controller
     public function trashes(Request $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::USERS_SOFT_DELETE_ACCESS['name']);
+
             $perPage = $request->query('perPage', config('app.per_page'));
             $sortByKey = $request->query('sortByKey', 'id');
             $sortByOrder = $request->query('sortByOrder', 'desc');
             $searchQuery = $request->query('searchQuery');
             $name = @$searchQuery['name'];
 
-            $data  = User::query()->with(['roles'])
+            $data  = User::query()
+                ->onlyTrashed()
+                ->with(['roles'])
                 ->when($name, function ($query, $name) {
                     $query->where('name', 'LIKE', "%$name%");
                 })
@@ -166,10 +170,10 @@ class UserController extends Controller
         }
     }
 
-    public function restore(User $user)
+    public function restore($user)
     {
         try {
-            $user->restore();
+            User::query()->onlyTrashed()->findOrFail($user)->restore();
 
             return response()->json([
                 'message' => 'Successfully restored',

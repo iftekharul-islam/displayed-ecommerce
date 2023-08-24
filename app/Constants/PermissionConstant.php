@@ -75,6 +75,11 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 3004,
     ];
+    public const USERS_SOFT_DELETE_ACCESS = [
+        'name' => 'users_soft_delete_access',
+        'label' => 'SoftDelete',
+        'code' => 3005,
+    ];
     public const USERS_PROFILE_ACCESS = [
         'name' => 'users_profile_access',
         'label' => 'Access',
