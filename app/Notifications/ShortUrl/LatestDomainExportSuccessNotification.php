@@ -22,8 +22,6 @@ class LatestDomainExportSuccessNotification extends Notification implements Shou
     {
         $this->name = $name;
         $this->exportFileDownloadLink = $exportFileDownloadLink;
-        $this->onConnection('database');
-        $this->onQueue('notifications');
     }
 
     /**
