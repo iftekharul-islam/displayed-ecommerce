@@ -267,6 +267,13 @@ class RolesAndPermissionsSeeder extends Seeder
                     'group' => PermissionConstant::PERMISSION_GROUP['others'],
                     'guard_name' => 'api'
                 ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'],
+                    'label' => PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['label'],
+                    'code' => PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
+                ],
             ],
 
             'Excluded Domains' => [
