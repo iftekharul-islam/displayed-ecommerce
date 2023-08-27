@@ -19,6 +19,8 @@ class ForgotPasswordNotification extends Notification implements ShouldQueue
     {
         $this->data = $data;
         $this->afterCommit();
+        $this->onConnection('database');
+        $this->onQueue('notifications');
     }
 
     /**
