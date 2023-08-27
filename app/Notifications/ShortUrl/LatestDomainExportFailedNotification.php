@@ -19,6 +19,8 @@ class LatestDomainExportFailedNotification extends Notification implements Shoul
     public function __construct($name)
     {
         $this->name = $name;
+        $this->onConnection('database');
+        $this->onQueue('notifications');
     }
 
     /**

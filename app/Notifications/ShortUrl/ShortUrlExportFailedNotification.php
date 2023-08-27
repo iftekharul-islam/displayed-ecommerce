@@ -19,6 +19,8 @@ class ShortUrlExportFailedNotification extends Notification implements ShouldQue
     public function __construct($name)
     {
         $this->name = $name;
+        $this->onConnection('database');
+        $this->onQueue('notifications');
     }
 
     /**
