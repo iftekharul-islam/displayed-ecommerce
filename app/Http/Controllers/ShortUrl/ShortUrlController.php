@@ -86,7 +86,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'country',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'country'])
+                                ])
+                                    ->whereNotNull('country')
+                                    ->groupBy(['short_url_id', 'country'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -95,7 +97,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'city',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'city'])
+                                ])
+                                    ->whereNotNull('city')
+                                    ->groupBy(['short_url_id', 'city'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -109,7 +113,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'country',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'country'])
+                                ])
+                                    ->whereNotNull('country')
+                                    ->groupBy(['short_url_id', 'country'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -118,7 +124,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'city',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'city'])
+                                ])
+                                    ->whereNotNull('city')
+                                    ->groupBy(['short_url_id', 'city'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -174,7 +182,8 @@ class ShortUrlController extends Controller
                                 'short_url_id',
                                 'country',
                                 DB::raw('SUM(total_count) as total_count'),
-                            ])->groupBy(['short_url_id', 'country'])
+                            ])->whereNotNull('country')
+                                ->groupBy(['short_url_id', 'country'])
                                 ->orderBy('total_count', 'desc')
                                 ->limit(5);
                         },
@@ -183,7 +192,9 @@ class ShortUrlController extends Controller
                                 'short_url_id',
                                 'city',
                                 DB::raw('SUM(total_count) as total_count'),
-                            ])->groupBy(['short_url_id', 'city'])
+                            ])
+                                ->whereNotNull('city')
+                                ->groupBy(['short_url_id', 'city'])
                                 ->orderBy('total_count', 'desc')
                                 ->limit(5);
                         },
