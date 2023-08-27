@@ -338,7 +338,7 @@ class ShortUrlController extends Controller
 
             $campaign = Campaign::findOrFail($validated['campaign_id']);
 
-            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX);
+            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX)->onQueue('imports');
 
             return response()->json([
                 'message' => 'Short Urls import on progress, please wait...  when done will send you an email',
@@ -408,7 +408,7 @@ class ShortUrlController extends Controller
 
             (new ShortUrlExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
-            ]);
+            ])->onQueue('exports');
 
             return response()->json([
                 'message' => 'Short urls export started!, please wait...  when done will send you an email',
@@ -465,7 +465,7 @@ class ShortUrlController extends Controller
 
             (new latestDomainExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedLatestDomainExportJob($user, $exportFileName, $exportFileDownloadLink),
-            ]);
+            ])->onQueue('exports');
 
             return response()->json([
                 'message' => 'Short Urls latest domain export started!, please wait...  when done will send you an email',

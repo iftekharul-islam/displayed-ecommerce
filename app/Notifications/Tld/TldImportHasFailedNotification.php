@@ -18,6 +18,8 @@ class TldImportHasFailedNotification extends Notification implements ShouldQueue
     public function __construct($name)
     {
         $this->name = $name;
+        $this->onConnection('database');
+        $this->onQueue('notifications');
     }
 
     /**
