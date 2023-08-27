@@ -17,8 +17,6 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     public function __construct()
     {
         $this->afterCommit();
-        $this->onConnection('database');
-        $this->onQueue('notifications');
     }
 
     /**

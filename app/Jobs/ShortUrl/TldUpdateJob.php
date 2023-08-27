@@ -30,8 +30,6 @@ class TldUpdateJob implements ShouldQueue
     {
         $this->user = $user;
         $this->campaign = $campaign;
-        $this->onConnection('database');
-        $this->onQueue('jobs');
     }
 
     /**
