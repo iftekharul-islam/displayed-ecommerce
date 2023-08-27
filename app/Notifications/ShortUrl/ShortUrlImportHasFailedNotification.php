@@ -19,8 +19,6 @@ class ShortUrlImportHasFailedNotification extends Notification implements Should
     public function __construct($name)
     {
         $this->name = $name;
-        $this->onConnection('database');
-        $this->onQueue('notifications');
     }
 
     /**

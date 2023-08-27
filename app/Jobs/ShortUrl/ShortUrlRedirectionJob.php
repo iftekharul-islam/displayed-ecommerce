@@ -33,6 +33,7 @@ class ShortUrlRedirectionJob implements ShouldQueue
     {
         $this->short_url_id = $short_url_id;
         $this->request_ip = $request_ip;
+        $this->onQueue('redirection');
     }
 
     /**

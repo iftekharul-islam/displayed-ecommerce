@@ -22,8 +22,6 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
     {
         $this->name = $name;
         $this->exportFileDownloadLink = $exportFileDownloadLink;
-        $this->onConnection('database');
-        $this->onQueue('notifications');
     }
 
     /**

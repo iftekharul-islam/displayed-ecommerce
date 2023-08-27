@@ -338,7 +338,7 @@ class ShortUrlController extends Controller
 
             $campaign = Campaign::findOrFail($validated['campaign_id']);
 
-            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX)->onQueue('imports');
+            (new ShortUrlImport(auth()->user(), $campaign))->queue($file, null, Excel::XLSX);
 
             return response()->json([
                 'message' => 'Short Urls import on progress, please wait...  when done will send you an email',
@@ -408,7 +408,7 @@ class ShortUrlController extends Controller
 
             (new ShortUrlExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
-            ])->onQueue('exports');
+            ]);
 
             return response()->json([
                 'message' => 'Short urls export started!, please wait...  when done will send you an email',
@@ -465,7 +465,7 @@ class ShortUrlController extends Controller
 
             (new latestDomainExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedLatestDomainExportJob($user, $exportFileName, $exportFileDownloadLink),
-            ])->onQueue('exports');
+            ]);
 
             return response()->json([
                 'message' => 'Short Urls latest domain export started!, please wait...  when done will send you an email',
@@ -566,6 +566,7 @@ class ShortUrlController extends Controller
             ShortUrlConstant::EXPIRED_NEXT_FIFTEEN_DAYS => "_Next_15_days_",
             ShortUrlConstant::EXPIRED_NEXT_ONE_MONTH => "_Next_One_month_",
             ShortUrlConstant::EXPIRED_NEXT_THREE_MONTHS => "_Next_Three_months_",
+            ShortUrlConstant::EXPIRED_NEXT_SIX_MONTHS => "_Next_Six_months_",
             ShortUrlConstant::ALL => "_All_",
         ];
 
