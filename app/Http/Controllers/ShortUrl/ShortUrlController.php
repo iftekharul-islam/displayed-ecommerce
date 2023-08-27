@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\ShortUrl\ShortUrlExport;
 use App\Imports\ShortUrl\ShortUrlImport;
+use App\Jobs\ShortUrl\ValidDomainCheckJob;
 use App\Exports\ShortUrl\latestDomainExport;
+use App\Jobs\ShortUrl\InvalidDomainCheckJob;
 use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
 use App\Http\Requests\ShortUrl\TldUpdateRequest;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
@@ -27,6 +29,7 @@ use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedExportJob;
+use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
@@ -583,5 +586,48 @@ class ShortUrlController extends Controller
         return implode("", array_map(function ($status) use ($filterMap) {
             return $filterMap[$status];
         }, $statuses)) . "_";
+    }
+
+
+    public function validDomainCheck(ValidDomainCheckRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            $campaign =  Campaign::where([
+                'id' => $validated['campaign_id'],
+                'is_active' => true,
+            ])->firstOrFail();
+
+            ValidDomainCheckJob::dispatch(auth()->user(), $campaign);
+
+            return response()->json([
+                'message' => 'Valid domain check started!, please wait...  when done will send you an email',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function invalidDomainCheck(ValidDomainCheckRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            $campaign =  Campaign::where([
+                'id' => $validated['campaign_id'],
+                'is_active' => true,
+            ])->firstOrFail();
+
+            InvalidDomainCheckJob::dispatch(auth()->user(), $campaign);
+
+            return response()->json([
+                'message' => 'Invalid domain check started!, please wait...  when done will send you an email',
+            ], 200);
+        } catch (HttpException $th) {
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
     }
 }
