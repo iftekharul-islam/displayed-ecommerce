@@ -32,6 +32,10 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
     protected $expireAtFilter;
     protected $statusFilter;
     protected $tldFilter;
+    protected $originalDomain;
+    protected $shortUrl;
+    protected $tld;
+
 
     public function __construct(User $exportedBy, $data)
     {
@@ -43,6 +47,9 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
         $this->expireAtFilter = $data['expireAtFilter'];
         $this->statusFilter = $data['statusFilter'];
         $this->tldFilter = $data['tldFilter'];
+        $this->originalDomain = $data['originalDomain'];
+        $this->shortUrl = $data['shortUrl'];
+        $this->tld = $data['tld'];
     }
 
     public function failed(Throwable $exception): void
@@ -59,6 +66,9 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
         $expireAtFilter = $this->expireAtFilter;
         $statusFilter = $this->statusFilter;
         $tldFilter = $this->tldFilter;
+        $originalDomain = $this->originalDomain;
+        $shortUrl = $this->shortUrl;
+        $tld = $this->tld;
 
         return ShortUrl::query()
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -160,8 +170,17 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
                     'is_active' => true,
                 ]);
             })
+            ->when($shortUrl, function ($query) use ($shortUrl) {
+                $query->where('url_key', $shortUrl);
+            })
+            ->when($originalDomain, function ($query) use ($originalDomain) {
+                $query->where('original_domain', $originalDomain);
+            })
             ->when($tldFilter, function ($query) use ($tldFilter) {
                 $query->where('tld_name', 'LIKE', "%$tldFilter%");
+            })
+            ->when(!$tldFilter && $tld, function ($query) use ($tld) {
+                $query->where('tld_name', 'LIKE', "%$tld%");
             })
             ->orderBy('id', 'desc');
     }
