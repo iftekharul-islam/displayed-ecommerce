@@ -322,12 +322,17 @@ class ShortUrlController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $shortUrl)
+    public function destroy(ShortUrl $shortUrl)
     {
         try {
             hasPermissionTo(PermissionConstant::SHORT_URLS_DELETE['name']);
 
-            ShortUrl::destroy($shortUrl);
+            $code = $shortUrl->url_key;
+            if (Cache::store('redirection')->has("redirection:$code")) {
+                Cache::store('redirection')->forget("redirection:$code");
+            }
+
+            $shortUrl->delete();
 
             return response()->noContent();
         } catch (HttpException $th) {
