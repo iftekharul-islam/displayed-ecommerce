@@ -163,6 +163,12 @@ class ShortUrlController extends Controller
                             'is_active' => true,
                         ]);
                     })
+                    ->when($shortUrl, function ($query) use ($shortUrl) {
+                        $query->where('url_key', $shortUrl);
+                    })
+                    ->when($originalDomain, function ($query) use ($originalDomain) {
+                        $query->where('original_domain', $originalDomain);
+                    })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
                         $query->where('tld_name', 'LIKE', "%$tldFilter%");
                     })
