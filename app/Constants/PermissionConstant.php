@@ -186,6 +186,11 @@ class PermissionConstant
         'label' => 'Tld Update',
         'code' => 7008,
     ];
+    public const SHORT_URLS_ORIGINAL_DOMAINS_SHOW = [
+        'name' => 'short_urls_original_domains_show',
+        'label' => 'Original Domains Show',
+        'code' => 7009,
+    ];
 
     // Excluded Domain
     public const EXCLUDED_DOMAIN_ACCESS = [

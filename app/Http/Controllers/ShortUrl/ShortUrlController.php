@@ -89,7 +89,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'country',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'country'])
+                                ])
+                                    ->whereNotNull('country')
+                                    ->groupBy(['short_url_id', 'country'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -98,7 +100,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'city',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'city'])
+                                ])
+                                    ->whereNotNull('city')
+                                    ->groupBy(['short_url_id', 'city'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -112,7 +116,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'country',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'country'])
+                                ])
+                                    ->whereNotNull('country')
+                                    ->groupBy(['short_url_id', 'country'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -121,7 +127,9 @@ class ShortUrlController extends Controller
                                     'short_url_id',
                                     'city',
                                     DB::raw('SUM(total_count) as total_count'),
-                                ])->groupBy(['short_url_id', 'city'])
+                                ])
+                                    ->whereNotNull('city')
+                                    ->groupBy(['short_url_id', 'city'])
                                     ->orderBy('total_count', 'desc')
                                     ->limit(5);
                             },
@@ -177,7 +185,8 @@ class ShortUrlController extends Controller
                                 'short_url_id',
                                 'country',
                                 DB::raw('SUM(total_count) as total_count'),
-                            ])->groupBy(['short_url_id', 'country'])
+                            ])->whereNotNull('country')
+                                ->groupBy(['short_url_id', 'country'])
                                 ->orderBy('total_count', 'desc')
                                 ->limit(5);
                         },
@@ -186,7 +195,9 @@ class ShortUrlController extends Controller
                                 'short_url_id',
                                 'city',
                                 DB::raw('SUM(total_count) as total_count'),
-                            ])->groupBy(['short_url_id', 'city'])
+                            ])
+                                ->whereNotNull('city')
+                                ->groupBy(['short_url_id', 'city'])
                                 ->orderBy('total_count', 'desc')
                                 ->limit(5);
                         },
@@ -314,12 +325,17 @@ class ShortUrlController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $shortUrl)
+    public function destroy(ShortUrl $shortUrl)
     {
         try {
             hasPermissionTo(PermissionConstant::SHORT_URLS_DELETE['name']);
 
-            ShortUrl::destroy($shortUrl);
+            $code = $shortUrl->url_key;
+            if (Cache::store('redirection')->has("redirection:$code")) {
+                Cache::store('redirection')->forget("redirection:$code");
+            }
+
+            $shortUrl->delete();
 
             return response()->noContent();
         } catch (HttpException $th) {
@@ -569,6 +585,7 @@ class ShortUrlController extends Controller
             ShortUrlConstant::EXPIRED_NEXT_FIFTEEN_DAYS => "_Next_15_days_",
             ShortUrlConstant::EXPIRED_NEXT_ONE_MONTH => "_Next_One_month_",
             ShortUrlConstant::EXPIRED_NEXT_THREE_MONTHS => "_Next_Three_months_",
+            ShortUrlConstant::EXPIRED_NEXT_SIX_MONTHS => "_Next_Six_months_",
             ShortUrlConstant::ALL => "_All_",
         ];
 
