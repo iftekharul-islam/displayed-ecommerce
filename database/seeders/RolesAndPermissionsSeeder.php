@@ -21,7 +21,7 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $modules = [
-            'Dashboard' => [
+            'Admin Dashboard' => [
                 [
                     'name' => PermissionConstant::DASHBOARD_ACCESS['name'],
                     'label' => PermissionConstant::DASHBOARD_ACCESS['label'],
