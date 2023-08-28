@@ -70,6 +70,12 @@ class ValidDomainCheckJob implements ShouldQueue
                         $message = 'Expired';
                         $status = ShortUrlConstant::EXPIRED;
                         $remarks = "Expired{$shortUrl->id} - $originalDomain and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+
+                        $shortUrl->update([
+                            'status' => $status,
+                            'remarks' => $remarks,
+                            'updated_at' => $now->format('Y-m-d H:i:s'),
+                        ]);
                     } else {
 
                         try {
