@@ -19,7 +19,7 @@ class DashboardController extends Controller
                     'shortUrls as active_domain' => fn ($query) => $query->where('expired_at', '>=', now()->format('Y-m-d')),
                     'shortUrls as expired_domain' => fn ($query) => $query->where('expired_at', '<', now()->format('Y-m-d')),
                 ])
-                ->orderByDesc('id')
+                ->orderBy('id', 'asc')
                 ->get();
 
             return response()->json($campaigns);
