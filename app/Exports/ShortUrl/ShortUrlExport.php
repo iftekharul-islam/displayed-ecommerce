@@ -179,11 +179,62 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
             'Auto Renewal',
             'Status',
             'Expired At',
+            '1st Country Visitor',
+            '2nd Country Visitor',
+            '3rd Country Visitor',
+            '4th Country Visitor',
+            '5th Country Visitor',
+            '1st City Visitor',
+            '2nd City Visitor',
+            '3rd City Visitor',
+            '4th City Visitor',
+            '5th City Visitor',
         ];
     }
 
     public function map($shortUrl): array
     {
+        $countryVisitor1st = $shortUrl->visitorCountByCountries[0]->country ?? '-';
+        $countryVisitorTotalCount1st = $shortUrl->visitorCountByCountries[0]->total_count ?? '-';
+        $country1st = "$countryVisitor1st:$countryVisitorTotalCount1st";
+
+        $countryVisitor2nd = $shortUrl->visitorCountByCountries[1]->country ?? '-';
+        $countryVisitorTotalCount2nd = $shortUrl->visitorCountByCountries[1]->total_count ?? '-';
+        $country2nd = "$countryVisitor2nd:$countryVisitorTotalCount2nd";
+
+        $countryVisitor3rd = $shortUrl->visitorCountByCountries[2]->country ?? '-';
+        $countryVisitorTotalCount3rd = $shortUrl->visitorCountByCountries[2]->total_count ?? '-';
+        $country3rd = "$countryVisitor3rd:$countryVisitorTotalCount3rd";
+
+        $countryVisitor4th = $shortUrl->visitorCountByCountries[3]->country ?? '-';
+        $countryVisitorTotalCount4th = $shortUrl->visitorCountByCountries[3]->total_count ?? '-';
+        $country4th = "$countryVisitor4th:$countryVisitorTotalCount4th";
+
+        $countryVisitor5th = $shortUrl->visitorCountByCountries[4]->country ?? '-';
+        $countryVisitorTotalCount5th = $shortUrl->visitorCountByCountries[4]->total_count ?? '-';
+        $country5th = "$countryVisitor5th:$countryVisitorTotalCount5th";
+
+        $cityVisitor1st = $shortUrl->visitorCountByCities[0]->city ?? '-';
+        $cityVisitorTotalCount1st = $shortUrl->visitorCountByCities[0]->total_count ?? '-';
+        $city1st = "$cityVisitor1st:$cityVisitorTotalCount1st";
+
+        $cityVisitor2nd = $shortUrl->visitorCountByCities[1]->city ?? '-';
+        $cityVisitorTotalCount2nd = $shortUrl->visitorCountByCities[1]->total_count ?? '-';
+        $city2nd = "$cityVisitor2nd:$cityVisitorTotalCount2nd";
+
+        $cityVisitor3rd = $shortUrl->visitorCountByCities[2]->city ?? '-';
+        $cityVisitorTotalCount3rd = $shortUrl->visitorCountByCities[2]->total_count ?? '-';
+        $city3rd = "$cityVisitor3rd:$cityVisitorTotalCount3rd";
+
+        $cityVisitor4th = $shortUrl->visitorCountByCities[3]->city ?? '-';
+        $cityVisitorTotalCount4th = $shortUrl->visitorCountByCities[3]->total_count ?? '-';
+        $city4th = "$cityVisitor4th:$cityVisitorTotalCount4th";
+
+        $cityVisitor5th = $shortUrl->visitorCountByCities[4]->city ?? '-';
+        $cityVisitorTotalCount5th = $shortUrl->visitorCountByCities[4]->total_count ?? '-';
+        $city5th = "$cityVisitor5th:$cityVisitorTotalCount5th";
+
+
         return [
             $shortUrl->campaign->name ?? '-',
             $shortUrl->original_domain ?? '-',
@@ -195,6 +246,16 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
             $shortUrl->auto_renewal ? 'Yes' : 'No',
             $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             $shortUrl->expired_at ?? '-',
+            $country1st,
+            $country2nd,
+            $country3rd,
+            $country4th,
+            $country5th,
+            $city1st,
+            $city2nd,
+            $city3rd,
+            $city4th,
+            $city5th,
         ];
     }
 
@@ -211,6 +272,16 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
             'H' => 15,
             'I' => 15,
             'J' => 15,
+            'k' => 30,
+            'L' => 30,
+            'M' => 30,
+            'N' => 30,
+            'O' => 30,
+            'P' => 30,
+            'Q' => 30,
+            'R' => 30,
+            'S' => 30,
+            'T' => 30,
         ];
     }
 
@@ -229,7 +300,7 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
         return [
             AfterSheet::class    => function (AfterSheet $event) {
                 $event->sheet->getDelegate()
-                    ->getStyle('A:J')
+                    ->getStyle('A:T')
                     ->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER);
             },
