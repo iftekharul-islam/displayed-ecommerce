@@ -166,8 +166,17 @@ class ShortUrlController extends Controller
                             'is_active' => true,
                         ]);
                     })
+                    ->when($shortUrl, function ($query) use ($shortUrl) {
+                        $query->where('url_key', $shortUrl);
+                    })
+                    ->when($originalDomain, function ($query) use ($originalDomain) {
+                        $query->where('original_domain', $originalDomain);
+                    })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
                         $query->where('tld_name', 'LIKE', "%$tldFilter%");
+                    })
+                    ->when(!$tldFilter && $tld, function ($query) use ($tld) {
+                        $query->where('tld_name', 'LIKE', "%$tld%");
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -401,6 +410,10 @@ class ShortUrlController extends Controller
             $expireAtFilter =  (int)@$filterQuery['expireAtFilter'];
             $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
             $tldFilter = @$filterQuery['tldFilter'] ?? null;
+            $searchQuery = $request->query('searchQuery', []);
+            $originalDomain = @$searchQuery['originalDomain'] ?? null;
+            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
+            $tld = @$searchQuery['tld'] ?? null;
 
             $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
             $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
@@ -418,6 +431,9 @@ class ShortUrlController extends Controller
                 'expireAtFilter' => $expireAtFilter,
                 'statusFilter' => $statusFilter,
                 'tldFilter' => $tldFilter,
+                'originalDomain' => $originalDomain,
+                'shortUrl' => $shortUrl,
+                'tld' => $tld,
             ];
 
             $user = auth()->user();

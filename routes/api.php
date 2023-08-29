@@ -14,6 +14,9 @@
 // auth routes
 require __DIR__ . '/auth/auth.php';
 
+// dashboard routes
+require __DIR__ . '/dashboard/dashboard.php';
+
 // role routes
 require __DIR__ . '/role/role.php';
 
