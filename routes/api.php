@@ -12,6 +12,11 @@
 */
 
 // auth routes
+
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
+
 require __DIR__ . '/auth/auth.php';
 
 // dashboard routes
@@ -37,3 +42,22 @@ require __DIR__ . '/short-url/short_url.php';
 
 // excluded-domain routes
 require __DIR__ . '/excluded-domain/excluded_domain.php';
+
+
+// test mail sending
+Route::get('/test-mail', function () {
+    $user = \App\Models\User::find(10);
+    Mail::raw('Test Mail', function ($message) use ($user) {
+        $message->to($user->email)
+            ->subject('Test mail');
+    });
+    return 'mail sent';
+});
+
+// test notification sending
+
+Route::get('/test-notification', function () {
+    $user = \App\Models\User::find(10);
+    $user->notify(new \App\Notifications\WelcomeNotification());
+    return 'notification sent';
+});
