@@ -149,10 +149,7 @@ class ShortUrlRedirectionJob implements ShouldQueue
                 $visitorCountByCityExist->save();
             });
         } catch (HttpException $th) {
-            Log::build([
-                'driver' => 'single',
-                'path' => storage_path('logs/redirection.log'),
-            ])->error($th);
+            Log::channel('redirection')->error($th);
         }
     }
 }
