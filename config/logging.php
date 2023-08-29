@@ -130,6 +130,7 @@ return [
         'redirection' => [
             'driver' => 'single',
             'path' => storage_path('logs/redirection.log'),
+            'level' => 'error',
         ],
     ],
 
