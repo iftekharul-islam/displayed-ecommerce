@@ -126,12 +126,6 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
-
-        'redirection' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/redirection.log'),
-            'level' => 'error',
-        ],
     ],
 
 ];
