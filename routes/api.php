@@ -12,12 +12,6 @@
 */
 
 // auth routes
-
-
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-
 require __DIR__ . '/auth/auth.php';
 
 // dashboard routes
