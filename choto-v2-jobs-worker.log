@@ -1,6 +1,0 @@
-  2023-08-27 10:01:39 App\Jobs\ShortUrl\TldUpdateJob ................. RUNNING
-  2023-08-27 10:03:09 App\Jobs\ShortUrl\TldUpdateJob ................. RUNNING
-  2023-08-27 10:03:09 App\Jobs\ShortUrl\TldUpdateJob ............ 18.05ms FAIL
-  2023-08-27 10:15:42 App\Jobs\ShortUrl\TldUpdateJob ................. RUNNING
-  2023-08-27 10:15:43 App\Jobs\ShortUrl\TldUpdateJob ................. 1s DONE
-  2023-08-27 10:20:25 App\Jobs\ShortUrl\TldUpdateJob ............ 18m 46s DONE
