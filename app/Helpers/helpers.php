@@ -17,19 +17,6 @@ if (!function_exists('to_boolean')) {
     }
 }
 
-// Check if the user has a permission
-if (!function_exists('hasPermission')) {
-    /**
-     * Check if the authenticated user has a specific permission.
-     *
-     * @param  string  $permission
-     * @return bool
-     */
-    function hasPermission(string $permission): bool
-    {
-        return auth()->user()->hasPermissionTo($permission);
-    }
-}
 
 // Check if the user has a permission or abort
 if (!function_exists('hasPermissionTo')) {
