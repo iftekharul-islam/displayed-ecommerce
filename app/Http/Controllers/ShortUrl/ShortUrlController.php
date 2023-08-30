@@ -438,10 +438,15 @@ class ShortUrlController extends Controller
 
             $user = auth()->user();
 
+            $isExportOriginalDomain =  false;
+            if ($user->hasPermissionTo(PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'])) {
+                $isExportOriginalDomain =  true;
+            }
+
             $exportFilePath = "exports/short-urls/export/{$exportFileName}";
             $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
 
-            (new ShortUrlExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+            (new ShortUrlExport($user, $data, $isExportOriginalDomain))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
             ]);
 
