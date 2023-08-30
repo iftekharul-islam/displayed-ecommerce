@@ -21,7 +21,7 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $modules = [
-            'Admin Dashboard' => [
+            'Dashboard' => [
                 [
                     'name' => PermissionConstant::DASHBOARD_ACCESS['name'],
                     'label' => PermissionConstant::DASHBOARD_ACCESS['label'],
@@ -271,6 +271,20 @@ class RolesAndPermissionsSeeder extends Seeder
                     'name' => PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'],
                     'label' => PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['label'],
                     'code' => PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_VERIFY_VALID_DOMAINS['name'],
+                    'label' => PermissionConstant::SHORT_URLS_VERIFY_VALID_DOMAINS['label'],
+                    'code' => PermissionConstant::SHORT_URLS_VERIFY_VALID_DOMAINS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URLS_VERIFY_INVALID_DOMAINS['name'],
+                    'label' => PermissionConstant::SHORT_URLS_VERIFY_INVALID_DOMAINS['label'],
+                    'code' => PermissionConstant::SHORT_URLS_VERIFY_INVALID_DOMAINS['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['others'],
                     'guard_name' => 'api'
                 ],

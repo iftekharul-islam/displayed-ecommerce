@@ -12,11 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-
-        // $schedule->command('app:run-valid-domains-checker-command')->daily();
         $schedule->command('app:run-valid-domains-checker-command')
-            ->monthlyOn(30, '14:49')
+            ->dailyAt('00:01')
             ->timezone('Asia/Dhaka');
     }
 

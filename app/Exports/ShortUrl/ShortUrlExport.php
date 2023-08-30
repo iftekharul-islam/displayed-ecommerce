@@ -259,7 +259,7 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
             $shortUrl->original_domain ?? '-',
             $shortUrl->destination_domain ?? '-',
             $shortUrl->short_url ?? '-',
-            $shortUrl->visitor_count ?? 0,
+            $shortUrl->visitor_count ?? '0',
             $shortUrl->tld_name  ?? '-',
             $shortUrl->tld_price ?? '-',
             $shortUrl->auto_renewal ? 'Yes' : 'No',
