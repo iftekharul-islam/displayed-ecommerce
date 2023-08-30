@@ -42,15 +42,18 @@ class ShortUrlRedirectionJob implements ShouldQueue
     public function handle()
     {
         try {
-            DB::transaction(function () {
-                $short_url_id = $this->short_url_id;
+            $short_url_id = $this->short_url_id;
+            $request_ip = $this->request_ip;
+            $currenDate = now()->format('Y-m-d');
+
+            DB::transaction(function () use ($short_url_id, $request_ip, $currenDate) {
 
                 // Store Data into analytics table
                 $agent = new Agent();
                 $browser = $agent->browser();
                 $platform = $agent->platform();
                 $deviceType = "Unknown";
-                $request_ip = $this->request_ip;
+
                 $operating_system_version = $agent->version($platform);
                 $browser_version = $agent->version($browser);
 
@@ -77,9 +80,8 @@ class ShortUrlRedirectionJob implements ShouldQueue
                     'ip_address'               => $request_ip,
                 ]);
 
-                // Total visitor count
-                $currenDate = now()->format('Y-m-d');
 
+                // Total visitor count
                 $visitorCountExist = VisitorCount::firstOrNew([
                     'short_url_id' => $short_url_id,
                     'visited_at' => $currenDate,
@@ -96,6 +98,10 @@ class ShortUrlRedirectionJob implements ShouldQueue
                 }
 
                 $visitorCountExist->save();
+            });
+
+
+            DB::transaction(function () use ($short_url_id, $request_ip, $currenDate) {
 
                 // location get
                 $location  = Location::get($request_ip);
@@ -143,7 +149,7 @@ class ShortUrlRedirectionJob implements ShouldQueue
                 $visitorCountByCityExist->save();
             });
         } catch (HttpException $th) {
-            Log::error($th);
+            Log::channel('redirection')->error($th);
         }
     }
 }

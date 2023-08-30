@@ -395,7 +395,7 @@ class ShortUrlController extends Controller
 
             return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
-            Log::error($th);
+            Log::channel('redirection')->error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
     }
