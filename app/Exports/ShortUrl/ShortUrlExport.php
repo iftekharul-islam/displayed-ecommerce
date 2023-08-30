@@ -35,9 +35,10 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
     protected $originalDomain;
     protected $shortUrl;
     protected $tld;
+    protected $isExportOriginalDomain;
 
 
-    public function __construct(User $exportedBy, $data)
+    public function __construct(User $exportedBy, $data, bool $isExportOriginalDomain)
     {
         $this->exportedBy =  $exportedBy;
         $this->exportFileName = $data['exportFileName'];
@@ -50,6 +51,7 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
         $this->originalDomain = $data['originalDomain'];
         $this->shortUrl = $data['shortUrl'];
         $this->tld = $data['tld'];
+        $this->isExportOriginalDomain = $isExportOriginalDomain;
     }
 
     public function failed(Throwable $exception): void
@@ -253,10 +255,15 @@ class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumn
         $cityVisitorTotalCount5th = $shortUrl->visitorCountByCities[4]->total_count ?? '-';
         $city5th = "$cityVisitor5th:$cityVisitorTotalCount5th";
 
+        if ($this->isExportOriginalDomain) {
+            $originalDomain = $shortUrl->original_domain  ?? '-';
+        } else {
+            $originalDomain = '-';
+        }
 
         return [
             $shortUrl->campaign->name ?? '-',
-            $shortUrl->original_domain ?? '-',
+            $originalDomain,
             $shortUrl->destination_domain ?? '-',
             $shortUrl->short_url ?? '-',
             $shortUrl->visitor_count ?? '0',

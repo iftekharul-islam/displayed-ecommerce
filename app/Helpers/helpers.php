@@ -17,23 +17,24 @@ if (!function_exists('to_boolean')) {
     }
 }
 
+
+// Check if the user has a permission or abort
 if (!function_exists('hasPermissionTo')) {
-
     /**
-     * Convert to boolean
+     * Check if the authenticated user has a specific permission.
+     * If not, abort with a 403 error.
      *
-     * @param $booleable
-     * @return boolean
+     * @param  string  $permission
+     * @return void
      */
-    function hasPermissionTo(string $permission): bool
+    function hasPermissionTo(string $permission): void
     {
-        if (auth()->user()->hasPermissionTo($permission)) {
-            return true;
+        if (!auth()->user()->hasPermissionTo($permission)) {
+            abort(403, 'Access Denied – You don’t have permission to access');
         }
-
-        abort(403, 'Access Denied – You don’t have permission to access');
     }
 }
+
 
 // remove http or https from url
 if (!function_exists('removeHttpOrHttps')) {

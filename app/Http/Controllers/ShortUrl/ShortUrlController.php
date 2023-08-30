@@ -54,6 +54,8 @@ class ShortUrlController extends Controller
             $tld = @$searchQuery['tld'] ?? null;
             $campaignId = (int) $request->query('campaignId', -1);
 
+            $getCampaignNameAndLastUpdatedDate = $this->getCampaignNameAndLastUpdatedDate($campaignId);
+
             // filter
             $isFilter = to_boolean($request->query('isFilter', false));
 
@@ -62,9 +64,16 @@ class ShortUrlController extends Controller
                 $filterQuery = $request->query('filterQuery', []);
                 $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
                 $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
-                $expireAtFilter = @$filterQuery['expireAtFilter'] ? (int)@$filterQuery['expireAtFilter'] : null;
+                $expireAtFilter = @$filterQuery['expireAtFilter'] ? (int)@$filterQuery['expireAtFilter'] : ShortUrlConstant::ALL;
                 $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
                 $tldFilter = @$filterQuery['tldFilter'] ?? null;
+
+                $getTrafficDataFiltering = $this->getTrafficDataFiltering($fromDateFilter, $toDateFilter);
+                $getExpiryAtFiltering = $this->getExpiryAtFiltering($expireAtFilter);
+                $getStatusFiltering = $this->getStatusFiltering($statusFilter);
+
+                $concat_filtering = "Traffic Data Filter : {$getTrafficDataFiltering} | Expire In : {$getExpiryAtFiltering} | Status : {$getStatusFiltering}";
+
 
                 $data =  ShortUrl::query()
                     ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -181,6 +190,9 @@ class ShortUrlController extends Controller
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
             } else {
+
+                $concat_filtering = "Traffic Data Filter : All | Expire In : All | Status : Valid, Invalid, Expired";
+
                 $data = ShortUrl::query()
                     ->withCount([
                         'visitorCount as visitor_count' => function ($query) {
@@ -233,8 +245,8 @@ class ShortUrlController extends Controller
             }
 
             return ShortUrlResource::collection($data)
-                ->additional(['filterQuery' => [
-                    'key' => 'value',
+                ->additional(['additional_params' => [
+                    'filter_description' => "{$getCampaignNameAndLastUpdatedDate} | {$concat_filtering}"
                 ]]);
         } catch (HttpException $th) {
             Log::error($th);
@@ -438,10 +450,15 @@ class ShortUrlController extends Controller
 
             $user = auth()->user();
 
+            $isExportOriginalDomain =  false;
+            if ($user->hasPermissionTo(PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'])) {
+                $isExportOriginalDomain =  true;
+            }
+
             $exportFilePath = "exports/short-urls/export/{$exportFileName}";
             $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
 
-            (new ShortUrlExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+            (new ShortUrlExport($user, $data, $isExportOriginalDomain))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
             ]);
 
@@ -556,6 +573,19 @@ class ShortUrlController extends Controller
         return $campaignNameSlug;
     }
 
+    public function getCampaignNameAndLastUpdatedDate(int $id): string
+    {
+        if ($id === ShortUrlConstant::ALL) {
+            return "All Domains";
+        }
+
+        $campaign = Campaign::findOrFail($id);
+        $campaignName = $campaign->name;
+        $formattedLastUpdatedDate = $campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('jS F, Y') : null;
+
+        return "{$campaignName} (Last Updated On {$formattedLastUpdatedDate})";
+    }
+
     public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
     {
         if ($id === ShortUrlConstant::ALL) {
@@ -581,6 +611,18 @@ class ShortUrlController extends Controller
         return "_{$formattedStartDate}_To_{$formattedEndDate}_";
     }
 
+    public function getTrafficDataFiltering($startDate, $endDate): string
+    {
+        if (!empty($startDate) && !empty($endDate)) {
+            $formattedStartDate = Carbon::make($startDate)->format('jS F, Y');
+            $formattedEndDate = Carbon::make($endDate)->format('jS F, Y');
+
+            return "{$formattedStartDate} To {$formattedEndDate}";
+        }
+
+        return "All";
+    }
+
     public function getTrafficDataFilteringSlug($startDate, $endDate): string
     {
         if (!empty($startDate) && !empty($endDate)) {
@@ -591,6 +633,21 @@ class ShortUrlController extends Controller
         }
 
         return "_All_";
+    }
+
+    public function getExpiryAtFiltering(int $filtering): string
+    {
+        $filterMap = [
+            ShortUrlConstant::EXPIRED_NEXT_THREE_DAYS => "3 days",
+            ShortUrlConstant::EXPIRED_NEXT_SEVEN_DAYS => "Next 7 days",
+            ShortUrlConstant::EXPIRED_NEXT_FIFTEEN_DAYS => "Next 15 days",
+            ShortUrlConstant::EXPIRED_NEXT_ONE_MONTH => "Next One month",
+            ShortUrlConstant::EXPIRED_NEXT_THREE_MONTHS => "Next Three months",
+            ShortUrlConstant::EXPIRED_NEXT_SIX_MONTHS => "Next Six months",
+            ShortUrlConstant::ALL => "All",
+        ];
+
+        return $filterMap[$filtering];
     }
 
     public function getExpiryAtFilteringSlug(int $filtering): string
@@ -606,6 +663,21 @@ class ShortUrlController extends Controller
         ];
 
         return $filterMap[$filtering];
+    }
+
+    public function getStatusFiltering(array $statuses): string
+    {
+        $statusStrings = [
+            ShortUrlConstant::VALID => "Valid",
+            ShortUrlConstant::INVALID => "Invalid",
+            ShortUrlConstant::EXPIRED => "Expired",
+        ];
+
+        $filteredStatuses = array_map(function ($status) use ($statusStrings) {
+            return $statusStrings[$status];
+        }, $statuses);
+
+        return implode(", ", $filteredStatuses);
     }
 
     public function getStatusFilteringSlug(array $statuses): string
