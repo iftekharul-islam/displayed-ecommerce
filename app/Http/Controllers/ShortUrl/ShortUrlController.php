@@ -632,7 +632,10 @@ class ShortUrlController extends Controller
                 'is_active' => true,
             ])->firstOrFail();
 
-            ValidDomainCheckJob::dispatch(auth()->user(), $campaign);
+            $userEmail = @auth()->user()->email;
+            $mailsTo = [$userEmail];
+
+            ValidDomainCheckJob::dispatch($mailsTo, $campaign);
 
             return response()->json([
                 'message' => 'Valid domain check started!, please wait...  when done will send you an email',
@@ -653,7 +656,10 @@ class ShortUrlController extends Controller
                 'is_active' => true,
             ])->firstOrFail();
 
-            InvalidDomainCheckJob::dispatch(auth()->user(), $campaign);
+            $userEmail = @auth()->user()->email;
+            $mailsTo = [$userEmail];
+
+            InvalidDomainCheckJob::dispatch($mailsTo, $campaign);
 
             return response()->json([
                 'message' => 'Invalid domain check started!, please wait...  when done will send you an email',

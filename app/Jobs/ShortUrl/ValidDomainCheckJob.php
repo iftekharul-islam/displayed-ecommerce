@@ -2,7 +2,6 @@
 
 namespace App\Jobs\ShortUrl;
 
-use App\Models\User;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Bus\Queueable;
@@ -13,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use App\Notifications\ShortUrl\ValidDomainCheckFailNotification;
 use App\Notifications\ShortUrl\ValidDomainCheckSuccessNotification;
@@ -21,8 +21,8 @@ class ValidDomainCheckJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $mailsTo;
     protected $campaign;
-    protected $createdBy;
 
 
     /**
@@ -30,13 +30,12 @@ class ValidDomainCheckJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(User $createdBy, Campaign $campaign)
+    public function __construct($mailsTo, Campaign $campaign)
     {
-        $this->createdBy = $createdBy;
+        $this->mailsTo = $mailsTo;
         $this->campaign = $campaign;
 
-        // $this->onConnection('database');
-        // $this->onQueue('valid-domain-check-cronjob');
+        $this->onQueue('valid-domain-checker-job');
     }
 
     /**
@@ -46,38 +45,30 @@ class ValidDomainCheckJob implements ShouldQueue
      */
     public function handle()
     {
-        $campaignId = $this->campaign->id;
-        $campaignName = $this->campaign->name;
-        $logPrefix = 'ValidDomainCheckJob: ' . $campaignName . ' - ';
-
-        info($logPrefix . 'started');
-
         try {
+            $campaign = $this->campaign;
+            $logPrefix = "ValidDomainCheckJob: {$campaign->name} - ";
+            Log::channel('valid-domains-checker')->info("$logPrefix started");
+
+            $now = now();
+            $message = 'Invalid';
+            $remarks = " invalid and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+            $status = ShortUrlConstant::INVALID;
+
             ShortUrl::query()
-                ->select(['id', 'campaign_id', 'original_domain', 'expired_at'])
+                ->select(['id', 'original_domain', 'expired_at'])
                 ->where([
-                    'campaign_id' => $campaignId,
+                    'campaign_id' => $campaign->id,
                 ])
                 ->lazyById(1000, 'id')
-                ->each(function (ShortUrl $shortUrl) use ($campaignName, $logPrefix) {
-                    $now = now();
-                    $message = 'Invalid';
-                    $remarks = 'invalid and last checked on ' . $now->format('l') . ' - ' . $now->format('F d, Y');
-                    $originalDomain = 'http://' . $shortUrl->original_domain;
-                    $status = ShortUrlConstant::INVALID;
+                ->each(function (ShortUrl $shortUrl) use ($now, $campaign, $logPrefix, &$message, &$remarks, &$status) {
+                    $originalDomain = "http://{$shortUrl->original_domain}";
 
                     if ($shortUrl->expired_at < $now->format('Y-m-d')) {
                         $message = 'Expired';
                         $status = ShortUrlConstant::EXPIRED;
-                        $remarks = "Expired{$shortUrl->id} - $originalDomain and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-
-                        $shortUrl->update([
-                            'status' => $status,
-                            'remarks' => $remarks,
-                            'updated_at' => $now->format('Y-m-d H:i:s'),
-                        ]);
+                        $remarks = " Expired{$shortUrl->id} - $originalDomain and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                     } else {
-
                         try {
                             $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
                             $responseBody = $response->body();
@@ -88,32 +79,24 @@ class ValidDomainCheckJob implements ShouldQueue
                                 $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
                                 $remarks = ($status === 200 ? 'Valid' : 'Invalid') . " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                             }
-
-                            $shortUrl->update([
-                                'status' => $status,
-                                'remarks' => $remarks,
-                                'updated_at' => $now->format('Y-m-d H:i:s'),
-                            ]);
-
-                            info($logPrefix . ($status === ShortUrlConstant::EXPIRED ? 'Expired' : '') . $message . ' - ' . $shortUrl->id . ' - ' . $originalDomain);
                         } catch (\Throwable $th) {
-                            $shortUrl->update([
-                                'status' => $status,
-                                'remarks' => $remarks,
-                                'updated_at' => $now->format('Y-m-d H:i:s'),
-                            ]);
-
-                            info($logPrefix . ($status === ShortUrlConstant::EXPIRED ? 'Expired' : '') . $message . ' - ' . $shortUrl->id . ' - ' . $originalDomain);
-
-                            Log::error($th);
+                            Log::channel('valid-domains-checker')->error($th);
                         }
                     }
+
+                    $shortUrl->update([
+                        'status' => $status,
+                        'remarks' => $remarks,
+                        'updated_at' => $now->format('Y-m-d H:i:s'),
+                    ]);
+
+                    Log::channel('valid-domains-checker')->info("$logPrefix" . ($status === ShortUrlConstant::EXPIRED ? 'Expired' : '') . " $message - $shortUrl->id - $originalDomain");
                 });
 
             $message = 'Valid Domain Check Success';
-            $this->createdBy->notify(new ValidDomainCheckSuccessNotification($campaignName, $message));
+            Notification::route('mail', $this->mailsTo)->notify(new ValidDomainCheckSuccessNotification($campaign->name, $message));
         } catch (\Throwable $th) {
-            Log::error($th);
+            Log::channel('valid-domains-checker')->error($th);
         }
     }
 
@@ -127,7 +110,7 @@ class ValidDomainCheckJob implements ShouldQueue
     {
         $campaignName = $this->campaign->name;
         $message = 'Valid Domain Check Failed';
-        $this->createdBy->notify(new ValidDomainCheckFailNotification($campaignName, $message));
+        Notification::route('mail', $this->mailsTo)->notify(new ValidDomainCheckFailNotification($campaignName, $message));
         Log::info('ValidDomainCheckJob failed...' . $campaignName);
         Log::error($th);
     }

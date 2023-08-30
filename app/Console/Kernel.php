@@ -13,6 +13,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        // $schedule->command('app:run-valid-domains-checker-command')->daily();
+        $schedule->command('app:run-valid-domains-checker-command')
+            ->monthlyOn(30, '14:49')
+            ->timezone('Asia/Dhaka');
     }
 
     /**
@@ -20,7 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

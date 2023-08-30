@@ -15,12 +15,15 @@ return [
     | any other location as required by the application or its packages.
     |
     */
+    // custom config
+    'valid_domain_checker_email' => env('VALID_DOMAINS_CHECKER_EMAIL', ''),
 
     'front_url' => env('APP_FRONT_URL', 'http://localhost:3000'),
 
-    'access_token_key' => env('ACCESS_TOKEN_KEY', '5|rjFn2tePHCNPD9DY16WhNlpi2YWUVnjlqxExAaOt'),
+    'access_token_key' => env('ACCESS_TOKEN_KEY', '5|rjFn2tePHCNPD9DY16WhNlpi2YWUVnjlqxExAaOts'),
 
     'per_page' => env('PER_PAGE', 10),
+    // custom config
 
     'name' => env('APP_NAME', 'Laravel'),
 
