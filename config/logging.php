@@ -130,7 +130,11 @@ return [
         'redirection' => [
             'driver' => 'single',
             'path' => storage_path('logs/redirection.log'),
-            'level' => 'error',
+        ],
+
+        'valid-domains-checker' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/valid-domains-checker.log'),
         ],
     ],
 

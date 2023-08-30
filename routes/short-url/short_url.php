@@ -7,6 +7,8 @@ Route::get('short-urls/export/download/{code}', [ShortUrlController::class, 'exp
 Route::get('short-urls/latest-domain-export/download/{code}', [ShortUrlController::class, 'latestDomainExportDownload']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::match(['PUT', 'PATCH'], 'short-urls/valid-domain-check', [ShortUrlController::class, 'validDomainCheck']);
+    Route::match(['PUT', 'PATCH'], 'short-urls/invalid-domain-check', [ShortUrlController::class, 'invalidDomainCheck']);
     Route::match(['PUT', 'PATCH'], 'short-urls/tld-update', [ShortUrlController::class, 'tldUpdate']);
     Route::get('short-urls/latest-domain-export', [ShortUrlController::class, 'latestDomainExport']);
     Route::get('short-urls/export', [ShortUrlController::class, 'export']);

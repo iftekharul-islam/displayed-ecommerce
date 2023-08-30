@@ -191,6 +191,16 @@ class PermissionConstant
         'label' => 'Original Domains Show',
         'code' => 7009,
     ];
+    public const SHORT_URLS_VERIFY_VALID_DOMAINS = [
+        'name' => 'short_urls_verify_valid_domains',
+        'label' => 'Verify Valid Domains',
+        'code' => 70010,
+    ];
+    public const SHORT_URLS_VERIFY_INVALID_DOMAINS = [
+        'name' => 'short_urls_verify_invalid_domains',
+        'label' => 'Verify Invalid Domains',
+        'code' => 70011,
+    ];
 
     // Excluded Domain
     public const EXCLUDED_DOMAIN_ACCESS = [
