@@ -40,6 +40,7 @@ class UserController extends Controller
 
             return UserResource::collection($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -66,6 +67,7 @@ class UserController extends Controller
                 'message' => 'Successfully created',
             ], 201);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -101,6 +103,7 @@ class UserController extends Controller
                 'message' => 'Successfully updated',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -118,6 +121,7 @@ class UserController extends Controller
 
             return response()->noContent();
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -137,6 +141,7 @@ class UserController extends Controller
 
             return new UserResource($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -165,6 +170,7 @@ class UserController extends Controller
 
             return UserResource::collection($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -179,6 +185,7 @@ class UserController extends Controller
                 'message' => 'Successfully restored',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -193,6 +200,7 @@ class UserController extends Controller
                 'message' => 'Successfully deleted',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }

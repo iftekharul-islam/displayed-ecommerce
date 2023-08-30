@@ -24,6 +24,7 @@ class ModuleController extends Controller
 
             return ModuleResource::collection($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }

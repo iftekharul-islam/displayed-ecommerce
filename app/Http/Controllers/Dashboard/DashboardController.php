@@ -24,6 +24,7 @@ class DashboardController extends Controller
 
             return response()->json($campaigns);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }

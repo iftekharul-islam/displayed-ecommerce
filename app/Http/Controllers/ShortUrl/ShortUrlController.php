@@ -237,6 +237,7 @@ class ShortUrlController extends Controller
                     'key' => 'value',
                 ]]);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -294,6 +295,7 @@ class ShortUrlController extends Controller
                 'message' => 'Successfully created',
             ], 201);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -326,6 +328,7 @@ class ShortUrlController extends Controller
                 'message' => 'Successfully updated',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -348,6 +351,7 @@ class ShortUrlController extends Controller
 
             return response()->noContent();
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -372,6 +376,7 @@ class ShortUrlController extends Controller
                 'message' => 'Short Urls import on progress, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -395,6 +400,7 @@ class ShortUrlController extends Controller
 
             return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::channel('redirection')->error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -449,6 +455,7 @@ class ShortUrlController extends Controller
                 'message' => 'Short urls export started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -465,6 +472,7 @@ class ShortUrlController extends Controller
 
             abort(404, 'File not found');
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -506,6 +514,7 @@ class ShortUrlController extends Controller
                 'message' => 'Short Urls latest domain export started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -522,6 +531,7 @@ class ShortUrlController extends Controller
 
             abort(404, 'File not found');
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -543,6 +553,7 @@ class ShortUrlController extends Controller
                 'message' => 'Short Urls tld update started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -641,6 +652,7 @@ class ShortUrlController extends Controller
                 'message' => 'Valid domain check started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -665,6 +677,7 @@ class ShortUrlController extends Controller
                 'message' => 'Invalid domain check started!, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
