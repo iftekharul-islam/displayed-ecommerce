@@ -408,7 +408,7 @@ class ShortUrlController extends Controller
                 abort(404, 'Page not found');
             }
 
-            ShortUrlRedirectionJob::dispatch($short_url->id, $request->ip());
+            ShortUrlRedirectionJob::dispatch($short_url->id, $request->ip(), now()->format('Y-m-d'));
 
             return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {

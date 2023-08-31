@@ -29,7 +29,11 @@ class AuthController extends Controller
         try {
             $validated = $request->validated();
 
-            $user = User::query()->where(['id' => $validated['email']])->first();
+            $user = User::query()->where(['email' => $validated['email']])->first();
+
+            if (!$user) {
+                abort(403, 'User not found');
+            }
 
             if (!@$user->is_active) {
                 abort(403, 'User is not active');
