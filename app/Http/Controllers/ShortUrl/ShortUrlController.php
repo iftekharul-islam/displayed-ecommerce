@@ -411,11 +411,10 @@ class ShortUrlController extends Controller
 
             $agent = new Agent();
             $browser = $agent->browser();
-            $platform = $agent->platform();
-            $deviceType = "Unknown";
-
-            $operating_system_version = $agent->version($platform);
             $browser_version = $agent->version($browser);
+            $platform = $agent->platform();
+            $operating_system_version = $agent->version($platform);
+            $deviceType = "Unknown";
 
             if ($agent->isDesktop()) {
                 $deviceType = "Desktop";
