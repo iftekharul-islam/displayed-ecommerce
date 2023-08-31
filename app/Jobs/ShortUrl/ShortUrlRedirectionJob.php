@@ -3,7 +3,7 @@
 namespace App\Jobs\ShortUrl;
 
 use App\Models\Analytics;
-use Jenssegers\Agent\Agent;
+
 use App\Models\VisitorCount;
 use Illuminate\Bus\Queueable;
 use App\Models\VisitorCountByCity;
@@ -23,18 +23,15 @@ class ShortUrlRedirectionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $short_url_id;
-    protected $request_ip;
-    protected $curren_date;
+    protected $data;
+
 
     /**
      * Create a new job instance.
      */
-    public function __construct($short_url_id, $request_ip, $curren_date)
+    public function __construct($data)
     {
-        $this->short_url_id = $short_url_id;
-        $this->request_ip = $request_ip;
-        $this->curren_date = $curren_date;
+        $this->data = $data;
 
         $this->onQueue('redirection');
     }
@@ -45,42 +42,21 @@ class ShortUrlRedirectionJob implements ShouldQueue
     public function handle()
     {
 
-        $short_url_id = $this->short_url_id;
-        $request_ip = $this->request_ip;
-        $currenDate = Carbon::make($this->curren_date)->format('Y-m-d');
+        $short_url_id = $this->data['short_url_id'];
+        $request_ip = $this->data['request_ip'];
+        $current_date = Carbon::make($this->data['current_date'])->format('Y-m-d');
 
 
-        DB::transaction(function () use ($short_url_id, $request_ip, $currenDate) {
+        DB::transaction(function () use ($short_url_id, $request_ip, $current_date) {
 
             // Store Data into analytics table
-            $agent = new Agent();
-            $browser = $agent->browser();
-            $platform = $agent->platform();
-            $deviceType = "Unknown";
-
-            $operating_system_version = $agent->version($platform);
-            $browser_version = $agent->version($browser);
-
-            if ($agent->isDesktop()) {
-                $deviceType = "Desktop";
-            }
-            if ($agent->isMobile()) {
-                $deviceType = "Mobile";
-            }
-            if ($agent->isTablet()) {
-                $deviceType = "Tablet";
-            }
-            if ($agent->isRobot()) {
-                $deviceType = "Robot";
-            }
-
             Analytics::create([
                 'short_url_id'             => $short_url_id,
-                'operating_system'         => $platform,
-                'operating_system_version' => $operating_system_version,
-                'browser'                  => $browser,
-                'browser_version'          => $browser_version,
-                'device_type'              => $deviceType,
+                'operating_system'         => $this->data['operating_system'],
+                'operating_system_version' => $this->data['operating_system_version'],
+                'browser'                  => $this->data['browser'],
+                'browser_version'          => $this->data['browser_version'],
+                'device_type'              => $this->data['device_type'],
                 'ip_address'               => $request_ip,
             ]);
 
@@ -88,13 +64,13 @@ class ShortUrlRedirectionJob implements ShouldQueue
             // Total visitor count
             $visitorCountExist = VisitorCount::firstOrNew([
                 'short_url_id' => $short_url_id,
-                'visited_at' => $currenDate,
+                'visited_at' => $current_date,
             ]);
 
             if (!$visitorCountExist->exists) {
                 $visitorCountExist->fill([
                     'short_url_id' => $short_url_id,
-                    'visited_at' => $currenDate,
+                    'visited_at' => $current_date,
                     'total_count' => 1,
                 ]);
             } else {
@@ -105,7 +81,7 @@ class ShortUrlRedirectionJob implements ShouldQueue
         });
 
 
-        DB::transaction(function () use ($short_url_id, $request_ip, $currenDate) {
+        DB::transaction(function () use ($short_url_id, $request_ip, $current_date) {
 
             // location get
 
@@ -119,14 +95,14 @@ class ShortUrlRedirectionJob implements ShouldQueue
                     $visitorCountByCountryExist = VisitorCountByCountry::firstOrNew([
                         'short_url_id' => $short_url_id,
                         'country' => $countryName,
-                        'visited_at' => $currenDate,
+                        'visited_at' => $current_date,
                     ]);
 
                     if (!$visitorCountByCountryExist->exists) {
                         $visitorCountByCountryExist->fill([
                             'short_url_id' => $short_url_id,
                             'country' => $countryName,
-                            'visited_at' => $currenDate,
+                            'visited_at' => $current_date,
                             'total_count' => 1,
                         ]);
                     } else {
@@ -142,14 +118,14 @@ class ShortUrlRedirectionJob implements ShouldQueue
                     $visitorCountByCityExist = VisitorCountByCity::firstOrNew([
                         'short_url_id' => $short_url_id,
                         'city' => $cityName,
-                        'visited_at' => $currenDate,
+                        'visited_at' => $current_date,
                     ]);
 
                     if (!$visitorCountByCityExist->exists) {
                         $visitorCountByCityExist->fill([
                             'short_url_id' => $short_url_id,
                             'city' => $cityName,
-                            'visited_at' => $currenDate,
+                            'visited_at' => $current_date,
                             'total_count' => 1,
                         ]);
                     } else {

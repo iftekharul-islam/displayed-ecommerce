@@ -86,7 +86,7 @@ class ValidDomainCheckJob implements ShouldQueue
 
                 $shortUrl->update([
                     'status' => $status,
-                    'remarks' => "$message - " . $remarks,
+                    'remarks' => "$message " . $remarks,
                     'updated_at' => $now->format('Y-m-d H:i:s'),
                 ]);
             });
