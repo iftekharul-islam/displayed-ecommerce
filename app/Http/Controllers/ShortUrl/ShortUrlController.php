@@ -33,6 +33,7 @@ use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
+use Jenssegers\Agent\Agent;
 
 class ShortUrlController extends Controller
 {
@@ -408,7 +409,39 @@ class ShortUrlController extends Controller
                 abort(404, 'Page not found');
             }
 
-            ShortUrlRedirectionJob::dispatch($short_url->id, $request->ip(), now()->format('Y-m-d'));
+            $agent = new Agent();
+            $browser = $agent->browser();
+            $platform = $agent->platform();
+            $deviceType = "Unknown";
+
+            $operating_system_version = $agent->version($platform);
+            $browser_version = $agent->version($browser);
+
+            if ($agent->isDesktop()) {
+                $deviceType = "Desktop";
+            }
+            if ($agent->isMobile()) {
+                $deviceType = "Mobile";
+            }
+            if ($agent->isTablet()) {
+                $deviceType = "Tablet";
+            }
+            if ($agent->isRobot()) {
+                $deviceType = "Robot";
+            }
+
+            $data = [
+                'short_url_id' => $short_url->id,
+                'request_ip' => $request->ip(),
+                'current_date' => now()->format('Y-m-d'),
+                'operating_system' => $platform,
+                'operating_system_version' => $operating_system_version,
+                'browser'                  => $browser,
+                'browser_version'          => $browser_version,
+                'device_type'              => $deviceType,
+            ];
+
+            ShortUrlRedirectionJob::dispatch($data);
 
             return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
