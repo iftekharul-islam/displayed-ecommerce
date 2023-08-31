@@ -82,6 +82,22 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'slack_channel_error_log' => [
+            'driver' => 'slack',
+            'url' => env('SLACK_WEBHOOK_URL_ERROR_LOG'),
+            'username' => 'Laravel Log',
+            'emoji' => ':boom:',
+            'level' => env('LOG_LEVEL', 'critical'),
+        ],
+
+        'slack_channel_error_log_in_production' => [
+            'driver' => 'slack',
+            'url' => env('SLACK_WEBHOOK_URL_ERROR_LOG_IN_PRODUCTION'),
+            'username' => 'Laravel Log',
+            'emoji' => ':boom:',
+            'level' => env('LOG_LEVEL', 'critical'),
+        ],
+
         'papertrail' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),

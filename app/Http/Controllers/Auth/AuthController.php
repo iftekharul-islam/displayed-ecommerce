@@ -25,10 +25,11 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
+
         try {
             $validated = $request->validated();
 
-            $user = User::query()->where(['email' => $validated['email']])->first();
+            $user = User::query()->where(['id' => $validated['email']])->first();
 
             if (!@$user->is_active) {
                 abort(403, 'User is not active');
@@ -44,6 +45,8 @@ class AuthController extends Controller
                 'access_token' => $user->createToken(config('app.access_token_key'))->plainTextToken
             ]);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
+
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -56,6 +59,7 @@ class AuthController extends Controller
 
             return new UserResource($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -68,6 +72,7 @@ class AuthController extends Controller
 
             return response()->json(['message' => 'Logged out successfully']);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -114,6 +119,7 @@ class AuthController extends Controller
                 "message" => 'We have e-mailed your password reset link!'
             ]);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -158,6 +164,7 @@ class AuthController extends Controller
                 "message" => 'Your password has been changed!'
             ]);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }

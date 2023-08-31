@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\Constants\ShortUrlConstant;
+use Illuminate\Support\Facades\Log;
 
 if (!function_exists('to_boolean')) {
 
@@ -114,5 +115,49 @@ if (!function_exists('getShortUrlStatus')) {
         } else {
             return ShortUrlConstant::INVALID;
         }
+    }
+}
+
+// Get Slack Notification
+if (!function_exists('logExceptionInSlack')) {
+
+    function logExceptionInSlack(Throwable $exception)
+    {
+
+        $message = $exception->getMessage();
+        $code = $exception->getCode();
+        $trace = $exception->getTrace();
+        $traceAsString = $exception->getTraceAsString();
+
+        $callStack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+        $file = isset($callStack[0]['file']) ? $callStack[0]['file'] : 'N/A';
+        $line = isset($callStack[0]['line']) ? $callStack[0]['line'] : 'N/A';
+
+        foreach ($trace as $traceEntry) {
+            if (isset($traceEntry['file']) && $traceEntry['file'] === $file) {
+                $line = isset($traceEntry['line']) ? $traceEntry['line'] : $line;
+                break;
+            }
+        }
+
+        if (config('app.env') === 'local') {
+            Log::channel('slack_channel_error_log')->error(
+                "{$message}\n" .
+                    "*Code*: {$code}\n" .
+                    "*File*\n{$file}\n" .
+                    "*Line*\n{$line}\n" .
+                    "*Backtrace as String*: \n{$traceAsString}"
+            );
+        } else {
+            Log::channel('slack_channel_error_log_in_production')->error(
+                "{$message}\n" .
+                    "*Code*: {$code}\n" .
+                    "*File*\n{$file}\n" .
+                    "*Line*\n{$line}\n" .
+                    "*Backtrace as String*: \n{$traceAsString}"
+            );
+        }
+
     }
 }

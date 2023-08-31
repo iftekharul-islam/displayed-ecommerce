@@ -61,6 +61,7 @@ class TldController extends Controller
                 'message' => 'Successfully created',
             ], 201);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -91,6 +92,7 @@ class TldController extends Controller
                 'message' => 'Successfully updated',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -106,6 +108,7 @@ class TldController extends Controller
 
             return response()->noContent();
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -130,6 +133,7 @@ class TldController extends Controller
                 'message' => 'TLD import on progress, please wait...  when done will send you an email',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }

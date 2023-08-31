@@ -48,6 +48,7 @@ class RoleController extends Controller
 
             return RoleResource::collection($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -72,6 +73,7 @@ class RoleController extends Controller
                 'message' => 'Successfully created',
             ], 201);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -87,6 +89,7 @@ class RoleController extends Controller
 
             return new RoleResource($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -110,6 +113,7 @@ class RoleController extends Controller
                 'message' => 'Successfully updated',
             ], 200);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -139,6 +143,7 @@ class RoleController extends Controller
 
             return response()->noContent();
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -151,6 +156,7 @@ class RoleController extends Controller
 
             return RoleResource::collection($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -187,6 +193,7 @@ class RoleController extends Controller
 
             return new RoleResource($data);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
@@ -212,6 +219,7 @@ class RoleController extends Controller
 
             return new RoleResource($model);
         } catch (HttpException $th) {
+            logExceptionInSlack($th);
             Log::error($th);
             abort($th->getStatusCode(), $th->getMessage());
         }
