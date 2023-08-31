@@ -119,7 +119,7 @@ if (!function_exists('getShortUrlStatus')) {
 }
 
 // Get Slack Notification
-if (!function_exists('log_exception_in_slack')) {
+if (!function_exists('logExceptionInSlack')) {
 
     function logExceptionInSlack(Throwable $exception)
     {
