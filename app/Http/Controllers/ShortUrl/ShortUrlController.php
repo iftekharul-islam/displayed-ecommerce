@@ -406,7 +406,7 @@ class ShortUrlController extends Controller
             });
 
             if (empty($short_url)) {
-                abort(404, 'Page not found');
+                abort(404, "Page not found for code: $code");
             }
 
             $agent = new Agent();
@@ -415,6 +415,7 @@ class ShortUrlController extends Controller
             $platform = $agent->platform();
             $operating_system_version = $agent->version($platform);
             $deviceType = "Unknown";
+
 
             if ($agent->isDesktop()) {
                 $deviceType = "Desktop";
