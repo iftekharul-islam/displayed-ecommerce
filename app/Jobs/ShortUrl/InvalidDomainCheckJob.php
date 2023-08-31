@@ -53,7 +53,7 @@ class InvalidDomainCheckJob implements ShouldQueue
 
         $now = now();
         $message = 'Invalid';
-        $remarks = " invalid and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+        $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
         $status = ShortUrlConstant::INVALID;
 
         ShortUrl::query()
@@ -69,7 +69,7 @@ class InvalidDomainCheckJob implements ShouldQueue
                 if ($shortUrl->expired_at < $now->format('Y-m-d')) {
                     $message = 'Expired';
                     $status = ShortUrlConstant::EXPIRED;
-                    $remarks = " Expired{$shortUrl->id} - $originalDomain and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                    $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                 } else {
                     try {
                         $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
@@ -79,7 +79,7 @@ class InvalidDomainCheckJob implements ShouldQueue
                             $title = $matches[1];
                             $message = $status === 200 ? 'Valid' : 'Invalid';
                             $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
-                            $remarks = ($status === 200 ? 'Valid' : 'Invalid') . " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                            $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                         }
                     } catch (\Throwable $th) {
                         $message = $th->getMessage();
