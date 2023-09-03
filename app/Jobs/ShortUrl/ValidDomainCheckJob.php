@@ -14,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Notifications\ShortUrl\ValidDomainCheckFailNotification;
 use App\Notifications\ShortUrl\ValidDomainCheckSuccessNotification;
 
@@ -45,54 +46,57 @@ class ValidDomainCheckJob implements ShouldQueue
      */
     public function handle()
     {
+        try {
+            $campaign = $this->campaign;
+            $logPrefix = "ValidDomainCheckJob: {$campaign->name} - ";
+            Log::channel('valid-domains-checker')->info("$logPrefix started");
 
-        $campaign = $this->campaign;
-        $logPrefix = "ValidDomainCheckJob: {$campaign->name} - ";
-        Log::channel('valid-domains-checker')->info("$logPrefix started");
+            $now = now();
+            $message = 'Invalid';
+            $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+            $status = ShortUrlConstant::INVALID;
 
-        $now = now();
-        $message = 'Invalid';
-        $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-        $status = ShortUrlConstant::INVALID;
+            ShortUrl::query()
+                ->select(['id', 'campaign_id', 'original_domain', 'expired_at'])
+                ->where([
+                    'campaign_id' => $campaign->id,
+                ])
+                ->lazyById(1000, 'id')
+                ->each(function (ShortUrl $shortUrl) use ($now, $message, $remarks, $status) {
+                    $originalDomain = "http://{$shortUrl->original_domain}";
 
-        ShortUrl::query()
-            ->select(['id', 'original_domain', 'expired_at'])
-            ->where([
-                'campaign_id' => $campaign->id,
-            ])
-            ->lazyById(1000, 'id')
-            ->each(function (ShortUrl $shortUrl) use ($now, $campaign, $logPrefix, &$message, &$remarks, &$status) {
-                $originalDomain = "http://{$shortUrl->original_domain}";
+                    if ($shortUrl->expired_at < $now->format('Y-m-d')) {
+                        $message = 'Expired';
+                        $status = ShortUrlConstant::EXPIRED;
+                        $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                    } else {
+                        try {
+                            $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
+                            $responseBody = $response->body();
 
-                if ($shortUrl->expired_at < $now->format('Y-m-d')) {
-                    $message = 'Expired';
-                    $status = ShortUrlConstant::EXPIRED;
-                    $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-                } else {
-                    try {
-                        $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
-                        $responseBody = $response->body();
-
-                        if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
-                            $title = $matches[1];
-                            $message = $status === 200 ? 'Valid' : 'Invalid';
-                            $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
-                            $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                            if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
+                                $title = $matches[1];
+                                $message = $status === 200 ? 'Valid' : 'Invalid';
+                                $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
+                                $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                            }
+                        } catch (\Throwable $th) {
+                            $message = $th->getMessage();
                         }
-                    } catch (\Throwable $th) {
-                        $message = $th->getMessage();
                     }
-                }
 
-                $shortUrl->update([
-                    'status' => $status,
-                    'remarks' => "$message " . $remarks,
-                    'updated_at' => $now->format('Y-m-d H:i:s'),
-                ]);
-            });
+                    $shortUrl->update([
+                        'status' => $status,
+                        'remarks' => "$message " . $remarks,
+                        'updated_at' => $now->format('Y-m-d H:i:s'),
+                    ]);
+                });
 
-        $message = 'Valid Domain Check Success';
-        Notification::route('mail', $this->mailsTo)->notify(new ValidDomainCheckSuccessNotification($campaign->name, $message));
+            $message = 'Valid Domain Check Success';
+            Notification::route('mail', $this->mailsTo)->notify(new ValidDomainCheckSuccessNotification($campaign->name, $message));
+        } catch (HttpException $th) {
+            Log::channel('valid-domains-checker')->error($th->getMessage());
+        }
     }
 
     /**
