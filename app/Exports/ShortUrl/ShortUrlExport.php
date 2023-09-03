@@ -20,10 +20,12 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use App\Notifications\ShortUrl\ShortUrlExportFailedNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ShortUrlExport implements FromQuery, WithHeadings, WithMapping, WithColumnWidths, WithStyles, WithEvents
+class ShortUrlExport implements FromQuery, ShouldQueue, WithHeadings, WithMapping, WithColumnWidths, WithStyles, WithEvents
 {
     use Exportable;
+
     protected $exportedBy;
     protected $exportFileName;
     protected $campaignId;
