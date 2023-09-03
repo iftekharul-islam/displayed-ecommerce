@@ -21,12 +21,10 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use App\Notifications\ShortUrl\ShortUrlExportFailedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Bus\Queueable;
 
 class ShortUrlExport implements FromQuery, ShouldQueue, WithHeadings, WithMapping, WithColumnWidths, WithStyles, WithEvents
 {
     use Exportable;
-    use Queueable;
 
     protected $exportedBy;
     protected $exportFileName;
