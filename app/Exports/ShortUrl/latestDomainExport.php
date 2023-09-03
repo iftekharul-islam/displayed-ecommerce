@@ -52,11 +52,6 @@ class latestDomainExport implements FromQuery, WithHeadings, WithMapping, WithCo
         return ShortUrl::query()
             ->whereBetween('created_at', [$fromDate, $toDate])
             ->where('campaign_id', $campaignId)
-            ->whereHas('campaign', function ($query) {
-                $query->where([
-                    'is_active' => true,
-                ]);
-            })
             ->orderBy('id', 'desc');
     }
 

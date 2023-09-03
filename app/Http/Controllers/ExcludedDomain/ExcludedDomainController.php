@@ -35,11 +35,6 @@ class ExcludedDomainController extends Controller
                 ->when($domain, function ($query, $domain) {
                     $query->where('domain', 'LIKE', "%$domain%");
                 })
-                ->whereHas('campaign', function ($query) {
-                    $query->where([
-                        'is_active' => true,
-                    ]);
-                })
                 ->orderBy($sortByKey, $sortByOrder)
                 ->paginate($perPage);
 

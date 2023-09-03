@@ -171,11 +171,6 @@ class ShortUrlController extends Controller
                     ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
                     })
-                    ->whereHas('campaign', function ($query) {
-                        $query->where([
-                            'is_active' => true,
-                        ]);
-                    })
                     ->when($shortUrl, function ($query) use ($shortUrl) {
                         $query->where('url_key', $shortUrl);
                     })
@@ -226,11 +221,6 @@ class ShortUrlController extends Controller
                     ])
                     ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
-                    })
-                    ->whereHas('campaign', function ($query) {
-                        $query->where([
-                            'is_active' => true,
-                        ]);
                     })
                     ->when($shortUrl, function ($query) use ($shortUrl) {
                         $query->where('url_key', $shortUrl);
