@@ -228,7 +228,7 @@ return [
         | Drivers: memory|illuminate|batch
         |
         */
-        'driver'     => 'memory',
+        'driver'     => 'illuminate', // default memory
 
         /*
         |--------------------------------------------------------------------------
@@ -241,7 +241,11 @@ return [
         |
         */
         'batch'     => [
-            'memory_limit' => 60000,
+            'memory_limit' => 60000, // default 60000
+            // 60000 is 60MB
+            // 2048000 is 2048mb
+            // 4098000 is 4098mb
+
         ],
 
         /*

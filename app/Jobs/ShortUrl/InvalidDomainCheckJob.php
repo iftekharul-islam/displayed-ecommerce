@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\DB;
 use App\Constants\ShortUrlConstant;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -52,19 +53,19 @@ class InvalidDomainCheckJob implements ShouldQueue
             $logPrefix = "ValidDomainCheckJob: {$campaign->name} - ";
             Log::channel('valid-domains-checker')->info("$logPrefix started");
 
-            $now = now();
-            $message = 'Invalid';
-            $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-            $status = ShortUrlConstant::INVALID;
-
-            ShortUrl::query()
+            DB::table('short_urls')
                 ->select(['id', 'campaign_id', 'original_domain', 'expired_at'])
                 ->where([
                     'campaign_id' => $campaign->id,
                     'status' => ShortUrlConstant::INVALID,
                 ])
                 ->lazyById(1000, 'id')
-                ->each(function (ShortUrl $shortUrl) use ($now, $message, $remarks, $status) {
+                ->each(function ($shortUrl) {
+                    $now = now();
+                    $message = 'Invalid';
+                    $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                    $status = ShortUrlConstant::INVALID;
+
                     $originalDomain = "http://{$shortUrl->original_domain}";
 
                     if ($shortUrl->expired_at < $now->format('Y-m-d')) {
@@ -78,7 +79,7 @@ class InvalidDomainCheckJob implements ShouldQueue
 
                             if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
                                 $title = $matches[1];
-                                $message = $status === 200 ? 'Valid' : 'Invalid';
+                                $message = 'Valid';
                                 $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
                                 $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                             }
