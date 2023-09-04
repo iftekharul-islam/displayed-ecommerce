@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Support\Str;
+use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\ShortUrl\ShortUrlExport;
 use App\Imports\ShortUrl\ShortUrlImport;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use App\Jobs\ShortUrl\ValidDomainCheckJob;
 use App\Exports\ShortUrl\latestDomainExport;
 use App\Jobs\ShortUrl\InvalidDomainCheckJob;
@@ -33,7 +35,6 @@ use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
-use Jenssegers\Agent\Agent;
 
 class ShortUrlController extends Controller
 {
@@ -444,52 +445,66 @@ class ShortUrlController extends Controller
     public function export(Request $request)
     {
         try {
-            $campaignId = (int)$request->query('campaignId', -1);
-            $filterQuery = $request->query('filterQuery', []);
-            $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
-            $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
-            $expireAtFilter =  (int)@$filterQuery['expireAtFilter'];
-            $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
-            $tldFilter = @$filterQuery['tldFilter'] ?? null;
-            $searchQuery = $request->query('searchQuery', []);
-            $originalDomain = @$searchQuery['originalDomain'] ?? null;
-            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
-            $tld = @$searchQuery['tld'] ?? null;
-
-            $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
-            $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
-            $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
-            $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
-            $code = Str::random(10);
-            $date = now()->format('Y_m_d_H_i_s');
-            $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
+            $writer = SimpleExcelWriter::create('example.xlsx');
 
             $data = [
-                'exportFileName' => $exportFileName,
-                'campaignId' => $campaignId,
-                'fromDateFilter' => $fromDateFilter,
-                'toDateFilter' => $toDateFilter,
-                'expireAtFilter' => $expireAtFilter,
-                'statusFilter' => $statusFilter,
-                'tldFilter' => $tldFilter,
-                'originalDomain' => $originalDomain,
-                'shortUrl' => $shortUrl,
-                'tld' => $tld,
+                [
+                    'Name', 'Email'
+                ],
+                ['John Doe', 'johndoe@example.com'],
+                ['Jane Smith', 'janesmith@example.com'],
             ];
 
-            $user = auth()->user();
+            $writer->addRows($data);
 
-            $isExportOriginalDomain =  false;
-            if ($user->hasPermissionTo(PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'])) {
-                $isExportOriginalDomain =  true;
-            }
+            $writer->store();
 
-            $exportFilePath = "exports/short-urls/export/{$exportFileName}";
-            $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
+            // $campaignId = (int)$request->query('campaignId', -1);
+            // $filterQuery = $request->query('filterQuery', []);
+            // $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
+            // $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
+            // $expireAtFilter =  (int)@$filterQuery['expireAtFilter'];
+            // $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
+            // $tldFilter = @$filterQuery['tldFilter'] ?? null;
+            // $searchQuery = $request->query('searchQuery', []);
+            // $originalDomain = @$searchQuery['originalDomain'] ?? null;
+            // $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
+            // $tld = @$searchQuery['tld'] ?? null;
 
-            (new ShortUrlExport($user, $data, $isExportOriginalDomain))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
-                new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
-            ]);
+            // $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
+            // $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
+            // $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
+            // $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
+            // $code = Str::random(10);
+            // $date = now()->format('Y_m_d_H_i_s');
+            // $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
+
+            // $data = [
+            //     'exportFileName' => $exportFileName,
+            //     'campaignId' => $campaignId,
+            //     'fromDateFilter' => $fromDateFilter,
+            //     'toDateFilter' => $toDateFilter,
+            //     'expireAtFilter' => $expireAtFilter,
+            //     'statusFilter' => $statusFilter,
+            //     'tldFilter' => $tldFilter,
+            //     'originalDomain' => $originalDomain,
+            //     'shortUrl' => $shortUrl,
+            //     'tld' => $tld,
+            // ];
+
+            // $user = auth()->user();
+
+            // $isExportOriginalDomain =  false;
+            // if ($user->hasPermissionTo(PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'])) {
+            //     $isExportOriginalDomain =  true;
+            // }
+
+            // $exportFilePath = "exports/short-urls/export/{$exportFileName}";
+            // $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
+
+            // (new ShortUrlExport($user, $data, $isExportOriginalDomain))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+            //     new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
+            // ]);
 
             return response()->json([
                 'message' => 'Short urls export started!, please wait...  when done will send you an email',
