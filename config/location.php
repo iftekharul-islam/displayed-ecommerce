@@ -1,5 +1,7 @@
 <?php
 
+use App\Location\Drivers\ProIpApi;
+
 return [
 
     /*
@@ -11,7 +13,8 @@ return [
     |
     */
 
-    'driver' => Stevebauman\Location\Drivers\IpApi::class,
+    'driver' => ProIpApi::class,
+    // 'driver' => Stevebauman\Location\Drivers\IpApi::class,
 
     /*
     |--------------------------------------------------------------------------
