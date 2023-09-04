@@ -14,15 +14,22 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use App\Notifications\ShortUrl\ShortUrlExportFailedNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ShortUrlExport implements FromQuery, ShouldQueue, WithHeadings, WithMapping, WithColumnWidths, WithStyles, WithEvents
+class ShortUrlExport implements
+    FromQuery,
+    ShouldQueue,
+    WithHeadings,
+    WithMapping,
+    WithStyles,
+    WithEvents,
+    ShouldAutoSize
 {
     use Exportable;
 
@@ -279,32 +286,6 @@ class ShortUrlExport implements FromQuery, ShouldQueue, WithHeadings, WithMappin
             $city3rd,
             $city4th,
             $city5th,
-        ];
-    }
-
-    public function columnWidths(): array
-    {
-        return [
-            'A' => 20,
-            'B' => 20,
-            'C' => 20,
-            'D' => 40,
-            'E' => 15,
-            'F' => 15,
-            'G' => 15,
-            'H' => 15,
-            'I' => 15,
-            'J' => 15,
-            'k' => 30,
-            'L' => 30,
-            'M' => 30,
-            'N' => 30,
-            'O' => 30,
-            'P' => 30,
-            'Q' => 30,
-            'R' => 30,
-            'S' => 30,
-            'T' => 30,
         ];
     }
 

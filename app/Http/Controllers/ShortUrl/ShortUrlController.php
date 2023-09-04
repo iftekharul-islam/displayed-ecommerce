@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Campaign;
 use App\Models\ShortUrl;
 use Illuminate\Support\Str;
+use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,6 @@ use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
-use Jenssegers\Agent\Agent;
 
 class ShortUrlController extends Controller
 {

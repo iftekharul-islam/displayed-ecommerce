@@ -12,15 +12,22 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use App\Notifications\ShortUrl\LatestDomainExportFailedNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class latestDomainExport implements FromQuery, ShouldQueue, WithHeadings, WithMapping, WithColumnWidths, WithStyles, WithEvents
+class latestDomainExport implements
+    FromQuery,
+    ShouldQueue,
+    WithHeadings,
+    WithMapping,
+    ShouldAutoSize,
+    WithStyles,
+    WithEvents
 {
     use Exportable;
 
@@ -70,14 +77,6 @@ class latestDomainExport implements FromQuery, ShouldQueue, WithHeadings, WithMa
         return [
             $shortUrl->original_domain ?? '-',
             $shortUrl->short_url ?? '-',
-        ];
-    }
-
-    public function columnWidths(): array
-    {
-        return [
-            'A' => 40,
-            'B' => 40,
         ];
     }
 
