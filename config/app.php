@@ -16,6 +16,8 @@ return [
     |
     */
     // custom config
+    'ip_api_token_key' => env('IP_API_TOKEN_KEY', ''),
+
     'valid_domain_checker_email' => env('VALID_DOMAINS_CHECKER_EMAIL', ''),
 
     'front_url' => env('APP_FRONT_URL', 'http://localhost:3000'),

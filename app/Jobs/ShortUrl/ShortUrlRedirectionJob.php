@@ -4,6 +4,7 @@ namespace App\Jobs\ShortUrl;
 
 use Carbon\Carbon;
 
+use App\Actions\ProIpApi;
 use App\Models\Analytics;
 use App\Models\VisitorCount;
 use Illuminate\Bus\Queueable;
@@ -13,7 +14,6 @@ use Illuminate\Support\Facades\Log;
 use App\Models\VisitorCountByCountry;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Stevebauman\Location\Facades\Location;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -85,9 +85,9 @@ class ShortUrlRedirectionJob implements ShouldQueue
 
                 // location get
 
-                if ($position = Location::get($request_ip)) {
-                    $countryName = @$position->countryName;
-                    $cityName = @$position->cityName;
+                if ($position = ProIpApi::location($request_ip)) {
+                    $countryName = @$position['country'];
+                    $cityName = @$position['city'];
 
 
                     // Total visitor count by country

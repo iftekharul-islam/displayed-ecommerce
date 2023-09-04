@@ -12,9 +12,6 @@
 */
 
 // auth routes
-
-use Illuminate\Support\Facades\Route;
-
 require __DIR__ . '/auth/auth.php';
 
 // dashboard routes
@@ -40,8 +37,3 @@ require __DIR__ . '/short-url/short_url.php';
 
 // excluded-domain routes
 require __DIR__ . '/excluded-domain/excluded_domain.php';
-
-
-Route::get('/test', function () {
-    return config('app.valid_domain_checker_email');
-});
