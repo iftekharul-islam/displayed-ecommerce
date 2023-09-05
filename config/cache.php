@@ -61,6 +61,12 @@ return [
             'lock_path' => storage_path('framework/cache/redirection'),
         ],
 
+        'excel' => [
+            'driver' => 'file',
+            'path' => storage_path('framework/cache/excel'),
+            'lock_path' => storage_path('framework/cache/excel'),
+        ],
+
         'memcached' => [
             'driver' => 'memcached',
             'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
