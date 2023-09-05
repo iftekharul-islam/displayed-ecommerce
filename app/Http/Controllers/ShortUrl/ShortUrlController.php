@@ -46,35 +46,38 @@ class ShortUrlController extends Controller
         try {
             hasPermissionTo(PermissionConstant::SHORT_URLS_ACCESS['name']);
 
-            $perPage = $request->query('perPage', config('app.per_page'));
-            $sortByKey = $request->query('sortByKey', 'id');
-            $sortByOrder = $request->query('sortByOrder', 'desc');
-            $searchQuery = $request->query('searchQuery', []);
-            $originalDomain = @$searchQuery['originalDomain'] ?? null;
-            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
-            $tld = @$searchQuery['tld'] ?? null;
-            $campaignId = (int) $request->query('campaignId', -1);
+            $request_all = $request->all();
+            $perPage = data_get($request_all, 'perPage', config('app.per_page'));
+            $sortByKey = data_get($request_all, 'sortByKey', 'id');
+            $sortByOrder = data_get($request_all, 'sortByOrder', 'desc');
+            $originalDomain = data_get($request_all, 'searchQuery.originalDomain', null);
+            $tld = data_get($request_all, 'searchQuery.tld', null);
+            $campaignId = (int) data_get($request_all, 'campaignId', -1);
+            $shortUrlInput = data_get($request_all, 'searchQuery.shortUrl', null);
+            $shortUrl = getCodeFromUrl($shortUrlInput) ?? null;
+
 
             $getCampaignNameAndLastUpdatedDate = $this->getCampaignNameAndLastUpdatedDate($campaignId);
 
             // filter
-            $isFilter = to_boolean($request->query('isFilter', false));
+            $isFilterInput = data_get($request_all, 'isFilter', false);
+            $isFilter = to_boolean($isFilterInput);
 
             if ($isFilter) {
 
-                $filterQuery = $request->query('filterQuery', []);
-                $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
-                $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
-                $expireAtFilter = @$filterQuery['expireAtFilter'] ? (int)@$filterQuery['expireAtFilter'] : ShortUrlConstant::ALL;
-                $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
-                $tldFilter = @$filterQuery['tldFilter'] ?? null;
+                $fromDateFilterInput = data_get($request_all, 'filterQuery.fromDateFilter', null);
+                $fromDateFilter = $fromDateFilterInput ? Carbon::make($fromDateFilterInput)->format('Y-m-d') : null;
+                $toDateFilterInput = data_get($request_all, 'filterQuery.toDateFilter', null);
+                $toDateFilter = $toDateFilterInput ? Carbon::make($toDateFilterInput)->format('Y-m-d') : null;
+                $expireAtFilter = (int) data_get($request_all, 'filterQuery.expireAtFilter', ShortUrlConstant::ALL);
+                $statusFilter = (array) data_get($request_all, 'filterQuery.statusFilter', []);
+                $tldFilter = data_get($request_all, 'filterQuery.tldFilter', null);
 
                 $getTrafficDataFiltering = $this->getTrafficDataFiltering($fromDateFilter, $toDateFilter);
                 $getExpiryAtFiltering = $this->getExpiryAtFiltering($expireAtFilter);
                 $getStatusFiltering = $this->getStatusFiltering($statusFilter);
 
                 $concat_filtering = "Traffic Data Filter : {$getTrafficDataFiltering} | Expire In : {$getExpiryAtFiltering} | Status : {$getStatusFiltering}";
-
 
                 $data =  ShortUrl::query()
                     ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
