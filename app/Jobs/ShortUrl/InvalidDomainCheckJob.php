@@ -53,14 +53,14 @@ class InvalidDomainCheckJob implements ShouldQueue
             $logPrefix = "ValidDomainCheckJob: {$campaign->name} - ";
             Log::channel('valid-domains-checker')->info("$logPrefix started");
 
-            DB::table('short_urls')
+            ShortUrl::query()
                 ->select(['id', 'campaign_id', 'original_domain', 'expired_at'])
                 ->where([
                     'campaign_id' => $campaign->id,
                     'status' => ShortUrlConstant::INVALID,
                 ])
                 ->lazyById(1000, 'id')
-                ->each(function ($shortUrl) {
+                ->each(function (ShortUrl $shortUrl) {
                     $now = now();
                     $message = 'Invalid';
                     $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
