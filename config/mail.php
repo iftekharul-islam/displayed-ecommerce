@@ -99,7 +99,7 @@ return [
     */
 
     'from' => [
-        'address' => 'mailtrap@choto.xyz',
+        'address' => 'mailtrap@choto.xyz', // mailtrap@choto.xyz
         'name' => 'choto.xyz',
     ],
 

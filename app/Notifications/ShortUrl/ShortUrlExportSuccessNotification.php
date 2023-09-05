@@ -37,6 +37,7 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
     /**
      * Get the mail representation of the notification.
      */
+
     public function toMail(object $notifiable): MailMessage
     {
         $exportFileDownloadLink = URL::to($this->exportFileDownloadLink);
@@ -48,6 +49,7 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
             ->action('Download', $exportFileDownloadLink)
             ->line('Thank you for using our application!');
     }
+
 
     /**
      * Get the array representation of the notification.

@@ -4,13 +4,11 @@ namespace App\Exports\ShortUrl;
 
 use Throwable;
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\ShortUrl;
 use Illuminate\Support\Facades\DB;
 use App\Constants\ShortUrlConstant;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -21,6 +19,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use App\Notifications\ShortUrl\ShortUrlExportFailedNotification;
+use Maatwebsite\Excel\Concerns\FromQuery;
 
 class ShortUrlExport implements
     FromQuery,
@@ -46,10 +45,9 @@ class ShortUrlExport implements
     protected $tld;
     protected $isExportOriginalDomain;
 
-
-    public function __construct(User $exportedBy, $data, bool $isExportOriginalDomain)
+    public function __construct($data)
     {
-        $this->exportedBy =  $exportedBy;
+        $this->exportedBy =  $data['exportedBy'];
         $this->exportFileName = $data['exportFileName'];
         $this->campaignId = $data['campaignId'];
         $this->fromDateFilter = $data['fromDateFilter'];
@@ -60,7 +58,7 @@ class ShortUrlExport implements
         $this->originalDomain = $data['originalDomain'];
         $this->shortUrl = $data['shortUrl'];
         $this->tld = $data['tld'];
-        $this->isExportOriginalDomain = $isExportOriginalDomain;
+        $this->isExportOriginalDomain = $data['isExportOriginalDomain'];
     }
 
     public function failed(Throwable $exception): void
@@ -80,6 +78,7 @@ class ShortUrlExport implements
         $originalDomain = $this->originalDomain;
         $shortUrl = $this->shortUrl;
         $tld = $this->tld;
+
 
         return ShortUrl::query()
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {

@@ -447,17 +447,21 @@ class ShortUrlController extends Controller
     public function export(Request $request)
     {
         try {
-            $campaignId = (int)$request->query('campaignId', -1);
-            $filterQuery = $request->query('filterQuery', []);
-            $fromDateFilter = @$filterQuery['fromDateFilter'] ? Carbon::make($filterQuery['fromDateFilter'])->format('Y-m-d') : null;
-            $toDateFilter = @$filterQuery['toDateFilter'] ? Carbon::make($filterQuery['toDateFilter'])->format('Y-m-d') : null;
-            $expireAtFilter =  (int)@$filterQuery['expireAtFilter'];
-            $statusFilter = @$filterQuery['statusFilter'] && is_array(@$filterQuery['statusFilter']) ? (array) $filterQuery['statusFilter'] : null;
-            $tldFilter = @$filterQuery['tldFilter'] ?? null;
-            $searchQuery = $request->query('searchQuery', []);
-            $originalDomain = @$searchQuery['originalDomain'] ?? null;
-            $shortUrl = getCodeFromUrl(@$searchQuery['shortUrl']) ?? null;
-            $tld = @$searchQuery['tld'] ?? null;
+
+            $request_all = $request->all();
+            $originalDomain = data_get($request_all, 'searchQuery.originalDomain', null);
+            $tld = data_get($request_all, 'searchQuery.tld', null);
+            $campaignId = (int) data_get($request_all, 'campaignId', -1);
+            $shortUrlInput = data_get($request_all, 'searchQuery.shortUrl', null);
+            $shortUrl = getCodeFromUrl($shortUrlInput) ?? null;
+
+            $fromDateFilterInput = data_get($request_all, 'filterQuery.fromDateFilter', null);
+            $fromDateFilter = $fromDateFilterInput ? Carbon::make($fromDateFilterInput)->format('Y-m-d') : null;
+            $toDateFilterInput = data_get($request_all, 'filterQuery.toDateFilter', null);
+            $toDateFilter = $toDateFilterInput ? Carbon::make($toDateFilterInput)->format('Y-m-d') : null;
+            $expireAtFilter = (int) data_get($request_all, 'filterQuery.expireAtFilter', ShortUrlConstant::ALL);
+            $statusFilter = (array) data_get($request_all, 'filterQuery.statusFilter', []);
+            $tldFilter = data_get($request_all, 'filterQuery.tldFilter', null);
 
             $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
             $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
@@ -467,7 +471,15 @@ class ShortUrlController extends Controller
             $date = now()->format('Y_m_d_H_i_s');
             $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
 
+            $user = auth()->user();
+
+            $isExportOriginalDomain =  false;
+            if ($user->hasPermissionTo(PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'])) {
+                $isExportOriginalDomain =  true;
+            }
+
             $data = [
+                'exportedBy' => $user,
                 'exportFileName' => $exportFileName,
                 'campaignId' => $campaignId,
                 'fromDateFilter' => $fromDateFilter,
@@ -478,19 +490,13 @@ class ShortUrlController extends Controller
                 'originalDomain' => $originalDomain,
                 'shortUrl' => $shortUrl,
                 'tld' => $tld,
+                'isExportOriginalDomain' => $isExportOriginalDomain,
             ];
-
-            $user = auth()->user();
-
-            $isExportOriginalDomain =  false;
-            if ($user->hasPermissionTo(PermissionConstant::SHORT_URLS_ORIGINAL_DOMAINS_SHOW['name'])) {
-                $isExportOriginalDomain =  true;
-            }
 
             $exportFilePath = "exports/short-urls/export/{$exportFileName}";
             $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
 
-            (new ShortUrlExport($user, $data, $isExportOriginalDomain))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+            (new ShortUrlExport($data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
                 new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
             ]);
 
@@ -507,10 +513,25 @@ class ShortUrlController extends Controller
     public function exportDownload(string $code)
     {
         try {
+
             $filePath = "exports/short-urls/export/{$code}";
 
             if (Storage::disk('public')->exists($filePath)) {
-                return Storage::disk('public')->download($filePath);
+                // Download the file
+                $file = Storage::disk('public')->get($filePath);
+                $response = response()->make($file);
+
+                // Set the appropriate headers for the download
+                $headers = [
+                    'Content-Type' => Storage::disk('public')->mimeType($filePath),
+                    'Content-Disposition' => 'attachment; filename="' . basename($filePath) . '"',
+                ];
+
+                // Delete the file
+                Storage::disk('public')->delete($filePath);
+
+                // Return the response with the file contents
+                return $response->withHeaders($headers);
             }
 
             abort(404, 'File not found');
@@ -569,7 +590,21 @@ class ShortUrlController extends Controller
             $filePath = "exports/short-urls/latest-domain-export/{$code}";
 
             if (Storage::disk('public')->exists($filePath)) {
-                return Storage::disk('public')->download($filePath);
+                // Download the file
+                $file = Storage::disk('public')->get($filePath);
+                $response = response()->make($file);
+
+                // Set the appropriate headers for the download
+                $headers = [
+                    'Content-Type' => Storage::disk('public')->mimeType($filePath),
+                    'Content-Disposition' => 'attachment; filename="' . basename($filePath) . '"',
+                ];
+
+                // Delete the file
+                Storage::disk('public')->delete($filePath);
+
+                // Return the response with the file contents
+                return $response->withHeaders($headers);
             }
 
             abort(404, 'File not found');
