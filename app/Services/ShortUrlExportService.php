@@ -176,7 +176,7 @@ class ShortUrlExportService
         $cityVisitorTotalCount5th = $shortUrl->visitorCountByCities[4]->total_count ?? '-';
         $city5th = "$cityVisitor5th:$cityVisitorTotalCount5th";
 
-        if ($isExportOriginalDomain) {
+        if (to_boolean($isExportOriginalDomain)) {
             $originalDomain = $shortUrl->original_domain  ?? '-';
         } else {
             $originalDomain = '-';
