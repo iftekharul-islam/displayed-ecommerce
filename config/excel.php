@@ -241,12 +241,7 @@ return [
         |
         */
         'batch'     => [
-            'memory_limit' => 4098000, // default 60000
-            // 60000 is 60MB
-            // 1024000  is 1024MB
-            // 2048000 is 2048mb
-            // 4098000 is 4098mb
-
+            'memory_limit' => 60000, // default 60000
         ],
 
         /*

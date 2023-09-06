@@ -18,8 +18,8 @@ use App\Http\Controllers\Controller;
 use App\Constants\PermissionConstant;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use App\Exports\ShortUrl\ShortUrlExport;
 use App\Imports\ShortUrl\ShortUrlImport;
+use App\Jobs\ShortUrl\ShortUrlExportJob;
 use App\Jobs\ShortUrl\ValidDomainCheckJob;
 use App\Exports\ShortUrl\latestDomainExport;
 use App\Jobs\ShortUrl\InvalidDomainCheckJob;
@@ -29,7 +29,6 @@ use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
-use App\Jobs\ShortUrl\NotifyUserOfCompletedExportJob;
 use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -478,6 +477,9 @@ class ShortUrlController extends Controller
                 $isExportOriginalDomain =  true;
             }
 
+            $exportFilePath = "exports/short-urls/export/{$exportFileName}";
+            $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
+
             $data = [
                 'exportedBy' => $user,
                 'exportFileName' => $exportFileName,
@@ -491,14 +493,11 @@ class ShortUrlController extends Controller
                 'shortUrl' => $shortUrl,
                 'tld' => $tld,
                 'isExportOriginalDomain' => $isExportOriginalDomain,
+                'exportFilePath' => $exportFilePath,
+                'exportFileDownloadLink' => $exportFileDownloadLink,
             ];
 
-            $exportFilePath = "exports/short-urls/export/{$exportFileName}";
-            $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
-
-            (new ShortUrlExport($data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
-                new NotifyUserOfCompletedExportJob($user, $exportFileName, $exportFileDownloadLink),
-            ]);
+            ShortUrlExportJob::dispatch($data);
 
             return response()->json([
                 'message' => 'Short urls export started!, please wait...  when done will send you an email',
