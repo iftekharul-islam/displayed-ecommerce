@@ -1,84 +1,27 @@
 <?php
 
-namespace App\Exports\ShortUrl;
+namespace App\Services;
 
-use Throwable;
 use Carbon\Carbon;
 use App\Models\ShortUrl;
 use Illuminate\Support\Facades\DB;
 use App\Constants\ShortUrlConstant;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use App\Notifications\ShortUrl\ShortUrlExportFailedNotification;
-use Maatwebsite\Excel\Concerns\FromQuery;
 
-class ShortUrlExport implements
-    FromQuery,
-    ShouldQueue,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithEvents,
-    ShouldAutoSize
+
+class ShortUrlExportService
 {
-    use Exportable;
 
-    protected $exportedBy;
-    protected $exportFileName;
-    protected $campaignId;
-    protected $fromDateFilter;
-    protected $toDateFilter;
-    protected $expireAtFilter;
-    protected $statusFilter;
-    protected $tldFilter;
-    protected $originalDomain;
-    protected $shortUrl;
-    protected $tld;
-    protected $isExportOriginalDomain;
-
-    public function __construct($data)
-    {
-        $this->exportedBy =  $data['exportedBy'];
-        $this->exportFileName = $data['exportFileName'];
-        $this->campaignId = $data['campaignId'];
-        $this->fromDateFilter = $data['fromDateFilter'];
-        $this->toDateFilter = $data['toDateFilter'];
-        $this->expireAtFilter = $data['expireAtFilter'];
-        $this->statusFilter = $data['statusFilter'];
-        $this->tldFilter = $data['tldFilter'];
-        $this->originalDomain = $data['originalDomain'];
-        $this->shortUrl = $data['shortUrl'];
-        $this->tld = $data['tld'];
-        $this->isExportOriginalDomain = $data['isExportOriginalDomain'];
-    }
-
-    public function failed(Throwable $exception): void
-    {
-        $this->exportedBy->notify(new ShortUrlExportFailedNotification($this->exportFileName));
-        Log::error($exception);
-    }
-
-    public function query()
-    {
-        $campaignId = $this->campaignId;
-        $fromDateFilter = $this->fromDateFilter;
-        $toDateFilter = $this->toDateFilter;
-        $expireAtFilter = $this->expireAtFilter;
-        $statusFilter = $this->statusFilter;
-        $tldFilter = $this->tldFilter;
-        $originalDomain = $this->originalDomain;
-        $shortUrl = $this->shortUrl;
-        $tld = $this->tld;
-
+    public function query(
+        $fromDateFilter,
+        $toDateFilter,
+        $expireAtFilter,
+        $statusFilter,
+        $campaignId,
+        $shortUrl,
+        $originalDomain,
+        $tldFilter,
+        $tld
+    ) {
 
         return ShortUrl::query()
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -187,36 +130,11 @@ class ShortUrlExport implements
             ->when(!$tldFilter && $tld, function ($query) use ($tld) {
                 $query->where('tld_name', 'LIKE', "%$tld%");
             })
-            ->orderBy('id', 'desc');
+            ->get();
     }
 
-    public function headings(): array
-    {
-        return [
-            'Campaign Name',
-            'Original Domain',
-            'Destination Domain',
-            'Short URL',
-            'Total Visitor',
-            'TLD',
-            'TLD Price',
-            'Auto Renewal',
-            'Status',
-            'Expired At',
-            '1st Country Visitor',
-            '2nd Country Visitor',
-            '3rd Country Visitor',
-            '4th Country Visitor',
-            '5th Country Visitor',
-            '1st City Visitor',
-            '2nd City Visitor',
-            '3rd City Visitor',
-            '4th City Visitor',
-            '5th City Visitor',
-        ];
-    }
 
-    public function map($shortUrl): array
+    public function map($shortUrl, $isExportOriginalDomain): array
     {
         $countryVisitor1st = $shortUrl->visitorCountByCountries[0]->country ?? '-';
         $countryVisitorTotalCount1st = $shortUrl->visitorCountByCountries[0]->total_count ?? '-';
@@ -258,55 +176,33 @@ class ShortUrlExport implements
         $cityVisitorTotalCount5th = $shortUrl->visitorCountByCities[4]->total_count ?? '-';
         $city5th = "$cityVisitor5th:$cityVisitorTotalCount5th";
 
-        if ($this->isExportOriginalDomain) {
+        if (to_boolean($isExportOriginalDomain)) {
             $originalDomain = $shortUrl->original_domain  ?? '-';
         } else {
             $originalDomain = '-';
         }
 
         return [
-            $shortUrl->campaign->name ?? '-',
-            $originalDomain,
-            $shortUrl->destination_domain ?? '-',
-            $shortUrl->short_url ?? '-',
-            $shortUrl->visitor_count ?? '0',
-            $shortUrl->tld_name  ?? '-',
-            $shortUrl->tld_price ?? '-',
-            $shortUrl->auto_renewal ? 'Yes' : 'No',
-            $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
-            $shortUrl->expired_at ?? '-',
-            $country1st,
-            $country2nd,
-            $country3rd,
-            $country4th,
-            $country5th,
-            $city1st,
-            $city2nd,
-            $city3rd,
-            $city4th,
-            $city5th,
-        ];
-    }
-
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1    => ['font' => ['bold' => true]],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function registerEvents(): array
-    {
-        return [
-            AfterSheet::class    => function (AfterSheet $event) {
-                $event->sheet->getDelegate()
-                    ->getStyle('A:T')
-                    ->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            },
+            'Campaign Name' => $shortUrl->campaign->name ?? '-',
+            'Original Domain' => $originalDomain,
+            'Destination Domain' => $shortUrl->destination_domain ?? '-',
+            'Short URL' => $shortUrl->short_url ?? '-',
+            'Total Visitor' => $shortUrl->visitor_count ?? '0',
+            'TLD' => $shortUrl->tld_name  ?? '-',
+            'TLD Price' => $shortUrl->tld_price ?? '-',
+            'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
+            'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
+            'Expired At' => $shortUrl->expired_at ?? '-',
+            '1st Country Visitor' =>  $country1st,
+            '2nd Country Visitor' => $country2nd,
+            '3rd Country Visitor' => $country3rd,
+            '4th Country Visitor' => $country4th,
+            '5th Country Visitor' => $country5th,
+            '1st City Visitor' => $city1st,
+            '2nd City Visitor' => $city2nd,
+            '3rd City Visitor' =>  $city3rd,
+            '4th City Visitor' =>  $city4th,
+            '5th City Visitor' =>  $city5th,
         ];
     }
 
@@ -321,6 +217,13 @@ class ShortUrlExport implements
             return 'Valid';
         } else {
             return 'Invalid';
+        }
+    }
+
+    public function itemsGenerator($items)
+    {
+        foreach ($items as $item) {
+            yield $item;
         }
     }
 }
