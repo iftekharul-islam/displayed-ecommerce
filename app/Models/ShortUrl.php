@@ -9,6 +9,7 @@ use App\Traits\UpdatedBy;
 use App\Models\VisitorCount;
 use App\Models\VisitorCountByCountry;
 use Illuminate\Database\Eloquent\Model;
+use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,7 @@ class ShortUrl extends Model
     use HasFactory;
     use CreatedBy;
     use UpdatedBy;
+    use HasEagerLimit;
 
     protected $fillable = [
         'campaign_id',
