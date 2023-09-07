@@ -21,6 +21,8 @@ class NotificationController extends Controller
             $perPage = data_get($request_all, 'perPage', config('app.per_page'));
             $user = auth()->user();
 
+            $user->unreadNotifications->markAsRead();
+
             $notifications = $user->notifications()->paginate($perPage);
 
             return NotificationResource::collection($notifications);
@@ -42,6 +44,21 @@ class NotificationController extends Controller
                 ->delete();
 
             return response()->noContent();
+        } catch (HttpException $th) {
+            logExceptionInSlack($th);
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+
+    public function unreadCount()
+    {
+        try {
+            $user = auth()->user();
+            $count = $user->unreadNotifications()->count();
+
+            return response()->json(['count' => $count]);
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::error($th);

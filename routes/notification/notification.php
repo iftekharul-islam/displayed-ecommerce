@@ -8,6 +8,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->controller(NotificationController::class)
         ->group(function () {
             Route::get('/', 'index');
+            Route::get('/unread-count', 'unreadCount');
             Route::delete('/{notification}', 'destroy');
         });
 });
