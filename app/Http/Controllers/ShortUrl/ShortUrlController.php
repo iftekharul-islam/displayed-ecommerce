@@ -468,7 +468,7 @@ class ShortUrlController extends Controller
             $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
             $code = Str::random(10);
             $date = now()->format('Y_m_d_H_i_s');
-            $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
+            $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug['slug']}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
 
             $user = auth()->user();
 
@@ -483,6 +483,7 @@ class ShortUrlController extends Controller
             $data = [
                 'exportedBy' => $user,
                 'exportFileName' => $exportFileName,
+                'campaignName' => $getCampaignNameAndLastUpdatedDateSlug['name'],
                 'campaignId' => $campaignId,
                 'fromDateFilter' => $fromDateFilter,
                 'toDateFilter' => $toDateFilter,
@@ -657,20 +658,27 @@ class ShortUrlController extends Controller
         return "{$campaignName} (Last Updated On {$formattedLastUpdatedDate})";
     }
 
-    public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
+    public function getCampaignNameAndLastUpdatedDateSlug(int $id): array
     {
         if ($id === ShortUrlConstant::ALL) {
             return "ALL";
         }
 
         $campaign = Campaign::findOrFail($id);
-        $campaignNameSlug = Str::slug($campaign->name ?? '', '_');
+        $campaignName = @$campaign->name;
+        $campaignNameSlug = Str::slug($campaignName ?? '', '_');
         $formattedLastUpdatedDate = $campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
 
         if ($formattedLastUpdatedDate) {
-            return "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}";
+            return [
+                'name' => $campaignName,
+                'slug' => "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}",
+            ];
         } else {
-            return $campaignNameSlug;
+            return [
+                'name' => $campaignName,
+                'slug' => "{$campaignNameSlug}",
+            ];
         }
     }
 
