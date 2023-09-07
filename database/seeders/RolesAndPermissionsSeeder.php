@@ -320,6 +320,15 @@ class RolesAndPermissionsSeeder extends Seeder
                     'guard_name' => 'api'
                 ]
             ],
+            'Export Reports' => [
+                [
+                    'name' => PermissionConstant::EXPORT_REPORTS_ACCESS['name'],
+                    'label' => PermissionConstant::EXPORT_REPORTS_ACCESS['label'],
+                    'code' => PermissionConstant::EXPORT_REPORTS_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['access'],
+                    'guard_name' => 'api'
+                ]
+            ],
 
         ];
 

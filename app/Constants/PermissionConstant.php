@@ -223,4 +223,11 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 8004,
     ];
+
+    // Export Report
+    public const EXPORT_REPORTS_ACCESS = [
+        'name' => 'export_reports_access',
+        'label' => 'Access',
+        'code' => 9000,
+    ];
 }

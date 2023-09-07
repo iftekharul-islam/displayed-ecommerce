@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Notification;
+namespace App\Http\Resources\ExportReport;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class NotificationResource extends JsonResource
+class ExportReportResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

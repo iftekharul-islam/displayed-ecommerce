@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Notification;
+namespace App\Http\Controllers\ExportReport;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Notification\NotificationResource;
+use App\Http\Resources\ExportReport\ExportReportResource;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class NotificationController extends Controller
+class ExportReportController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,11 +21,9 @@ class NotificationController extends Controller
             $perPage = data_get($request_all, 'perPage', config('app.per_page'));
             $user = auth()->user();
 
-            $user->unreadNotifications->markAsRead();
-
-            $notifications = $user->notifications()->paginate($perPage);
-
-            return NotificationResource::collection($notifications);
+            $notifications = $user->notifications()
+                ->paginate($perPage);
+            return ExportReportResource::collection($notifications);
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::error($th);
@@ -36,11 +34,11 @@ class NotificationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $notification)
+    public function destroy(string $export_report)
     {
         try {
             DB::table('notifications')
-                ->where('id', $notification)
+                ->where('id', $export_report)
                 ->delete();
 
             return response()->noContent();
@@ -59,6 +57,25 @@ class NotificationController extends Controller
             $count = $user->unreadNotifications()->count();
 
             return response()->json(['count' => $count]);
+        } catch (HttpException $th) {
+            logExceptionInSlack($th);
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
+
+    public function markAsRead(string $export_report)
+    {
+        try {
+            DB::table('notifications')
+                ->where('id', $export_report)
+                ->update([
+                    'read_at' => now(),
+                ]);
+
+            return response()->json([
+                'message' => 'Successfully updated',
+            ], 200);
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::error($th);
