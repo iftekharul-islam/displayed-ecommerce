@@ -12,18 +12,21 @@ class ShortUrlExportService
 {
 
     public function query(
-        $fromDateFilter,
-        $toDateFilter,
-        $expireAtFilter,
-        $statusFilter,
-        $campaignId,
-        $shortUrl,
-        $originalDomain,
-        $tldFilter,
-        $tld
+        $data
     ) {
 
-        return ShortUrl::query()
+        $fromDateFilter = $data['fromDateFilter'];
+        $toDateFilter = $data['toDateFilter'];
+        $expireAtFilter = $data['expireAtFilter'];
+        $statusFilter = $data['statusFilter'];
+        $campaignId = $data['campaignId'];
+        $shortUrl = $data['shortUrl'];
+        $originalDomain = $data['originalDomain'];
+        $tldFilter = $data['tldFilter'];
+        $tld = $data['tld'];
+        $isExportOriginalDomain = $data['isExportOriginalDomain'];
+
+        $data = ShortUrl::query()
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -130,7 +133,15 @@ class ShortUrlExportService
             ->when(!$tldFilter && $tld, function ($query) use ($tld) {
                 $query->where('tld_name', 'LIKE', "%$tld%");
             })
-            ->get();
+            ->lazyById(1000, 'id')
+            ->map(
+                function ($shortUrl) use ($isExportOriginalDomain) {
+                    return $this->map($shortUrl, $isExportOriginalDomain);
+                }
+            )
+            ->all();
+
+        return $data;
     }
 
 

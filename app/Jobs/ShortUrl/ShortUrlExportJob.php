@@ -44,26 +44,10 @@ class ShortUrlExportJob implements ShouldQueue
         try {
             $exportFilePath = storage_path("app/public/{$this->data['exportFilePath']}");
             Storage::disk('public')->put("{$this->data['exportFilePath']}", '');
-            $isExportOriginalDomain = $this->data['isExportOriginalDomain'];
-            $chunkSize = 1000;
 
             $data = $this->shortUrlExportService->query(
-                $this->data['fromDateFilter'],
-                $this->data['toDateFilter'],
-                $this->data['expireAtFilter'],
-                $this->data['statusFilter'],
-                $this->data['campaignId'],
-                $this->data['shortUrl'],
-                $this->data['originalDomain'],
-                $this->data['tldFilter'],
-                $this->data['tld']
-            )
-                ->chunk($chunkSize)
-                ->flatMap(function ($items) use ($isExportOriginalDomain) {
-                    return collect($items)->map(function ($item) use ($isExportOriginalDomain) {
-                        return $this->shortUrlExportService->map($item, $isExportOriginalDomain);
-                    });
-                });
+                $this->data
+            );
 
             $header_style = (new Style())
                 ->setFontBold()
