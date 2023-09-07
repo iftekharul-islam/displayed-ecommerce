@@ -64,7 +64,7 @@ class ShortUrlExportJob implements ShouldQueue
                 ->rowsStyle($rows_style)
                 ->export($exportFilePath);
 
-            $this->exportedBy->notify(new ShortUrlExportSuccessNotification($this->data['exportFileName'], $this->data['exportFileDownloadLink']));
+            $this->exportedBy->notify(new ShortUrlExportSuccessNotification($this->data));
         } catch (HttpException $th) {
             Log::error($th->getMessage());
         }
@@ -79,7 +79,7 @@ class ShortUrlExportJob implements ShouldQueue
      */
     public function failed(\Throwable $th)
     {
-        $this->exportedBy->notify(new ShortUrlExportFailedNotification($this->data['exportFileName']));
+        $this->exportedBy->notify(new ShortUrlExportFailedNotification($this->data));
         Log::error($th->getMessage());
     }
 }
