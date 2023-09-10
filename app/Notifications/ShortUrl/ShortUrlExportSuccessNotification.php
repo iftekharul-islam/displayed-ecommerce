@@ -43,7 +43,7 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
         return (new MailMessage)
             ->success()
             ->subject('Short Urls Export Successfully Completed')
-            ->line('Short Urls Export Successfully Completed Name: ' . $this->data['name'])
+            ->line('Short Urls Export Successfully Completed For: ' . $this->data['filterQuery'])
             ->action('Download', $exportFileDownloadLink)
             ->line('Thank you for using our application!');
     }
@@ -57,7 +57,7 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
     public function toArray(object $notifiable): array
     {
         return [
-            'name' => $this->data['campaignName'],
+            'name' => $this->data['filterQuery'],
             'link' => $this->data['exportFileDownloadLink'],
         ];
     }
