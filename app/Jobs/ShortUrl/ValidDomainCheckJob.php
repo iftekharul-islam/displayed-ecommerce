@@ -72,19 +72,19 @@ class ValidDomainCheckJob implements ShouldQueue
                         $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                     } else {
                         try {
-                            $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
+                            $response = Http::get($originalDomain);
                             $responseBody = $response->body();
 
                             if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
                                 $title = $matches[1];
                                 $message = 'Valid';
                                 $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
-                                $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                                $remarks = " , match Lotto60 and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                             } else if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
                                 $title = $matches[1];
                                 $message = 'Valid';
-                                $status = strpos($title, 'Tickets.love') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
-                                $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                                $status = strpos($title, 'Tickets') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
+                                $remarks = " , match Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                             }
                         } catch (\Throwable $th) {
                             $message = $th->getMessage();
