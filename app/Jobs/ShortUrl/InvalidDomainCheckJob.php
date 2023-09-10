@@ -82,6 +82,11 @@ class InvalidDomainCheckJob implements ShouldQueue
                                 $message = 'Valid';
                                 $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
                                 $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                            } else if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
+                                $title = $matches[1];
+                                $message = 'Valid';
+                                $status = strpos($title, 'Tickets.love') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
+                                $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                             }
                         } catch (\Throwable $th) {
                             $message = $th->getMessage();
