@@ -28,7 +28,7 @@ class ShortUrlExportFailedNotification extends Notification implements ShouldQue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail'];
     }
 
     /**
@@ -51,7 +51,7 @@ class ShortUrlExportFailedNotification extends Notification implements ShouldQue
     public function toArray(object $notifiable): array
     {
         return [
-            'name' => $this->data['campaignName'],
+            //
         ];
     }
 }
