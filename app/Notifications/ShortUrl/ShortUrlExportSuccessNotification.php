@@ -12,16 +12,14 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
 {
     use Queueable;
 
-    protected $name;
-    protected $exportFileDownloadLink;
+    protected $data;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($name, $exportFileDownloadLink)
+    public function __construct($data)
     {
-        $this->name = $name;
-        $this->exportFileDownloadLink = $exportFileDownloadLink;
+        $this->data = $data;
     }
 
     /**
@@ -31,7 +29,7 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -40,12 +38,12 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
 
     public function toMail(object $notifiable): MailMessage
     {
-        $exportFileDownloadLink = URL::to($this->exportFileDownloadLink);
+        $exportFileDownloadLink = URL::to($this->data['exportFileDownloadLink']);
 
         return (new MailMessage)
             ->success()
             ->subject('Short Urls Export Successfully Completed')
-            ->line('Short Urls Export Successfully Completed Name: ' . $this->name)
+            ->line('Short Urls Export Successfully Completed For: ' . $this->data['filterQuery'])
             ->action('Download', $exportFileDownloadLink)
             ->line('Thank you for using our application!');
     }
@@ -59,7 +57,8 @@ class ShortUrlExportSuccessNotification extends Notification implements ShouldQu
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'name' => $this->data['filterQuery'],
+            'link' => $this->data['exportFileDownloadLink'],
         ];
     }
 }

@@ -462,6 +462,8 @@ class ShortUrlController extends Controller
             $statusFilter = (array) data_get($request_all, 'filterQuery.statusFilter', []);
             $tldFilter = data_get($request_all, 'filterQuery.tldFilter', null);
 
+
+            // filter slug for file name
             $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
             $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
             $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
@@ -480,9 +482,18 @@ class ShortUrlController extends Controller
             $exportFilePath = "exports/short-urls/export/{$exportFileName}";
             $exportFileDownloadLink = config('app.url') . "/api/short-urls/export/download/{$exportFileName}";
 
+            $getCampaignNameAndLastUpdatedDate = $this->getCampaignNameAndLastUpdatedDate($campaignId);
+            $getTrafficDataFiltering = $this->getTrafficDataFiltering($fromDateFilter, $toDateFilter);
+            $getExpiryAtFiltering = $this->getExpiryAtFiltering($expireAtFilter);
+            $getStatusFiltering = $this->getStatusFiltering($statusFilter);
+
+            $concatFilterQuery = "{$getCampaignNameAndLastUpdatedDate} | Traffic Data Filter : {$getTrafficDataFiltering} | Expire In : {$getExpiryAtFiltering} | Status : {$getStatusFiltering}";
+
+
             $data = [
                 'exportedBy' => $user,
                 'exportFileName' => $exportFileName,
+                'filterQuery' => $concatFilterQuery,
                 'campaignId' => $campaignId,
                 'fromDateFilter' => $fromDateFilter,
                 'toDateFilter' => $toDateFilter,
@@ -651,8 +662,8 @@ class ShortUrlController extends Controller
         }
 
         $campaign = Campaign::findOrFail($id);
-        $campaignName = $campaign->name;
-        $formattedLastUpdatedDate = $campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('jS F, Y') : null;
+        $campaignName = @$campaign->name;
+        $formattedLastUpdatedDate = @$campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('jS F, Y') : null;
 
         return "{$campaignName} (Last Updated On {$formattedLastUpdatedDate})";
     }
@@ -660,12 +671,13 @@ class ShortUrlController extends Controller
     public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
     {
         if ($id === ShortUrlConstant::ALL) {
-            return "ALL";
+            return 'ALL';
         }
 
         $campaign = Campaign::findOrFail($id);
-        $campaignNameSlug = Str::slug($campaign->name ?? '', '_');
-        $formattedLastUpdatedDate = $campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
+        $campaignName = @$campaign->name;
+        $campaignNameSlug = Str::slug($campaignName ?? '', '_');
+        $formattedLastUpdatedDate = @$campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
 
         if ($formattedLastUpdatedDate) {
             return "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}";

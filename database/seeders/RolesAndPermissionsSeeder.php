@@ -320,6 +320,15 @@ class RolesAndPermissionsSeeder extends Seeder
                     'guard_name' => 'api'
                 ]
             ],
+            'Report Download' => [
+                [
+                    'name' => PermissionConstant::REPORT_DOWNLOAD_ACCESS['name'],
+                    'label' => PermissionConstant::REPORT_DOWNLOAD_ACCESS['label'],
+                    'code' => PermissionConstant::REPORT_DOWNLOAD_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['access'],
+                    'guard_name' => 'api'
+                ]
+            ],
 
         ];
 

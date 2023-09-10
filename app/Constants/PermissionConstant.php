@@ -223,4 +223,11 @@ class PermissionConstant
         'label' => 'Delete',
         'code' => 8004,
     ];
+
+    // Report Download
+    public const REPORT_DOWNLOAD_ACCESS = [
+        'name' => 'report_download_access',
+        'label' => 'Access',
+        'code' => 9000,
+    ];
 }

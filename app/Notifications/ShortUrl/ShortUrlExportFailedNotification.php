@@ -11,14 +11,14 @@ class ShortUrlExportFailedNotification extends Notification implements ShouldQue
 {
     use Queueable;
 
-    protected $name;
+    protected $data;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($name)
+    public function __construct($data)
     {
-        $this->name = $name;
+        $this->data = $data;
     }
 
     /**
@@ -39,7 +39,7 @@ class ShortUrlExportFailedNotification extends Notification implements ShouldQue
         return (new MailMessage)
             ->error()
             ->subject('Short Urls Export Has Failed')
-            ->line('Short Urls Export Has Failed Name: ' . $this->name)
+            ->line('Short Urls Export Has Failed For: ' . $this->data['filterQuery'])
             ->line('Thank you for using our application!');
     }
 

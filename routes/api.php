@@ -48,3 +48,6 @@ require __DIR__ . '/short-url/short_url.php';
 
 // excluded-domain routes
 require __DIR__ . '/excluded-domain/excluded_domain.php';
+
+// report-download routes
+require __DIR__ . '/report-download/report-download.php';
