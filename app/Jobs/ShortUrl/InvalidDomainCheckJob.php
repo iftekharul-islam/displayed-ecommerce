@@ -81,10 +81,10 @@ class InvalidDomainCheckJob implements ShouldQueue
                                 $title = $matches[1];
                                 $message = 'Valid';
 
-                                if (strpos($title, 'Lotto60') !== false) {
+                                if (strpos($title, 'Lotto60')) {
                                     $status = ShortUrlConstant::VALID;
                                     $remarks = " , match Lotto60 and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-                                } else if (strpos($title, 'Tickets') !== false) {
+                                } else if (strpos($title, 'Tickets')) {
                                     $status = ShortUrlConstant::VALID;
                                     $remarks = " , match Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                                 } else {
