@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\ExportReport;
+namespace App\Http\Controllers\ReportDownload;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ExportReport\ExportReportResource;
+use App\Http\Resources\ReportDownload\ReportDownloadResource;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ExportReportController extends Controller
+class ReportDownloadController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,7 +23,8 @@ class ExportReportController extends Controller
 
             $notifications = $user->notifications()
                 ->paginate($perPage);
-            return ExportReportResource::collection($notifications);
+
+            return ReportDownloadResource::collection($notifications);
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::error($th);
@@ -34,11 +35,11 @@ class ExportReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $export_report)
+    public function destroy(string $report_download)
     {
         try {
             DB::table('notifications')
-                ->where('id', $export_report)
+                ->where('id', $report_download)
                 ->delete();
 
             return response()->noContent();
@@ -64,11 +65,11 @@ class ExportReportController extends Controller
         }
     }
 
-    public function markAsRead(string $export_report)
+    public function markAsRead(string $report_download)
     {
         try {
             DB::table('notifications')
-                ->where('id', $export_report)
+                ->where('id', $report_download)
                 ->update([
                     'read_at' => now(),
                 ]);
