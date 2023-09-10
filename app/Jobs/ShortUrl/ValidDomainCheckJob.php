@@ -78,13 +78,17 @@ class ValidDomainCheckJob implements ShouldQueue
                             if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
                                 $title = $matches[1];
                                 $message = 'Valid';
-                                $status = strpos($title, 'Lotto60') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
-                                $remarks = " , match Lotto60 and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-                            } else if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
-                                $title = $matches[1];
-                                $message = 'Valid';
-                                $status = strpos($title, 'Tickets') !== false ? ShortUrlConstant::VALID : ShortUrlConstant::INVALID;
-                                $remarks = " , match Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+
+                                if (strpos($title, 'Lotto60') !== false) {
+                                    $status = ShortUrlConstant::VALID;
+                                    $remarks = " , match Lotto60 and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                                } else if (strpos($title, 'Tickets') !== false) {
+                                    $status = ShortUrlConstant::VALID;
+                                    $remarks = " , match Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                                } else {
+                                    $status = ShortUrlConstant::INVALID;
+                                    $remarks = " , not match Lotto60 or Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
+                                }
                             }
                         } catch (\Throwable $th) {
                             $message = $th->getMessage();
