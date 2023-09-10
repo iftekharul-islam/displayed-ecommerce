@@ -224,9 +224,9 @@ class PermissionConstant
         'code' => 8004,
     ];
 
-    // Export Report
-    public const EXPORT_REPORTS_ACCESS = [
-        'name' => 'export_reports_access',
+    // Report Download
+    public const REPORT_DOWNLOAD_ACCESS = [
+        'name' => 'report_download_access',
         'label' => 'Access',
         'code' => 9000,
     ];
