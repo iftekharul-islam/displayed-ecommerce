@@ -30,14 +30,15 @@ class ShortUrlExportService
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select(DB::raw('SUM(total_count)'));
+                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                            ->select(DB::raw('COALESCE(SUM(total_count),0)'));
                     }
                 ]);
             })
             ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) {
-                        $query->select(DB::raw('SUM(total_count)'));
+                        $query->select(DB::raw('COALESCE(SUM(total_count),0)'));
                     }
                 ]);
             })
