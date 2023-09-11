@@ -43,8 +43,6 @@ class ShortUrlController extends Controller
     public function index(Request $request)
     {
         try {
-            set_time_limit(300);
-
             hasPermissionTo(PermissionConstant::SHORT_URLS_ACCESS['name']);
 
             $request_all = $request->all();
