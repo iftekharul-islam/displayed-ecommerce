@@ -23,7 +23,7 @@ use App\Jobs\ShortUrl\ShortUrlExportJob;
 use App\Jobs\ShortUrl\ValidDomainCheckJob;
 use App\Exports\ShortUrl\latestDomainExport;
 use App\Jobs\ShortUrl\InvalidDomainCheckJob;
-use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
+use App\Jobs\ShortUrl\ShortUrlAfterResponseJob;
 use App\Http\Requests\ShortUrl\TldUpdateRequest;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
@@ -402,38 +402,14 @@ class ShortUrlController extends Controller
             }
 
             $agent = new Agent();
-            $browser = $agent->browser();
-            $browser_version = $agent->version($browser);
-            $platform = $agent->platform();
-            $operating_system_version = $agent->version($platform);
-            $deviceType = "Unknown";
-
-
-            if ($agent->isDesktop()) {
-                $deviceType = "Desktop";
-            }
-            if ($agent->isMobile()) {
-                $deviceType = "Mobile";
-            }
-            if ($agent->isTablet()) {
-                $deviceType = "Tablet";
-            }
-            if ($agent->isRobot()) {
-                $deviceType = "Robot";
-            }
 
             $data = [
                 'short_url_id' => $short_url->id,
                 'request_ip' => $request->ip(),
                 'current_date' => now()->format('Y-m-d'),
-                'operating_system' => $platform,
-                'operating_system_version' => $operating_system_version,
-                'browser'                  => $browser,
-                'browser_version'          => $browser_version,
-                'device_type'              => $deviceType,
             ];
 
-            ShortUrlRedirectionJob::dispatch($data);
+            ShortUrlAfterResponseJob::dispatchAfterResponse($data, $agent);
 
             return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
