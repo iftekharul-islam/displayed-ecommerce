@@ -425,6 +425,8 @@ class ShortUrlController extends Controller
         try {
 
             $request_all = $request->all();
+            $sortByKey = data_get($request_all, 'sortByKey', 'id');
+            $sortByOrder = data_get($request_all, 'sortByOrder', 'desc');
             $originalDomain = data_get($request_all, 'searchQuery.originalDomain', null);
             $tld = data_get($request_all, 'searchQuery.tld', null);
             $campaignId = (int) data_get($request_all, 'campaignId', -1);
@@ -480,6 +482,8 @@ class ShortUrlController extends Controller
                 'originalDomain' => $originalDomain,
                 'shortUrl' => $shortUrl,
                 'tld' => $tld,
+                'sortByKey' => $sortByKey,
+                'sortByOrder' => $sortByOrder,
                 'isExportOriginalDomain' => $isExportOriginalDomain,
                 'exportFilePath' => $exportFilePath,
                 'exportFileDownloadLink' => $exportFileDownloadLink,
