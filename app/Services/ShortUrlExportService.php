@@ -15,6 +15,8 @@ class ShortUrlExportService
         $data
     ) {
 
+        $sortByKey = $data['sortByKey'];
+        $sortByOrder = $data['sortByOrder'];
         $fromDateFilter = $data['fromDateFilter'];
         $toDateFilter = $data['toDateFilter'];
         $expireAtFilter = $data['expireAtFilter'];
@@ -26,7 +28,7 @@ class ShortUrlExportService
         $tld = $data['tld'];
         $isExportOriginalDomain = $data['isExportOriginalDomain'];
 
-        $data = ShortUrl::query()
+        return ShortUrl::query()
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -134,6 +136,7 @@ class ShortUrlExportService
             ->when(!$tldFilter && $tld, function ($query) use ($tld) {
                 $query->where('tld_name', 'LIKE', "%$tld%");
             })
+            ->orderBy($sortByKey, $sortByOrder)
             ->lazyById(1000, 'id')
             ->map(
                 function ($shortUrl) use ($isExportOriginalDomain) {
@@ -141,8 +144,6 @@ class ShortUrlExportService
                 }
             )
             ->all();
-
-        return $data;
     }
 
 

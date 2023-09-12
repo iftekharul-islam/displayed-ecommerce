@@ -4,7 +4,6 @@ namespace App\Jobs\ShortUrl;
 
 use App\Models\Campaign;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\DB;
 use App\Constants\ShortUrlConstant;
 use App\Models\ShortUrl;
 use Illuminate\Support\Facades\Log;
@@ -72,7 +71,7 @@ class ValidDomainCheckJob implements ShouldQueue
                         $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                     } else {
                         try {
-                            $response = Http::get($originalDomain);
+                            $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
                             $responseBody = $response->body();
 
                             if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {

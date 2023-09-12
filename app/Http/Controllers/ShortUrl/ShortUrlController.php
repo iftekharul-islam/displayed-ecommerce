@@ -425,6 +425,8 @@ class ShortUrlController extends Controller
         try {
 
             $request_all = $request->all();
+            $sortByKey = data_get($request_all, 'sortByKey', 'id');
+            $sortByOrder = data_get($request_all, 'sortByOrder', 'desc');
             $originalDomain = data_get($request_all, 'searchQuery.originalDomain', null);
             $tld = data_get($request_all, 'searchQuery.tld', null);
             $campaignId = (int) data_get($request_all, 'campaignId', -1);
@@ -445,8 +447,8 @@ class ShortUrlController extends Controller
             $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
             $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
             $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
-            $code = Str::random(10);
-            $date = now()->format('Y_m_d_H_i_s');
+            $code = Str::random(5);
+            $date = now()->format('Y_m_d');
             $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
 
             $user = auth()->user();
@@ -480,6 +482,8 @@ class ShortUrlController extends Controller
                 'originalDomain' => $originalDomain,
                 'shortUrl' => $shortUrl,
                 'tld' => $tld,
+                'sortByKey' => $sortByKey,
+                'sortByOrder' => $sortByOrder,
                 'isExportOriginalDomain' => $isExportOriginalDomain,
                 'exportFilePath' => $exportFilePath,
                 'exportFileDownloadLink' => $exportFileDownloadLink,
@@ -654,10 +658,10 @@ class ShortUrlController extends Controller
         $campaign = Campaign::findOrFail($id);
         $campaignName = @$campaign->name;
         $campaignNameSlug = Str::slug($campaignName ?? '', '_');
-        $formattedLastUpdatedDate = @$campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
+        $formattedLastUpdatedDate = @$campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('M_d_Y') : null;
 
         if ($formattedLastUpdatedDate) {
-            return "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}";
+            return "{$campaignNameSlug}_DB_Updated_On_{$formattedLastUpdatedDate}";
         } else {
             return $campaignNameSlug;
         }
@@ -686,8 +690,8 @@ class ShortUrlController extends Controller
     public function getTrafficDataFilteringSlug($startDate, $endDate): string
     {
         if (!empty($startDate) && !empty($endDate)) {
-            $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
-            $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
+            $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('M_d_Y'));
+            $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('M_d_Y'));
 
             return "_{$formattedStartDate}_To_{$formattedEndDate}_";
         }
