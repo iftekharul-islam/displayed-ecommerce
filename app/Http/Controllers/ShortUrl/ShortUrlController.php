@@ -519,7 +519,7 @@ class ShortUrlController extends Controller
                 ];
 
                 // Delete the file
-                Storage::disk('public')->delete($filePath);
+                // Storage::disk('public')->delete($filePath);
 
                 // Return the response with the file contents
                 return $response->withHeaders($headers);
@@ -592,7 +592,7 @@ class ShortUrlController extends Controller
                 ];
 
                 // Delete the file
-                Storage::disk('public')->delete($filePath);
+                // Storage::disk('public')->delete($filePath);
 
                 // Return the response with the file contents
                 return $response->withHeaders($headers);
