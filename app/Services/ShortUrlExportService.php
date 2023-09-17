@@ -130,13 +130,13 @@ class ShortUrlExportService
                 $query->where('url_key', $shortUrl);
             })
             ->when($originalDomain, function ($query) use ($originalDomain) {
-                $query->where('original_domain', $originalDomain);
+                $query->where('original_domain', 'LIKE', "%$originalDomain%");
             })
             ->when($tldFilter, function ($query) use ($tldFilter) {
-                $query->where('tld_name', 'LIKE', "%$tldFilter%");
+                $query->where('tld_name', $tldFilter);
             })
             ->when(!$tldFilter && $tld, function ($query) use ($tld) {
-                $query->where('tld_name', 'LIKE', "%$tld%");
+                $query->where('tld_name', $tld);
             })
             ->orderBy($sortByKey, $sortByOrder)
             ->lazyById(1000, 'id')
