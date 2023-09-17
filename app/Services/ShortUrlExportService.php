@@ -33,14 +33,14 @@ class ShortUrlExportService
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
                         $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
-                            ->selectRaw('COALESCE(SUM(total_count),0)');
+                            ->selectRaw('COALESCE(SUM(total_count), 0) as visitor_count');
                     }
                 ]);
             })
             ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) {
-                        $query->selectRaw('COALESCE(SUM(total_count),0)');
+                        $query->selectRaw('COALESCE(SUM(total_count), 0) as visitor_count');
                     }
                 ]);
             })
