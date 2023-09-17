@@ -83,4 +83,19 @@ class ReportDownloadController extends Controller
             abort($th->getStatusCode(), $th->getMessage());
         }
     }
+
+    public function unreadReports()
+    {
+        try {
+            $user = auth()->user();
+            $notifications = $user->unreadNotifications()
+                ->get();
+
+            return ReportDownloadResource::collection($notifications);
+        } catch (HttpException $th) {
+            logExceptionInSlack($th);
+            Log::error($th);
+            abort($th->getStatusCode(), $th->getMessage());
+        }
+    }
 }

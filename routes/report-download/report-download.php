@@ -8,6 +8,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->controller(ReportDownloadController::class)
         ->group(function () {
             Route::get('/', 'index');
+            Route::get('/unread-reports', 'unreadReports');
             Route::get('/unread-count', 'unreadCount');
             Route::match(['PUT', 'PATCH'], '/{report_download}/mark-as-read', 'markAsRead');
             Route::delete('/{report_download}', 'destroy');
