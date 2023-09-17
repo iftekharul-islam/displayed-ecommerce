@@ -83,14 +83,14 @@ class ShortUrlController extends Controller
                         $query->withCount([
                             'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
                                 $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
-                                    ->select(DB::raw('COALESCE(SUM(total_count),0)'));
+                                    ->selectRaw('COALESCE(SUM(total_count),0)');
                             }
                         ]);
                     })
                     ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                         $query->withCount([
                             'visitorCount as visitor_count' => function ($query) {
-                                $query->select(DB::raw('COALESCE(SUM(total_count),0)'));
+                                $query->selectRaw('COALESCE(SUM(total_count),0)');
                             }
                         ]);
                     })
@@ -101,22 +101,22 @@ class ShortUrlController extends Controller
                                 $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
                                     'short_url_id',
                                     'country',
-                                    DB::raw('SUM(total_count) as total_count'),
                                 ])
+                                    ->selectRaw('SUM(total_count) as total_count')
                                     ->whereNotNull('country')
                                     ->groupBy(['short_url_id', 'country'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                             'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
                                 $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
                                     'short_url_id',
                                     'city',
-                                    DB::raw('SUM(total_count) as total_count'),
                                 ])
+                                    ->selectRaw('SUM(total_count) as total_count')
                                     ->whereNotNull('city')
                                     ->groupBy(['short_url_id', 'city'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                         ]);
@@ -128,22 +128,22 @@ class ShortUrlController extends Controller
                                 $query->select([
                                     'short_url_id',
                                     'country',
-                                    DB::raw('SUM(total_count) as total_count'),
                                 ])
+                                    ->selectRaw('SUM(total_count) as total_count')
                                     ->whereNotNull('country')
                                     ->groupBy(['short_url_id', 'country'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                             'visitorCountByCities' => function ($query) {
                                 $query->select([
                                     'short_url_id',
                                     'city',
-                                    DB::raw('SUM(total_count) as total_count'),
                                 ])
+                                    ->selectRaw('SUM(total_count) as total_count')
                                     ->whereNotNull('city')
                                     ->groupBy(['short_url_id', 'city'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                         ]);
@@ -195,7 +195,7 @@ class ShortUrlController extends Controller
                 $data = ShortUrl::query()
                     ->withCount([
                         'visitorCount as visitor_count' => function ($query) {
-                            $query->select(DB::raw('COALESCE(SUM(total_count),0)'));
+                            $query->selectRaw('COALESCE(SUM(total_count),0)');
                         }
                     ])
                     ->with([
@@ -204,21 +204,22 @@ class ShortUrlController extends Controller
                             $query->select([
                                 'short_url_id',
                                 'country',
-                                DB::raw('SUM(total_count) as total_count'),
-                            ])->whereNotNull('country')
+                            ])
+                                ->selectRaw('SUM(total_count) as total_count')
+                                ->whereNotNull('country')
                                 ->groupBy(['short_url_id', 'country'])
-                                ->orderBy('total_count', 'desc')
+                                ->orderByDesc('total_count')
                                 ->limit(5);
                         },
                         'visitorCountByCities' => function ($query) {
                             $query->select([
                                 'short_url_id',
                                 'city',
-                                DB::raw('SUM(total_count) as total_count'),
                             ])
+                                ->selectRaw('SUM(total_count) as total_count')
                                 ->whereNotNull('city')
                                 ->groupBy(['short_url_id', 'city'])
-                                ->orderBy('total_count', 'desc')
+                                ->orderByDesc('total_count')
                                 ->limit(5);
                         },
                     ])
