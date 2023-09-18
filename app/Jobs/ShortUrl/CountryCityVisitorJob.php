@@ -40,6 +40,20 @@ class CountryCityVisitorJob implements ShouldQueue
                 ->where('is_count', false)
                 ->lazyById(1000, 'id')
                 ->each(function ($analytic) {
+
+                    DB::connection('choto_analytics_db')
+                        ->table('analytics')
+                        ->where('id', $analytic->id)
+                        ->update(['is_count' => true]);
+
+                    $isExists = DB::table('short_urls')
+                        ->where('id', $analytic->shortenerurl_id)
+                        ->exists();
+
+                    if (!$isExists) {
+                        return;
+                    }
+
                     $date = Carbon::make($analytic->created_at)->format('Y-m-d');
 
                     $data = [
@@ -49,11 +63,6 @@ class CountryCityVisitorJob implements ShouldQueue
                     ];
 
                     $this->countryCityVisitorAction->execute($data);
-
-                    DB::connection('choto_analytics_db')
-                        ->table('analytics')
-                        ->where('id', $analytic->id)
-                        ->update(['is_count' => true]);
                 });
         } catch (HttpException $th) {
             Log::channel('redirection')->error($th->getMessage());
