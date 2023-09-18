@@ -103,7 +103,7 @@ class InvalidDomainCheckJob implements ShouldQueue
                     ]);
                 });
 
-            $message = 'Valid Domain Check Success';
+            $message = 'Invalid Domain Check Success';
             Notification::route('mail', $this->mailsTo)->notify(new ValidDomainCheckSuccessNotification($campaign->name, $message));
         } catch (HttpException $th) {
             Log::channel('valid-domains-checker')->error($th->getMessage());
