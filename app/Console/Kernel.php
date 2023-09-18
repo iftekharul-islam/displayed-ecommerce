@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
+use App\Jobs\ShortUrl\CountryCityVisitorJob;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -18,6 +19,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('app:run-logs-clear-command')
             ->hourly()
+            ->timezone('Asia/Dhaka');
+
+        $schedule->job(new CountryCityVisitorJob())
+            ->yearlyOn(9, 18, '19:00')
             ->timezone('Asia/Dhaka');
     }
 
