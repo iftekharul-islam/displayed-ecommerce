@@ -23,7 +23,7 @@ use App\Jobs\ShortUrl\ShortUrlExportJob;
 use App\Jobs\ShortUrl\ValidDomainCheckJob;
 use App\Exports\ShortUrl\latestDomainExport;
 use App\Jobs\ShortUrl\InvalidDomainCheckJob;
-use App\Jobs\ShortUrl\ShortUrlRedirectionJob;
+use App\Jobs\ShortUrl\ShortUrlAfterResponseJob;
 use App\Http\Requests\ShortUrl\TldUpdateRequest;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
@@ -82,14 +82,15 @@ class ShortUrlController extends Controller
                     ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                         $query->withCount([
                             'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select(DB::raw('SUM(total_count)'));
+                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                                    ->select(DB::raw('COALESCE(SUM(total_count), 0)'));
                             }
                         ]);
                     })
                     ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                         $query->withCount([
                             'visitorCount as visitor_count' => function ($query) {
-                                $query->select(DB::raw('SUM(total_count)'));
+                                $query->select(DB::raw('COALESCE(SUM(total_count), 0)'));
                             }
                         ]);
                     })
@@ -97,25 +98,27 @@ class ShortUrlController extends Controller
                         $query->with([
                             'campaign',
                             'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
-                                    'short_url_id',
-                                    'country',
-                                    DB::raw('SUM(total_count) as total_count'),
-                                ])
+                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                                    ->select([
+                                        'short_url_id',
+                                        'country',
+                                        DB::raw('SUM(total_count) as total_count')
+                                    ])
                                     ->whereNotNull('country')
                                     ->groupBy(['short_url_id', 'country'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                             'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
-                                    'short_url_id',
-                                    'city',
-                                    DB::raw('SUM(total_count) as total_count'),
-                                ])
+                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                                    ->select([
+                                        'short_url_id',
+                                        'city',
+                                        DB::raw('SUM(total_count) as total_count')
+                                    ])
                                     ->whereNotNull('city')
                                     ->groupBy(['short_url_id', 'city'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                         ]);
@@ -127,22 +130,22 @@ class ShortUrlController extends Controller
                                 $query->select([
                                     'short_url_id',
                                     'country',
-                                    DB::raw('SUM(total_count) as total_count'),
+                                    DB::raw('SUM(total_count) as total_count')
                                 ])
                                     ->whereNotNull('country')
                                     ->groupBy(['short_url_id', 'country'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                             'visitorCountByCities' => function ($query) {
                                 $query->select([
                                     'short_url_id',
                                     'city',
-                                    DB::raw('SUM(total_count) as total_count'),
+                                    DB::raw('SUM(total_count) as total_count')
                                 ])
                                     ->whereNotNull('city')
                                     ->groupBy(['short_url_id', 'city'])
-                                    ->orderBy('total_count', 'desc')
+                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                         ]);
@@ -177,13 +180,13 @@ class ShortUrlController extends Controller
                         $query->where('url_key', $shortUrl);
                     })
                     ->when($originalDomain, function ($query) use ($originalDomain) {
-                        $query->where('original_domain', $originalDomain);
+                        $query->where('original_domain', 'LIKE', "%$originalDomain%");
                     })
                     ->when($tldFilter, function ($query) use ($tldFilter) {
-                        $query->where('tld_name', 'LIKE', "%$tldFilter%");
+                        $query->where('tld_name', $tldFilter);
                     })
                     ->when(!$tldFilter && $tld, function ($query) use ($tld) {
-                        $query->where('tld_name', 'LIKE', "%$tld%");
+                        $query->where('tld_name', $tld);
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -194,7 +197,7 @@ class ShortUrlController extends Controller
                 $data = ShortUrl::query()
                     ->withCount([
                         'visitorCount as visitor_count' => function ($query) {
-                            $query->select(DB::raw('SUM(total_count)'));
+                            $query->select(DB::raw('COALESCE(SUM(total_count), 0)'));
                         }
                     ])
                     ->with([
@@ -203,21 +206,22 @@ class ShortUrlController extends Controller
                             $query->select([
                                 'short_url_id',
                                 'country',
-                                DB::raw('SUM(total_count) as total_count'),
-                            ])->whereNotNull('country')
+                                DB::raw('SUM(total_count) as total_count')
+                            ])
+                                ->whereNotNull('country')
                                 ->groupBy(['short_url_id', 'country'])
-                                ->orderBy('total_count', 'desc')
+                                ->orderByDesc('total_count')
                                 ->limit(5);
                         },
                         'visitorCountByCities' => function ($query) {
                             $query->select([
                                 'short_url_id',
                                 'city',
-                                DB::raw('SUM(total_count) as total_count'),
+                                DB::raw('SUM(total_count) as total_count')
                             ])
                                 ->whereNotNull('city')
                                 ->groupBy(['short_url_id', 'city'])
-                                ->orderBy('total_count', 'desc')
+                                ->orderByDesc('total_count')
                                 ->limit(5);
                         },
                     ])
@@ -228,10 +232,10 @@ class ShortUrlController extends Controller
                         $query->where('url_key', $shortUrl);
                     })
                     ->when($originalDomain, function ($query) use ($originalDomain) {
-                        $query->where('original_domain', $originalDomain);
+                        $query->where('original_domain', 'LIKE', "%$originalDomain%");
                     })
                     ->when($tld, function ($query) use ($tld) {
-                        $query->where('tld_name', 'LIKE', "%$tld%");
+                        $query->where('tld_name', $tld);
                     })
                     ->orderBy($sortByKey, $sortByOrder)
                     ->paginate($perPage);
@@ -402,38 +406,14 @@ class ShortUrlController extends Controller
             }
 
             $agent = new Agent();
-            $browser = $agent->browser();
-            $browser_version = $agent->version($browser);
-            $platform = $agent->platform();
-            $operating_system_version = $agent->version($platform);
-            $deviceType = "Unknown";
-
-
-            if ($agent->isDesktop()) {
-                $deviceType = "Desktop";
-            }
-            if ($agent->isMobile()) {
-                $deviceType = "Mobile";
-            }
-            if ($agent->isTablet()) {
-                $deviceType = "Tablet";
-            }
-            if ($agent->isRobot()) {
-                $deviceType = "Robot";
-            }
 
             $data = [
                 'short_url_id' => $short_url->id,
                 'request_ip' => $request->ip(),
                 'current_date' => now()->format('Y-m-d'),
-                'operating_system' => $platform,
-                'operating_system_version' => $operating_system_version,
-                'browser'                  => $browser,
-                'browser_version'          => $browser_version,
-                'device_type'              => $deviceType,
             ];
 
-            ShortUrlRedirectionJob::dispatch($data);
+            ShortUrlAfterResponseJob::dispatchAfterResponse($data, $agent);
 
             return redirect()->away('https://' . $short_url->destination_domain, 301);
         } catch (HttpException $th) {
@@ -448,6 +428,8 @@ class ShortUrlController extends Controller
         try {
 
             $request_all = $request->all();
+            $sortByKey = data_get($request_all, 'sortByKey', 'id');
+            $sortByOrder = data_get($request_all, 'sortByOrder', 'desc');
             $originalDomain = data_get($request_all, 'searchQuery.originalDomain', null);
             $tld = data_get($request_all, 'searchQuery.tld', null);
             $campaignId = (int) data_get($request_all, 'campaignId', -1);
@@ -468,8 +450,8 @@ class ShortUrlController extends Controller
             $getExpiryAtFilteringSlug = $this->getExpiryAtFilteringSlug($expireAtFilter);
             $getStatusFilteringSlug = $this->getStatusFilteringSlug($statusFilter);
             $getCampaignNameAndLastUpdatedDateSlug = $this->getCampaignNameAndLastUpdatedDateSlug($campaignId);
-            $code = Str::random(10);
-            $date = now()->format('Y_m_d_H_i_s');
+            $code = Str::random(5);
+            $date = now()->format('Y_m_d');
             $exportFileName = "{$getCampaignNameAndLastUpdatedDateSlug}_Traffic_Data_Filter{$getTrafficDataFilteringSlug}Expiry_Date_Filtering{$getExpiryAtFilteringSlug}Status{$getStatusFilteringSlug}Date_{$date}_{$code}.xlsx";
 
             $user = auth()->user();
@@ -503,6 +485,8 @@ class ShortUrlController extends Controller
                 'originalDomain' => $originalDomain,
                 'shortUrl' => $shortUrl,
                 'tld' => $tld,
+                'sortByKey' => $sortByKey,
+                'sortByOrder' => $sortByOrder,
                 'isExportOriginalDomain' => $isExportOriginalDomain,
                 'exportFilePath' => $exportFilePath,
                 'exportFileDownloadLink' => $exportFileDownloadLink,
@@ -538,7 +522,7 @@ class ShortUrlController extends Controller
                 ];
 
                 // Delete the file
-                Storage::disk('public')->delete($filePath);
+                // Storage::disk('public')->delete($filePath);
 
                 // Return the response with the file contents
                 return $response->withHeaders($headers);
@@ -611,7 +595,7 @@ class ShortUrlController extends Controller
                 ];
 
                 // Delete the file
-                Storage::disk('public')->delete($filePath);
+                // Storage::disk('public')->delete($filePath);
 
                 // Return the response with the file contents
                 return $response->withHeaders($headers);
@@ -677,10 +661,10 @@ class ShortUrlController extends Controller
         $campaign = Campaign::findOrFail($id);
         $campaignName = @$campaign->name;
         $campaignNameSlug = Str::slug($campaignName ?? '', '_');
-        $formattedLastUpdatedDate = @$campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('F_d_Y') : null;
+        $formattedLastUpdatedDate = @$campaign->last_updated_at ? Carbon::make($campaign->last_updated_at)->format('M_d_Y') : null;
 
         if ($formattedLastUpdatedDate) {
-            return "{$campaignNameSlug}_Database_Updated_On_{$formattedLastUpdatedDate}";
+            return "{$campaignNameSlug}_DB_Updated_On_{$formattedLastUpdatedDate}";
         } else {
             return $campaignNameSlug;
         }
@@ -709,8 +693,8 @@ class ShortUrlController extends Controller
     public function getTrafficDataFilteringSlug($startDate, $endDate): string
     {
         if (!empty($startDate) && !empty($endDate)) {
-            $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
-            $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
+            $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('M_d_Y'));
+            $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('M_d_Y'));
 
             return "_{$formattedStartDate}_To_{$formattedEndDate}_";
         }

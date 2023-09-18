@@ -4,7 +4,6 @@ namespace App\Jobs\ShortUrl;
 
 use App\Models\Campaign;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\DB;
 use App\Constants\ShortUrlConstant;
 use App\Models\ShortUrl;
 use Illuminate\Support\Facades\Log;
@@ -72,20 +71,21 @@ class ValidDomainCheckJob implements ShouldQueue
                         $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                     } else {
                         try {
-                            $response = Http::get($originalDomain);
+                            $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
                             $responseBody = $response->body();
 
                             if (preg_match('/<title>(.*?)<\/title>/', $responseBody, $matches)) {
                                 $title = $matches[1];
                                 $message = 'Valid';
 
-                                if (strpos($title, 'Lotto60')) {
+                                if (strpos($title, 'Lotto60') !== false) {
                                     $status = ShortUrlConstant::VALID;
                                     $remarks = " , match Lotto60 and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
-                                } else if (strpos($title, 'Tickets')) {
+                                } else if (strpos($title, 'Tickets') !== false) {
                                     $status = ShortUrlConstant::VALID;
                                     $remarks = " , match Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                                 } else {
+                                    $message = 'Invalid';
                                     $status = ShortUrlConstant::INVALID;
                                     $remarks = " , not match Lotto60 or Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                                 }

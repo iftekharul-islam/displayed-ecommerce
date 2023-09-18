@@ -47,11 +47,6 @@ class ShortUrl extends Model
         return $this->belongsTo(Campaign::class, 'campaign_id', 'id');
     }
 
-    public function tld(): BelongsTo
-    {
-        return $this->belongsTo(Tld::class, 'tld_id', 'id');
-    }
-
     public function visitorCount(): HasMany
     {
         return $this->hasMany(VisitorCount::class, 'short_url_id', 'id');

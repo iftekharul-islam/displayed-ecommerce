@@ -15,6 +15,8 @@ class ShortUrlExportService
         $data
     ) {
 
+        $sortByKey = $data['sortByKey'];
+        $sortByOrder = $data['sortByOrder'];
         $fromDateFilter = $data['fromDateFilter'];
         $toDateFilter = $data['toDateFilter'];
         $expireAtFilter = $data['expireAtFilter'];
@@ -26,18 +28,19 @@ class ShortUrlExportService
         $tld = $data['tld'];
         $isExportOriginalDomain = $data['isExportOriginalDomain'];
 
-        $data = ShortUrl::query()
+        return ShortUrl::query()
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select(DB::raw('SUM(total_count)'));
+                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                            ->select(DB::raw('COALESCE(SUM(total_count), 0)'));
                     }
                 ]);
             })
             ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                 $query->withCount([
                     'visitorCount as visitor_count' => function ($query) {
-                        $query->select(DB::raw('SUM(total_count)'));
+                        $query->select(DB::raw('COALESCE(SUM(total_count), 0)'));
                     }
                 ]);
             })
@@ -45,25 +48,27 @@ class ShortUrlExportService
                 $query->with([
                     'campaign',
                     'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
-                            'short_url_id',
-                            'country',
-                            DB::raw('SUM(total_count) as total_count'),
-                        ])
+                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                            ->select([
+                                'short_url_id',
+                                'country',
+                                DB::raw('SUM(total_count) as total_count')
+                            ])
                             ->whereNotNull('country')
                             ->groupBy(['short_url_id', 'country'])
-                            ->orderBy('total_count', 'desc')
+                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                     'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])->select([
-                            'short_url_id',
-                            'city',
-                            DB::raw('SUM(total_count) as total_count'),
-                        ])
+                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                            ->select([
+                                'short_url_id',
+                                'city',
+                                DB::raw('SUM(total_count) as total_count')
+                            ])
                             ->whereNotNull('city')
                             ->groupBy(['short_url_id', 'city'])
-                            ->orderBy('total_count', 'desc')
+                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                 ]);
@@ -75,22 +80,22 @@ class ShortUrlExportService
                         $query->select([
                             'short_url_id',
                             'country',
-                            DB::raw('SUM(total_count) as total_count'),
+                            DB::raw('SUM(total_count) as total_count')
                         ])
                             ->whereNotNull('country')
                             ->groupBy(['short_url_id', 'country'])
-                            ->orderBy('total_count', 'desc')
+                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                     'visitorCountByCities' => function ($query) {
                         $query->select([
                             'short_url_id',
                             'city',
-                            DB::raw('SUM(total_count) as total_count'),
+                            DB::raw('SUM(total_count) as total_count')
                         ])
                             ->whereNotNull('city')
                             ->groupBy(['short_url_id', 'city'])
-                            ->orderBy('total_count', 'desc')
+                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                 ]);
@@ -125,14 +130,15 @@ class ShortUrlExportService
                 $query->where('url_key', $shortUrl);
             })
             ->when($originalDomain, function ($query) use ($originalDomain) {
-                $query->where('original_domain', $originalDomain);
+                $query->where('original_domain', 'LIKE', "%$originalDomain%");
             })
             ->when($tldFilter, function ($query) use ($tldFilter) {
-                $query->where('tld_name', 'LIKE', "%$tldFilter%");
+                $query->where('tld_name', $tldFilter);
             })
             ->when(!$tldFilter && $tld, function ($query) use ($tld) {
-                $query->where('tld_name', 'LIKE', "%$tld%");
+                $query->where('tld_name', $tld);
             })
+            ->orderBy($sortByKey, $sortByOrder)
             ->lazyById(1000, 'id')
             ->map(
                 function ($shortUrl) use ($isExportOriginalDomain) {
@@ -140,8 +146,6 @@ class ShortUrlExportService
                 }
             )
             ->all();
-
-        return $data;
     }
 
 

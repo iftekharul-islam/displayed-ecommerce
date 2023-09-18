@@ -16,7 +16,6 @@ class DashboardController extends Controller
                 ->withCount([
                     'excludedDomains as total_excluded_domain',
                     'shortUrls as total_included_domain',
-                    'shortUrls as active_domain' => fn ($query) => $query->where('expired_at', '>=', now()->format('Y-m-d')),
                     'shortUrls as expired_domain' => fn ($query) => $query->where('expired_at', '<', now()->format('Y-m-d')),
                 ])
                 ->orderBy('id', 'asc')
