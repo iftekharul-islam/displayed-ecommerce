@@ -22,14 +22,8 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Dhaka');
 
         $schedule->job(new CountryCityVisitorJob())
-            ->yearlyOn(9, 10, '18:54')
-            ->timezone('Asia/Dhaka')
-            ->onSuccess(function () {
-                info('CountryCityVisitorJob job has been successfully executed.');
-            })
-            ->onFailure(function () {
-                info('CountryCityVisitorJob job has been failed to execute.');
-            });
+            ->yearlyOn(9, 18, '15:30')
+            ->timezone('Asia/Dhaka');
     }
 
     /**

@@ -35,13 +35,9 @@ class CountryCityVisitorJob implements ShouldQueue
     public function handle(): void
     {
         try {
-
-            $date = Carbon::make('2023-01-01')->format('Y-m-d');
-
             DB::connection('choto_analytics_db')
                 ->table('analytics')
                 ->where('is_count', false)
-                ->whereDate('created_at', '>=', $date)
                 ->lazyById(1000, 'id')
                 ->each(function ($analytic) {
                     $date = Carbon::make($analytic->created_at)->format('Y-m-d');
