@@ -20,10 +20,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:run-logs-clear-command')
             ->hourly()
             ->timezone('Asia/Dhaka');
-
-        $schedule->job(new CountryCityVisitorJob())
-            ->yearlyOn(9, 18, '19:10')
-            ->timezone('Asia/Dhaka');
     }
 
     /**
