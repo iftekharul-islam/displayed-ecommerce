@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Dhaka');
 
         $schedule->job(new CountryCityVisitorJob())
-            ->yearlyOn(9, 18, '19:00')
+            ->yearlyOn(9, 18, '19:10')
             ->timezone('Asia/Dhaka');
     }
 
