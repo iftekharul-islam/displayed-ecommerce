@@ -203,25 +203,30 @@ class PermissionConstant
     ];
 
     // Excluded Domain
-    public const EXCLUDED_DOMAIN_ACCESS = [
+    public const EXCLUDED_DOMAINS_ACCESS = [
         'name' => 'excluded_domains_access',
         'label' => 'Access',
         'code' => 8000,
     ];
-    public const EXCLUDED_DOMAIN_CREATE = [
+    public const EXCLUDED_DOMAINS_CREATE = [
         'name' => 'excluded_domains_create',
         'label' => 'Create',
         'code' => 8001,
     ];
-    public const EXCLUDED_DOMAIN_EDIT = [
+    public const EXCLUDED_DOMAINS_EDIT = [
         'name' => 'excluded_domains_edit',
         'label' => 'Edit',
         'code' => 8003,
     ];
-    public const EXCLUDED_DOMAIN_DELETE = [
+    public const EXCLUDED_DOMAINS_DELETE = [
         'name' => 'excluded_domains_delete',
         'label' => 'Delete',
         'code' => 8004,
+    ];
+    public const EXCLUDED_DOMAINS_EXPORT = [
+        'name' => 'excluded_domains_export',
+        'label' => 'Export',
+        'code' => 8005,
     ];
 
     // Report Download
