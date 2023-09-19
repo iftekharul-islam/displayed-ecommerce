@@ -37,9 +37,9 @@ class latestDomainExport implements
     protected $fromDate;
     protected $toDate;
 
-    public function __construct(User $exportedBy, $data)
+    public function __construct($data)
     {
-        $this->exportedBy =  $exportedBy;
+        $this->exportedBy =  $data['exportedBy'];
         $this->exportFileName = $data['exportFileName'];
         $this->campaignId = $data['campaignId'];
         $this->fromDate = $data['fromDate'];

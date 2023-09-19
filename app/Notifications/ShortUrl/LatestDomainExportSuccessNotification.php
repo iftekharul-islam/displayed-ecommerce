@@ -12,16 +12,14 @@ class LatestDomainExportSuccessNotification extends Notification implements Shou
 {
     use Queueable;
 
-    protected $name;
-    protected $exportFileDownloadLink;
+    protected $data;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($name, $exportFileDownloadLink)
+    public function __construct($data)
     {
-        $this->name = $name;
-        $this->exportFileDownloadLink = $exportFileDownloadLink;
+        $this->data = $data;
     }
 
     /**
@@ -31,7 +29,7 @@ class LatestDomainExportSuccessNotification extends Notification implements Shou
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -39,12 +37,12 @@ class LatestDomainExportSuccessNotification extends Notification implements Shou
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $exportFileDownloadLink = URL::to($this->exportFileDownloadLink);
+        $exportFileDownloadLink = URL::to($this->data['exportFileDownloadLink']);
 
         return (new MailMessage)
             ->success()
             ->subject('Short Urls Latest Domain Export Successfully Completed')
-            ->line('Short Urls Latest Domain Export Successfully Completed Name: ' . $this->name)
+            ->line('Short Urls Latest Domain Export Successfully Completed Name: ' . $this->data['exportFileName'])
             ->action('Download', $exportFileDownloadLink)
             ->line('Thank you for using our application!');
     }
@@ -57,7 +55,8 @@ class LatestDomainExportSuccessNotification extends Notification implements Shou
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'name' => $this->data['exportFileName'],
+            'link' => $this->data['exportFileDownloadLink'],
         ];
     }
 }

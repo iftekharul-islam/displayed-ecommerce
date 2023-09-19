@@ -548,24 +548,30 @@ class ShortUrlController extends Controller
 
             $getCampaignNameSlug = $this->getCampaignNameSlug($campaignId);
             $getDateSlug = $this->getDateSlug($fromDate, $toDate);
-            $code = Str::random(10);
-            $date = now()->format('Y_m_d_H_i_s');
-            $exportFileName = "{$getCampaignNameSlug}{$getDateSlug}_Date_{$date}_{$code}.xlsx";
+            $code = Str::random(5);
+            $date = now()->format('Y_m_d');
+            $exportFileNameSlug = "{$getCampaignNameSlug}{$getDateSlug}_Date_{$date}_{$code}.xlsx";
 
-            $exportFilePath = "exports/short-urls/latest-domain-export/{$exportFileName}";
-            $exportFileDownloadLink = config('app.url') . "/api/short-urls/latest-domain-export/download/{$exportFileName}";
+            $getCampaignNameAndLastUpdatedDate = $this->getCampaignNameAndLastUpdatedDate($campaignId);
+            $getTrafficDataFiltering = $this->getTrafficDataFiltering($fromDate, $toDate);
+
+            $concatExportFileName = "{$getCampaignNameAndLastUpdatedDate} | Latest Export Data : {$getTrafficDataFiltering}";
+
+            $exportFilePath = "exports/short-urls/latest-domain-export/{$exportFileNameSlug}";
+            $exportFileDownloadLink = config('app.url') . "/api/short-urls/latest-domain-export/download/{$exportFileNameSlug}";
 
             $data = [
-                'exportFileName' => $exportFileName,
+                'exportedBy' => auth()->user(),
+                'exportFileName' => $concatExportFileName,
+                'exportFileNameSlug' => $exportFileNameSlug,
+                'exportFileDownloadLink' => $exportFileDownloadLink,
                 'campaignId' => $campaignId,
                 'fromDate' => $fromDate,
                 'toDate' => $toDate,
             ];
 
-            $user = auth()->user();
-
-            (new latestDomainExport($user, $data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
-                new NotifyUserOfCompletedLatestDomainExportJob($user, $exportFileName, $exportFileDownloadLink),
+            (new latestDomainExport($data))->queue($exportFilePath, 'public', Excel::XLSX)->chain([
+                new NotifyUserOfCompletedLatestDomainExportJob($data),
             ]);
 
             return response()->json([
@@ -672,8 +678,8 @@ class ShortUrlController extends Controller
 
     public function getDateSlug($startDate, $endDate): string
     {
-        $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('F_d_Y'));
-        $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('F_d_Y'));
+        $formattedStartDate = str_replace([' ', ','], '_', Carbon::make($startDate)->format('M_d_Y'));
+        $formattedEndDate = str_replace([' ', ','], '_', Carbon::make($endDate)->format('M_d_Y'));
 
         return "_{$formattedStartDate}_To_{$formattedEndDate}_";
     }

@@ -2,7 +2,6 @@
 
 namespace App\Jobs\ShortUrl;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,20 +14,18 @@ class NotifyUserOfCompletedLatestDomainExportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $user;
-    protected $exportFileName;
-    protected $exportFileDownloadLink;
+    protected $exportedBy;
+    protected $data;
 
 
-    public function __construct(User $user, $exportFileName, $exportFileDownloadLink)
+    public function __construct($data)
     {
-        $this->user = $user;
-        $this->exportFileName = $exportFileName;
-        $this->exportFileDownloadLink = $exportFileDownloadLink;
+        $this->exportedBy = $data['exportedBy'];
+        $this->data = $data;
     }
 
     public function handle()
     {
-        $this->user->notify(new LatestDomainExportSuccessNotification($this->exportFileName, $this->exportFileDownloadLink));
+        $this->exportedBy->notify(new LatestDomainExportSuccessNotification($this->data));
     }
 }
