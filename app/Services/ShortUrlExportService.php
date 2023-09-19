@@ -207,7 +207,7 @@ class ShortUrlExportService
             'TLD Price' => $shortUrl->tld_price ?? '-',
             'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
             'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
-            'Expired At' => $shortUrl->expired_at ?? '-',
+            'Expired On' => $shortUrl->expired_at ?? '-',
             '1st Country Visitor' =>  $country1st,
             '2nd Country Visitor' => $country2nd,
             '3rd Country Visitor' => $country3rd,
