@@ -292,33 +292,40 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'Excluded Domains' => [
                 [
-                    'name' => PermissionConstant::EXCLUDED_DOMAIN_ACCESS['name'],
-                    'label' => PermissionConstant::EXCLUDED_DOMAIN_ACCESS['label'],
-                    'code' => PermissionConstant::EXCLUDED_DOMAIN_ACCESS['code'],
+                    'name' => PermissionConstant::EXCLUDED_DOMAINS_ACCESS['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAINS_ACCESS['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAINS_ACCESS['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['access'],
                     'guard_name' => 'api'
                 ],
                 [
-                    'name' => PermissionConstant::EXCLUDED_DOMAIN_CREATE['name'],
-                    'label' => PermissionConstant::EXCLUDED_DOMAIN_CREATE['label'],
-                    'code' => PermissionConstant::EXCLUDED_DOMAIN_CREATE['code'],
+                    'name' => PermissionConstant::EXCLUDED_DOMAINS_CREATE['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAINS_CREATE['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAINS_CREATE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['create'],
                     'guard_name' => 'api'
                 ],
                 [
-                    'name' => PermissionConstant::EXCLUDED_DOMAIN_EDIT['name'],
-                    'label' => PermissionConstant::EXCLUDED_DOMAIN_EDIT['label'],
-                    'code' => PermissionConstant::EXCLUDED_DOMAIN_EDIT['code'],
+                    'name' => PermissionConstant::EXCLUDED_DOMAINS_EDIT['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAINS_EDIT['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAINS_EDIT['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['edit'],
                     'guard_name' => 'api'
                 ],
                 [
-                    'name' => PermissionConstant::EXCLUDED_DOMAIN_DELETE['name'],
-                    'label' => PermissionConstant::EXCLUDED_DOMAIN_DELETE['label'],
-                    'code' => PermissionConstant::EXCLUDED_DOMAIN_DELETE['code'],
+                    'name' => PermissionConstant::EXCLUDED_DOMAINS_DELETE['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAINS_DELETE['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAINS_DELETE['code'],
                     'group' => PermissionConstant::PERMISSION_GROUP['delete'],
                     'guard_name' => 'api'
-                ]
+                ],
+                [
+                    'name' => PermissionConstant::EXCLUDED_DOMAINS_EXPORT['name'],
+                    'label' => PermissionConstant::EXCLUDED_DOMAINS_EXPORT['label'],
+                    'code' => PermissionConstant::EXCLUDED_DOMAINS_EXPORT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['others'],
+                    'guard_name' => 'api'
+                ],
             ],
             'Report Download' => [
                 [
