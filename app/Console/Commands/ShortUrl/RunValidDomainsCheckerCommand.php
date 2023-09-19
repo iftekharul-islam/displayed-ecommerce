@@ -23,7 +23,7 @@ class RunValidDomainsCheckerCommand extends Command
      *
      * @var string
      */
-    protected $description = 'valid domains checker';
+    protected $description = 'All domains checker';
 
     /**
      * Execute the console command.
