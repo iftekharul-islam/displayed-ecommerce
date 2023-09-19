@@ -436,6 +436,9 @@ class ShortUrlController extends Controller
             $shortUrlInput = data_get($request_all, 'searchQuery.shortUrl', null);
             $shortUrl = getCodeFromUrl($shortUrlInput) ?? null;
 
+            // filter
+            $isFilterInput = data_get($request_all, 'isFilter', false);
+            $isFilter = to_boolean($isFilterInput);
             $fromDateFilterInput = data_get($request_all, 'filterQuery.fromDateFilter', null);
             $fromDateFilter = $fromDateFilterInput ? Carbon::make($fromDateFilterInput)->format('Y-m-d') : null;
             $toDateFilterInput = data_get($request_all, 'filterQuery.toDateFilter', null);
@@ -443,7 +446,6 @@ class ShortUrlController extends Controller
             $expireAtFilter = (int) data_get($request_all, 'filterQuery.expireAtFilter', ShortUrlConstant::ALL);
             $statusFilter = (array) data_get($request_all, 'filterQuery.statusFilter', []);
             $tldFilter = data_get($request_all, 'filterQuery.tldFilter', null);
-
 
             // filter slug for file name
             $getTrafficDataFilteringSlug = $this->getTrafficDataFilteringSlug($fromDateFilter, $toDateFilter);
@@ -469,8 +471,11 @@ class ShortUrlController extends Controller
             $getExpiryAtFiltering = $this->getExpiryAtFiltering($expireAtFilter);
             $getStatusFiltering = $this->getStatusFiltering($statusFilter);
 
-            $concatFilterQuery = "{$getCampaignNameAndLastUpdatedDate} | Traffic Data Filter : {$getTrafficDataFiltering} | Expire In : {$getExpiryAtFiltering} | Status : {$getStatusFiltering}";
-
+            if ($isFilter) {
+                $concatFilterQuery = "{$getCampaignNameAndLastUpdatedDate} | Traffic Data Filter : {$getTrafficDataFiltering} | Expire In : {$getExpiryAtFiltering} | Status : {$getStatusFiltering}";
+            } else {
+                $concatFilterQuery = "{$getCampaignNameAndLastUpdatedDate} | Traffic Data Filter : All | Expire In : All | Status : Valid, Invalid, Expired";
+            }
 
             $data = [
                 'exportedBy' => $user,
@@ -740,6 +745,11 @@ class ShortUrlController extends Controller
 
     public function getStatusFiltering(array $statuses): string
     {
+        // if empty then return all
+        if (empty($statuses)) {
+            return "Valid, Invalid, Expired";
+        }
+
         $statusStrings = [
             ShortUrlConstant::VALID => "Valid",
             ShortUrlConstant::INVALID => "Invalid",
@@ -755,6 +765,11 @@ class ShortUrlController extends Controller
 
     public function getStatusFilteringSlug(array $statuses): string
     {
+        // if empty then return all
+        if (empty($statuses)) {
+            return "_Valid_Invalid_Expired_";
+        }
+
         $filterMap = [
             ShortUrlConstant::VALID => "_Valid",
             ShortUrlConstant::INVALID => "_Invalid",
