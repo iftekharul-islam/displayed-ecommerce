@@ -666,7 +666,7 @@ class ShortUrlController extends Controller
     public function getCampaignNameAndLastUpdatedDateSlug(int $id): string
     {
         if ($id === ShortUrlConstant::ALL) {
-            return 'ALL';
+            return 'All_Domains_';
         }
 
         $campaign = Campaign::findOrFail($id);
