@@ -17,6 +17,7 @@ class ShortUrlTypeResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'created_at' => $this->created_at,
         ];
     }
 }
