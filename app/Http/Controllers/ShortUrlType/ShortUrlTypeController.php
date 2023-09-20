@@ -6,6 +6,7 @@ use App\Models\ShortUrlType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Constants\PermissionConstant;
 use App\Http\Resources\ShortUrlType\ShortUrlTypeResource;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Http\Requests\ShortUrlType\StoreShortUrlTypeRequest;
@@ -19,6 +20,8 @@ class ShortUrlTypeController extends Controller
     public function index(Request $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URL_TYPES_ACCESS['name']);
+
             $request_all = $request->all();
             $perPage = data_get($request_all, 'perPage', config('app.per_page'));
             $sortByKey = data_get($request_all, 'sortByKey', 'id');
@@ -46,6 +49,8 @@ class ShortUrlTypeController extends Controller
     public function store(StoreShortUrlTypeRequest $request)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URL_TYPES_CREATE['name']);
+
             $validated = $request->validated();
 
             ShortUrlType::create($validated);
@@ -74,6 +79,8 @@ class ShortUrlTypeController extends Controller
     public function update(UpdateShortUrlTypeRequest $request, ShortUrlType $short_url_type)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URL_TYPES_EDIT['name']);
+
             $validated = $request->validated();
 
             $short_url_type->update($validated);
@@ -94,6 +101,8 @@ class ShortUrlTypeController extends Controller
     public function destroy(string $short_url_type)
     {
         try {
+            hasPermissionTo(PermissionConstant::SHORT_URL_TYPES_DELETE['name']);
+
             ShortUrlType::destroy($short_url_type);
 
             return response()->noContent();

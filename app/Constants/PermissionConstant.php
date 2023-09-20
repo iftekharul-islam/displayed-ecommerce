@@ -235,4 +235,26 @@ class PermissionConstant
         'label' => 'Access',
         'code' => 9000,
     ];
+
+    // Short Url Types
+    public const SHORT_URL_TYPES_ACCESS = [
+        'name' => 'short_url_types_access',
+        'label' => 'Access',
+        'code' => 10000,
+    ];
+    public const SHORT_URL_TYPES_CREATE = [
+        'name' => 'short_url_types_create',
+        'label' => 'Create',
+        'code' => 10001,
+    ];
+    public const SHORT_URL_TYPES_EDIT = [
+        'name' => 'short_url_types_edit',
+        'label' => 'Edit',
+        'code' => 10003,
+    ];
+    public const SHORT_URL_TYPES_DELETE = [
+        'name' => 'short_url_types_delete',
+        'label' => 'Delete',
+        'code' => 10004,
+    ];
 }
