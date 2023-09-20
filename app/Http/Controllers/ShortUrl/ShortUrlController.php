@@ -431,7 +431,7 @@ class ShortUrlController extends Controller
     {
         try {
 
-            return $request_all = $request->all();
+            $request_all = $request->all();
             $sortByKey = data_get($request_all, 'sortByKey', 'id');
             $sortByOrder = data_get($request_all, 'sortByOrder', 'desc');
             $originalDomain = data_get($request_all, 'searchQuery.originalDomain', null);
