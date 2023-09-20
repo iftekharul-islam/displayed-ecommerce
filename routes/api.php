@@ -32,11 +32,14 @@ require __DIR__ . '/tld/tld.php';
 // campaign routes
 require __DIR__ . '/campaign/campaign.php';
 
-// short-url routes
+// short url type routes
+require __DIR__ . '/short-url-type/short_url_type.php';
+
+// short url routes
 require __DIR__ . '/short-url/short_url.php';
 
-// excluded-domain routes
+// excluded domain routes
 require __DIR__ . '/excluded-domain/excluded_domain.php';
 
-// report-download routes
+// report download routes
 require __DIR__ . '/report-download/report-download.php';
