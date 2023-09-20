@@ -6,6 +6,7 @@ use App\Models\Tld;
 use App\Models\Campaign;
 use App\Traits\CreatedBy;
 use App\Traits\UpdatedBy;
+use App\Models\ShortUrlType;
 use App\Models\VisitorCount;
 use App\Models\VisitorCountByCountry;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ class ShortUrl extends Model
 
     protected $fillable = [
         'campaign_id',
+        'type_id',
         'original_domain',
         'destination_domain',
         'short_url',
@@ -45,6 +47,11 @@ class ShortUrl extends Model
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class, 'campaign_id', 'id');
+    }
+
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(ShortUrlType::class, 'type_id', 'id');
     }
 
     public function visitorCount(): HasMany

@@ -36,6 +36,7 @@ class StoreShortUrlRequest extends FormRequest
                 ShortUrlConstant::EXPIRED,
             ])],
             'remarks' => 'nullable|string',
+            'type_id' => ['nullable', 'exists:short_url_types,id'],
         ];
     }
 }

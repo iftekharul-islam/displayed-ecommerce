@@ -5,6 +5,7 @@ namespace App\Http\Resources\ShortUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Campaign\CampaignResource;
+use App\Http\Resources\ShortUrlType\ShortUrlTypeResource;
 use App\Http\Resources\VisitorCountByCity\VisitorCountByCityResource;
 use App\Http\Resources\VisitorCountByCountry\VisitorCountByCountryResource;
 
@@ -31,6 +32,9 @@ class ShortUrlResource extends JsonResource
             'tld_price' => $this->tld_price,
             'campaign' =>  $this->whenLoaded('campaign', function () {
                 return new CampaignResource($this->campaign);
+            }),
+            'type' => $this->whenLoaded('type', function () {
+                return new ShortUrlTypeResource($this->type);
             }),
             'visitor_count' => $this->whenCounted('visitorCount', function () {
                 return $this->visitor_count;

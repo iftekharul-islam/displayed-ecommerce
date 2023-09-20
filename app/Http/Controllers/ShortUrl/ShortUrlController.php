@@ -96,7 +96,8 @@ class ShortUrlController extends Controller
                     })
                     ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                         $query->with([
-                            'campaign',
+                            'campaign:id,name',
+                            'type:id,name',
                             'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
                                 $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
                                     ->select([
@@ -125,7 +126,8 @@ class ShortUrlController extends Controller
                     })
                     ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                         $query->with([
-                            'campaign',
+                            'campaign:id,name',
+                            'type:id,name',
                             'visitorCountByCountries' => function ($query) {
                                 $query->select([
                                     'short_url_id',
@@ -201,7 +203,8 @@ class ShortUrlController extends Controller
                         }
                     ])
                     ->with([
-                        'campaign',
+                        'campaign:id,name',
+                        'type:id,name',
                         'visitorCountByCountries' => function ($query) {
                             $query->select([
                                 'short_url_id',
@@ -297,6 +300,7 @@ class ShortUrlController extends Controller
                     'auto_renewal' => $validated['auto_renewal'],
                     'status' => $validated['status'],
                     'remarks' => $validated['remarks'],
+                    'type_id' => $validated['type_id'] ?? null,
                 ]
             );
 

@@ -46,7 +46,8 @@ class ShortUrlExportService
             })
             ->when($fromDateFilter && $toDateFilter, function ($query) use ($fromDateFilter, $toDateFilter) {
                 $query->with([
-                    'campaign',
+                    'campaign:id,name',
+                    'type:id,name',
                     'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
                         $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
                             ->select([
@@ -75,7 +76,8 @@ class ShortUrlExportService
             })
             ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
                 $query->with([
-                    'campaign',
+                    'campaign:id,name',
+                    'type:id,name',
                     'visitorCountByCountries' => function ($query) {
                         $query->select([
                             'short_url_id',
@@ -198,13 +200,14 @@ class ShortUrlExportService
         }
 
         return [
-            'Campaign Name' => $shortUrl->campaign->name ?? '-',
+            'Campaign Name' => @$shortUrl->campaign->name ?? '-',
             'Original Domain' => $originalDomain,
             'Destination Domain' => $shortUrl->destination_domain ?? '-',
             'Short URL' => $shortUrl->short_url ?? '-',
             'Total Visitor' => $shortUrl->visitor_count ?? '0',
             'TLD' => $shortUrl->tld_name  ?? '-',
             'TLD Price' => $shortUrl->tld_price ?? '-',
+            'Type' => @$shortUrl->type->name ?? '-',
             'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
             'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             'Expired On' => $shortUrl->expired_at ?? '-',

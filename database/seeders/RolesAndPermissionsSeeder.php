@@ -210,6 +210,38 @@ class RolesAndPermissionsSeeder extends Seeder
                 ]
             ],
 
+            'Short Url Types' => [
+                [
+                    'name' => PermissionConstant::SHORT_URL_TYPES_ACCESS['name'],
+                    'label' => PermissionConstant::SHORT_URL_TYPES_ACCESS['label'],
+                    'code' => PermissionConstant::SHORT_URL_TYPES_ACCESS['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['access'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URL_TYPES_CREATE['name'],
+                    'label' => PermissionConstant::SHORT_URL_TYPES_CREATE['label'],
+                    'code' => PermissionConstant::SHORT_URL_TYPES_CREATE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['create'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URL_TYPES_EDIT['name'],
+                    'label' => PermissionConstant::SHORT_URL_TYPES_EDIT['label'],
+                    'code' => PermissionConstant::SHORT_URL_TYPES_EDIT['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['edit'],
+                    'guard_name' => 'api'
+                ],
+                [
+                    'name' => PermissionConstant::SHORT_URL_TYPES_DELETE['name'],
+                    'label' => PermissionConstant::SHORT_URL_TYPES_DELETE['label'],
+                    'code' => PermissionConstant::SHORT_URL_TYPES_DELETE['code'],
+                    'group' => PermissionConstant::PERMISSION_GROUP['delete'],
+                    'guard_name' => 'api'
+                ],
+
+            ],
+
             'Short Urls' => [
                 [
                     'name' => PermissionConstant::SHORT_URLS_ACCESS['name'],
