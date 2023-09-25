@@ -409,17 +409,20 @@ class ShortUrlController extends Controller
                 abort(404, "Page not found for code: $code");
             }
 
-            $agent = new Agent();
-
             $data = [
                 'short_url_id' => $short_url->id,
                 'request_ip' => $request->ip(),
                 'current_date' => now()->format('Y-m-d'),
             ];
 
-            ShortUrlAfterResponseJob::dispatchAfterResponse($data, $agent);
+            ShortUrlAfterResponseJob::dispatchAfterResponse($data, new Agent());
 
-            return redirect()->away('https://' . $short_url->destination_domain, 301);
+            return redirect()
+                ->away('https://' . $short_url->destination_domain, 301, [
+                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                    'Pragma' => 'no-cache',
+                    'Expires' => '0',
+                ]);
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::channel('redirection')->error($th);
