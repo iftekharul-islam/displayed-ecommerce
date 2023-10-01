@@ -13,14 +13,13 @@ class ModuleController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $perPage = $request->query('perPage', config('app.per_page'));
         $sortByKey = $request->query('sortByKey', 'id');
         $sortByOrder = $request->query('sortByOrder', 'desc');
 
         try {
             $data = Module::query()->with(['permissions'])
                 ->orderBy($sortByKey, $sortByOrder)
-                ->paginate($perPage);
+                ->get();
 
             return ModuleResource::collection($data);
         } catch (HttpException $th) {
