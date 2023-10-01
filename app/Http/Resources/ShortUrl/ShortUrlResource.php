@@ -40,10 +40,10 @@ class ShortUrlResource extends JsonResource
                 return $this->visitor_count;
             }),
             'visitor_count_by_countries' => $this->whenLoaded('visitorCountByCountries', function () {
-                return VisitorCountByCountryResource::collection($this->visitorCountByCountries);
+                return VisitorCountByCountryResource::collection($this->visitorCountByCountries->sortByDesc('total_count')->values()->all());
             }),
             'visitor_count_by_cities' => $this->whenLoaded('visitorCountByCities', function () {
-                return VisitorCountByCityResource::collection($this->visitorCountByCities);
+                return VisitorCountByCityResource::collection($this->visitorCountByCities->sortByDesc('total_count')->values()->all());
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

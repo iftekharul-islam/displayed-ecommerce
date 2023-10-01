@@ -153,48 +153,23 @@ class ShortUrlExportService
 
     public function map($shortUrl, $isExportOriginalDomain): array
     {
-        $countryVisitor1st = $shortUrl->visitorCountByCountries[0]->country ?? '-';
-        $countryVisitorTotalCount1st = $shortUrl->visitorCountByCountries[0]->total_count ?? '-';
-        $country1st = "$countryVisitor1st:$countryVisitorTotalCount1st";
 
-        $countryVisitor2nd = $shortUrl->visitorCountByCountries[1]->country ?? '-';
-        $countryVisitorTotalCount2nd = $shortUrl->visitorCountByCountries[1]->total_count ?? '-';
-        $country2nd = "$countryVisitor2nd:$countryVisitorTotalCount2nd";
+        // Sort and format visitorCountByCountries
+        $countryData = [];
+        $visitorCountByCountries = $shortUrl->visitorCountByCountries->sortByDesc('total_count')->values()->all();
+        foreach ($visitorCountByCountries as $country) {
+            $countryData[] = "{$country->country}:{$country->total_count}";
+        }
 
-        $countryVisitor3rd = $shortUrl->visitorCountByCountries[2]->country ?? '-';
-        $countryVisitorTotalCount3rd = $shortUrl->visitorCountByCountries[2]->total_count ?? '-';
-        $country3rd = "$countryVisitor3rd:$countryVisitorTotalCount3rd";
-
-        $countryVisitor4th = $shortUrl->visitorCountByCountries[3]->country ?? '-';
-        $countryVisitorTotalCount4th = $shortUrl->visitorCountByCountries[3]->total_count ?? '-';
-        $country4th = "$countryVisitor4th:$countryVisitorTotalCount4th";
-
-        $countryVisitor5th = $shortUrl->visitorCountByCountries[4]->country ?? '-';
-        $countryVisitorTotalCount5th = $shortUrl->visitorCountByCountries[4]->total_count ?? '-';
-        $country5th = "$countryVisitor5th:$countryVisitorTotalCount5th";
-
-        $cityVisitor1st = $shortUrl->visitorCountByCities[0]->city ?? '-';
-        $cityVisitorTotalCount1st = $shortUrl->visitorCountByCities[0]->total_count ?? '-';
-        $city1st = "$cityVisitor1st:$cityVisitorTotalCount1st";
-
-        $cityVisitor2nd = $shortUrl->visitorCountByCities[1]->city ?? '-';
-        $cityVisitorTotalCount2nd = $shortUrl->visitorCountByCities[1]->total_count ?? '-';
-        $city2nd = "$cityVisitor2nd:$cityVisitorTotalCount2nd";
-
-        $cityVisitor3rd = $shortUrl->visitorCountByCities[2]->city ?? '-';
-        $cityVisitorTotalCount3rd = $shortUrl->visitorCountByCities[2]->total_count ?? '-';
-        $city3rd = "$cityVisitor3rd:$cityVisitorTotalCount3rd";
-
-        $cityVisitor4th = $shortUrl->visitorCountByCities[3]->city ?? '-';
-        $cityVisitorTotalCount4th = $shortUrl->visitorCountByCities[3]->total_count ?? '-';
-        $city4th = "$cityVisitor4th:$cityVisitorTotalCount4th";
-
-        $cityVisitor5th = $shortUrl->visitorCountByCities[4]->city ?? '-';
-        $cityVisitorTotalCount5th = $shortUrl->visitorCountByCities[4]->total_count ?? '-';
-        $city5th = "$cityVisitor5th:$cityVisitorTotalCount5th";
+        // Sort and format visitorCountByCities
+        $cityData = [];
+        $visitorCountByCities = $shortUrl->visitorCountByCities->sortByDesc('total_count')->values()->all();
+        foreach ($visitorCountByCities as $city) {
+            $cityData[] = "{$city->city}:{$city->total_count}";
+        }
 
         if (to_boolean($isExportOriginalDomain)) {
-            $originalDomain = $shortUrl->original_domain  ?? '-';
+            $originalDomain = $shortUrl->original_domain ?? '-';
         } else {
             $originalDomain = '-';
         }
@@ -211,16 +186,16 @@ class ShortUrlExportService
             'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
             'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             'Expired On' => $shortUrl->expired_at ?? '-',
-            '1st Country Visitor' =>  $country1st,
-            '2nd Country Visitor' => $country2nd,
-            '3rd Country Visitor' => $country3rd,
-            '4th Country Visitor' => $country4th,
-            '5th Country Visitor' => $country5th,
-            '1st City Visitor' => $city1st,
-            '2nd City Visitor' => $city2nd,
-            '3rd City Visitor' =>  $city3rd,
-            '4th City Visitor' =>  $city4th,
-            '5th City Visitor' =>  $city5th,
+            '1st Country Visitor' => $countryData[0] ?? '-',
+            '2nd Country Visitor' => $countryData[1] ?? '-',
+            '3rd Country Visitor' => $countryData[2] ?? '-',
+            '4th Country Visitor' => $countryData[3] ?? '-',
+            '5th Country Visitor' => $countryData[4] ?? '-',
+            '1st City Visitor' => $cityData[0] ?? '-',
+            '2nd City Visitor' => $cityData[1] ?? '-',
+            '3rd City Visitor' => $cityData[2] ?? '-',
+            '4th City Visitor' => $cityData[3] ?? '-',
+            '5th City Visitor' => $cityData[4] ?? '-',
         ];
     }
 
