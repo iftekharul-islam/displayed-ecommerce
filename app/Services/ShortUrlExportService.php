@@ -171,6 +171,7 @@ class ShortUrlExportService
         }
 
         return [
+            'ID' => $shortUrl->url_key ?? '-',
             'Campaign Name' => @$shortUrl->campaign->name ?? '-',
             'Original Domain' => $originalDomain,
             'Destination Domain' => $shortUrl->destination_domain ?? '-',
