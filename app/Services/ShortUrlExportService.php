@@ -57,7 +57,6 @@ class ShortUrlExportService
                             ])
                             ->whereNotNull('country')
                             ->groupBy(['short_url_id', 'country'])
-                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                     'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -69,7 +68,6 @@ class ShortUrlExportService
                             ])
                             ->whereNotNull('city')
                             ->groupBy(['short_url_id', 'city'])
-                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                 ]);
@@ -86,7 +84,6 @@ class ShortUrlExportService
                         ])
                             ->whereNotNull('country')
                             ->groupBy(['short_url_id', 'country'])
-                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                     'visitorCountByCities' => function ($query) {
@@ -97,7 +94,6 @@ class ShortUrlExportService
                         ])
                             ->whereNotNull('city')
                             ->groupBy(['short_url_id', 'city'])
-                            ->orderByDesc('total_count')
                             ->limit(5);
                     },
                 ]);

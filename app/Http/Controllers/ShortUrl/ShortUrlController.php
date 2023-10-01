@@ -107,7 +107,6 @@ class ShortUrlController extends Controller
                                     ])
                                     ->whereNotNull('country')
                                     ->groupBy(['short_url_id', 'country'])
-                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                             'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
@@ -119,7 +118,6 @@ class ShortUrlController extends Controller
                                     ])
                                     ->whereNotNull('city')
                                     ->groupBy(['short_url_id', 'city'])
-                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                         ]);
@@ -136,7 +134,6 @@ class ShortUrlController extends Controller
                                 ])
                                     ->whereNotNull('country')
                                     ->groupBy(['short_url_id', 'country'])
-                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                             'visitorCountByCities' => function ($query) {
@@ -147,7 +144,6 @@ class ShortUrlController extends Controller
                                 ])
                                     ->whereNotNull('city')
                                     ->groupBy(['short_url_id', 'city'])
-                                    ->orderByDesc('total_count')
                                     ->limit(5);
                             },
                         ]);
@@ -213,7 +209,6 @@ class ShortUrlController extends Controller
                             ])
                                 ->whereNotNull('country')
                                 ->groupBy(['short_url_id', 'country'])
-                                ->orderByDesc('total_count')
                                 ->limit(5);
                         },
                         'visitorCountByCities' => function ($query) {
@@ -224,7 +219,6 @@ class ShortUrlController extends Controller
                             ])
                                 ->whereNotNull('city')
                                 ->groupBy(['short_url_id', 'city'])
-                                ->orderByDesc('total_count')
                                 ->limit(5);
                         },
                     ])
