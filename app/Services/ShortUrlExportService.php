@@ -59,17 +59,17 @@ class ShortUrlExportService
                             ->groupBy(['short_url_id', 'country'])
                             ->limit(5);
                     },
-                    'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
-                            ->select([
-                                'short_url_id',
-                                'city',
-                                DB::raw('SUM(total_count) as total_count')
-                            ])
-                            ->whereNotNull('city')
-                            ->groupBy(['short_url_id', 'city'])
-                            ->limit(5);
-                    },
+                    // 'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                    //     $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                    //         ->select([
+                    //             'short_url_id',
+                    //             'city',
+                    //             DB::raw('SUM(total_count) as total_count')
+                    //         ])
+                    //         ->whereNotNull('city')
+                    //         ->groupBy(['short_url_id', 'city'])
+                    //         ->limit(5);
+                    // },
                 ]);
             })
             ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
@@ -86,16 +86,16 @@ class ShortUrlExportService
                             ->groupBy(['short_url_id', 'country'])
                             ->limit(5);
                     },
-                    'visitorCountByCities' => function ($query) {
-                        $query->select([
-                            'short_url_id',
-                            'city',
-                            DB::raw('SUM(total_count) as total_count')
-                        ])
-                            ->whereNotNull('city')
-                            ->groupBy(['short_url_id', 'city'])
-                            ->limit(5);
-                    },
+                    // 'visitorCountByCities' => function ($query) {
+                    //     $query->select([
+                    //         'short_url_id',
+                    //         'city',
+                    //         DB::raw('SUM(total_count) as total_count')
+                    //     ])
+                    //         ->whereNotNull('city')
+                    //         ->groupBy(['short_url_id', 'city'])
+                    //         ->limit(5);
+                    // },
                 ]);
             })
             ->when($expireAtFilter && $expireAtFilter !== ShortUrlConstant::ALL, function ($query) use ($expireAtFilter) {
@@ -158,11 +158,11 @@ class ShortUrlExportService
         }
 
         // Sort and format visitorCountByCities
-        $cityData = [];
-        $visitorCountByCities = $shortUrl->visitorCountByCities->sortByDesc('total_count')->values()->all();
-        foreach ($visitorCountByCities as $city) {
-            $cityData[] = "{$city->city}:{$city->total_count}";
-        }
+        // $cityData = [];
+        // $visitorCountByCities = $shortUrl->visitorCountByCities->sortByDesc('total_count')->values()->all();
+        // foreach ($visitorCountByCities as $city) {
+        //     $cityData[] = "{$city->city}:{$city->total_count}";
+        // }
 
         if (to_boolean($isExportOriginalDomain)) {
             $originalDomain = $shortUrl->original_domain ?? '-';
@@ -183,16 +183,16 @@ class ShortUrlExportService
             'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
             'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             'Expired On' => $shortUrl->expired_at ?? '-',
-            '1st Country Visitor' => $countryData[0] ?? '-',
-            '2nd Country Visitor' => $countryData[1] ?? '-',
-            '3rd Country Visitor' => $countryData[2] ?? '-',
-            '4th Country Visitor' => $countryData[3] ?? '-',
-            '5th Country Visitor' => $countryData[4] ?? '-',
-            '1st City Visitor' => $cityData[0] ?? '-',
-            '2nd City Visitor' => $cityData[1] ?? '-',
-            '3rd City Visitor' => $cityData[2] ?? '-',
-            '4th City Visitor' => $cityData[3] ?? '-',
-            '5th City Visitor' => $cityData[4] ?? '-',
+            '1st Country Visitor' => @$countryData[0] ? $countryData[0] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[0])) : '-',
+            '2nd Country Visitor' => @$countryData[1] ? $countryData[1] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[1])) : '-',
+            '3rd Country Visitor' => @$countryData[2] ? $countryData[2] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[2])) : '-',
+            '4th Country Visitor' => @$countryData[3] ? $countryData[3] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[3])) : '-',
+            '5th Country Visitor' => @$countryData[4] ? $countryData[4] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[4])) : '-',
+            // '1st City Visitor' => $cityData[0] ?? '-',
+            // '2nd City Visitor' => $cityData[1] ?? '-',
+            // '3rd City Visitor' => $cityData[2] ?? '-',
+            // '4th City Visitor' => $cityData[3] ?? '-',
+            // '5th City Visitor' => $cityData[4] ?? '-',
         ];
     }
 
@@ -215,5 +215,20 @@ class ShortUrlExportService
         foreach ($items as $item) {
             yield $item;
         }
+    }
+
+    public function getPercentageWithSign($total, $value): string
+    {
+        if ($total === 0) return "0 %";
+        $percentage = floor(($value / $total) * 100);
+        return $percentage . " %";
+    }
+
+    // explode by : and get the second index
+    public function getCountryCount($country): int
+    {
+        $country = explode(':', $country);
+
+        return (int)$country[1];
     }
 }
