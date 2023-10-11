@@ -183,11 +183,11 @@ class ShortUrlExportService
             'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
             'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             'Expired On' => $shortUrl->expired_at ?? '-',
-            '1st Country Visitor' => $countryData[0] ?? '-',
-            '2nd Country Visitor' => $countryData[1] ?? '-',
-            '3rd Country Visitor' => $countryData[2] ?? '-',
-            '4th Country Visitor' => $countryData[3] ?? '-',
-            '5th Country Visitor' => $countryData[4] ?? '-',
+            '1st Country Visitor' => @$countryData[0] ? $countryData[0] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[0])) : '-',
+            '2nd Country Visitor' => @$countryData[1] ? $countryData[1] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[1])) : '-',
+            '3rd Country Visitor' => @$countryData[2] ? $countryData[2] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[2])) : '-',
+            '4th Country Visitor' => @$countryData[3] ? $countryData[3] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[3])) : '-',
+            '5th Country Visitor' => @$countryData[4] ? $countryData[4] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[4])) : '-',
             // '1st City Visitor' => $cityData[0] ?? '-',
             // '2nd City Visitor' => $cityData[1] ?? '-',
             // '3rd City Visitor' => $cityData[2] ?? '-',
@@ -215,5 +215,20 @@ class ShortUrlExportService
         foreach ($items as $item) {
             yield $item;
         }
+    }
+
+    public function getPercentageWithSign($total, $value): string
+    {
+        if ($total === 0) return "0 %";
+        $percentage = floor(($value / $total) * 100);
+        return $percentage . " %";
+    }
+
+    // explode by : and get the second index
+    public function getCountryCount($country): int
+    {
+        $country = explode(':', $country);
+
+        return (int)$country[1];
     }
 }
