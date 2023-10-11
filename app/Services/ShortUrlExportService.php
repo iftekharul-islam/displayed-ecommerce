@@ -59,17 +59,17 @@ class ShortUrlExportService
                             ->groupBy(['short_url_id', 'country'])
                             ->limit(5);
                     },
-                    'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
-                            ->select([
-                                'short_url_id',
-                                'city',
-                                DB::raw('SUM(total_count) as total_count')
-                            ])
-                            ->whereNotNull('city')
-                            ->groupBy(['short_url_id', 'city'])
-                            ->limit(5);
-                    },
+                    // 'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                    //     $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                    //         ->select([
+                    //             'short_url_id',
+                    //             'city',
+                    //             DB::raw('SUM(total_count) as total_count')
+                    //         ])
+                    //         ->whereNotNull('city')
+                    //         ->groupBy(['short_url_id', 'city'])
+                    //         ->limit(5);
+                    // },
                 ]);
             })
             ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
@@ -86,16 +86,16 @@ class ShortUrlExportService
                             ->groupBy(['short_url_id', 'country'])
                             ->limit(5);
                     },
-                    'visitorCountByCities' => function ($query) {
-                        $query->select([
-                            'short_url_id',
-                            'city',
-                            DB::raw('SUM(total_count) as total_count')
-                        ])
-                            ->whereNotNull('city')
-                            ->groupBy(['short_url_id', 'city'])
-                            ->limit(5);
-                    },
+                    // 'visitorCountByCities' => function ($query) {
+                    //     $query->select([
+                    //         'short_url_id',
+                    //         'city',
+                    //         DB::raw('SUM(total_count) as total_count')
+                    //     ])
+                    //         ->whereNotNull('city')
+                    //         ->groupBy(['short_url_id', 'city'])
+                    //         ->limit(5);
+                    // },
                 ]);
             })
             ->when($expireAtFilter && $expireAtFilter !== ShortUrlConstant::ALL, function ($query) use ($expireAtFilter) {
@@ -158,11 +158,11 @@ class ShortUrlExportService
         }
 
         // Sort and format visitorCountByCities
-        $cityData = [];
-        $visitorCountByCities = $shortUrl->visitorCountByCities->sortByDesc('total_count')->values()->all();
-        foreach ($visitorCountByCities as $city) {
-            $cityData[] = "{$city->city}:{$city->total_count}";
-        }
+        // $cityData = [];
+        // $visitorCountByCities = $shortUrl->visitorCountByCities->sortByDesc('total_count')->values()->all();
+        // foreach ($visitorCountByCities as $city) {
+        //     $cityData[] = "{$city->city}:{$city->total_count}";
+        // }
 
         if (to_boolean($isExportOriginalDomain)) {
             $originalDomain = $shortUrl->original_domain ?? '-';
@@ -188,11 +188,11 @@ class ShortUrlExportService
             '3rd Country Visitor' => $countryData[2] ?? '-',
             '4th Country Visitor' => $countryData[3] ?? '-',
             '5th Country Visitor' => $countryData[4] ?? '-',
-            '1st City Visitor' => $cityData[0] ?? '-',
-            '2nd City Visitor' => $cityData[1] ?? '-',
-            '3rd City Visitor' => $cityData[2] ?? '-',
-            '4th City Visitor' => $cityData[3] ?? '-',
-            '5th City Visitor' => $cityData[4] ?? '-',
+            // '1st City Visitor' => $cityData[0] ?? '-',
+            // '2nd City Visitor' => $cityData[1] ?? '-',
+            // '3rd City Visitor' => $cityData[2] ?? '-',
+            // '4th City Visitor' => $cityData[3] ?? '-',
+            // '5th City Visitor' => $cityData[4] ?? '-',
         ];
     }
 

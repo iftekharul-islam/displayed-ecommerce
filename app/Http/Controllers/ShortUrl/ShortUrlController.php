@@ -109,17 +109,17 @@ class ShortUrlController extends Controller
                                     ->groupBy(['short_url_id', 'country'])
                                     ->limit(5);
                             },
-                            'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                                $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
-                                    ->select([
-                                        'short_url_id',
-                                        'city',
-                                        DB::raw('SUM(total_count) as total_count')
-                                    ])
-                                    ->whereNotNull('city')
-                                    ->groupBy(['short_url_id', 'city'])
-                                    ->limit(5);
-                            },
+                            // 'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                            //     $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                            //         ->select([
+                            //             'short_url_id',
+                            //             'city',
+                            //             DB::raw('SUM(total_count) as total_count')
+                            //         ])
+                            //         ->whereNotNull('city')
+                            //         ->groupBy(['short_url_id', 'city'])
+                            //         ->limit(5);
+                            // },
                         ]);
                     })
                     ->when(!$fromDateFilter || !$toDateFilter, function ($query) {
@@ -136,16 +136,16 @@ class ShortUrlController extends Controller
                                     ->groupBy(['short_url_id', 'country'])
                                     ->limit(5);
                             },
-                            'visitorCountByCities' => function ($query) {
-                                $query->select([
-                                    'short_url_id',
-                                    'city',
-                                    DB::raw('SUM(total_count) as total_count')
-                                ])
-                                    ->whereNotNull('city')
-                                    ->groupBy(['short_url_id', 'city'])
-                                    ->limit(5);
-                            },
+                            // 'visitorCountByCities' => function ($query) {
+                            //     $query->select([
+                            //         'short_url_id',
+                            //         'city',
+                            //         DB::raw('SUM(total_count) as total_count')
+                            //     ])
+                            //         ->whereNotNull('city')
+                            //         ->groupBy(['short_url_id', 'city'])
+                            //         ->limit(5);
+                            // },
                         ]);
                     })
                     ->when($expireAtFilter && $expireAtFilter !== ShortUrlConstant::ALL, function ($query) use ($expireAtFilter) {
@@ -211,16 +211,16 @@ class ShortUrlController extends Controller
                                 ->groupBy(['short_url_id', 'country'])
                                 ->limit(5);
                         },
-                        'visitorCountByCities' => function ($query) {
-                            $query->select([
-                                'short_url_id',
-                                'city',
-                                DB::raw('SUM(total_count) as total_count')
-                            ])
-                                ->whereNotNull('city')
-                                ->groupBy(['short_url_id', 'city'])
-                                ->limit(5);
-                        },
+                        // 'visitorCountByCities' => function ($query) {
+                        //     $query->select([
+                        //         'short_url_id',
+                        //         'city',
+                        //         DB::raw('SUM(total_count) as total_count')
+                        //     ])
+                        //         ->whereNotNull('city')
+                        //         ->groupBy(['short_url_id', 'city'])
+                        //         ->limit(5);
+                        // },
                     ])
                     ->when($campaignId !== ShortUrlConstant::ALL, function ($query) use ($campaignId) {
                         $query->where('campaign_id', $campaignId);
