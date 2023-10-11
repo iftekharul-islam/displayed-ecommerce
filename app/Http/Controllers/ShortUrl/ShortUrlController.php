@@ -26,6 +26,7 @@ use App\Jobs\ShortUrl\InvalidDomainCheckJob;
 use App\Jobs\ShortUrl\ShortUrlAfterResponseJob;
 use App\Http\Requests\ShortUrl\TldUpdateRequest;
 use App\Http\Resources\ShortUrl\ShortUrlResource;
+use App\Http\Requests\ShortUrl\IndexShortUrlRequest;
 use App\Http\Requests\ShortUrl\StoreShortUrlRequest;
 use App\Http\Requests\ShortUrl\ImportShortUrlRequest;
 use App\Http\Requests\ShortUrl\UpdateShortUrlRequest;
@@ -40,7 +41,7 @@ class ShortUrlController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexShortUrlRequest $request)
     {
         try {
             hasPermissionTo(PermissionConstant::SHORT_URLS_ACCESS['name']);
