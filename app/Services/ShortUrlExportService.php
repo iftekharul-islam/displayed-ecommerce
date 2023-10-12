@@ -125,7 +125,7 @@ class ShortUrlExportService
                 $query->where('campaign_id', $campaignId);
             })
             ->when($shortUrl, function ($query) use ($shortUrl) {
-                $query->where('url_key', $shortUrl);
+                $query->where('url_key', 'LIKE', "%$shortUrl%");
             })
             ->when($originalDomain, function ($query) use ($originalDomain) {
                 $query->where('original_domain', 'LIKE', "%$originalDomain%");
