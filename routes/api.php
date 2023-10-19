@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\ShortUrl;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -10,6 +13,125 @@
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::get('domain/transfer', function () {
+    try {
+
+        $transferDomains = [
+
+            "5facebook.com",
+
+            "betffed.com",
+
+            "betrred.com",
+
+            "bettred.com",
+
+            "bhk01.com",
+
+            "bingng.com",
+
+            "binwnce.com",
+
+            "bjnance.com",
+
+            "btefair.com",
+
+            "cam4.asia",
+
+            "cricbuyzz.com",
+
+            "dafabeet.com",
+
+            "dafabert.com",
+
+            "dafabetr.com",
+
+            "dafabety.com",
+
+            "dcinsife.com",
+
+            "dcinsise.com",
+
+            "ddoeda.com",
+
+            "dlsitr.com",
+
+            "doeea.com",
+
+            "dpuban.com",
+
+            "eaatmoney.com",
+
+            "eastminey.com",
+
+            "eoeda.com",
+
+            "fdouyu.com",
+
+            "hkjcc.com",
+
+            "instadgram.com",
+
+            "instakgram.com",
+
+            "kivenation.com",
+
+            "livesclre.com",
+
+            "livwnation.com",
+
+            "mmegamillions.com",
+
+            "ooblox.com",
+
+            "openqai.com",
+
+            "ppixi.com",
+
+            "ppornhu.com",
+
+            "sdouyu.com",
+
+            "sepankbang.com",
+
+            "spankbang0.com",
+
+            "taobzo.com",
+
+            "tataobao.com",
+
+            "twitter8.com",
+
+            "vetfred.com",
+
+            "weibho.com",
+
+            "weijbo.com",
+
+            "wzhihu.com",
+
+            "zhihh.com",
+
+            "zhjihu.com"
+        ];
+
+        foreach ($transferDomains as $domain) {
+            $domain = ShortUrl::query()
+                ->where('original_domain', $domain)
+                ->first();
+            if ($domain) {
+                $domain->update([
+                    'campaign_id' => 9
+                ]);
+            }
+        }
+
+        return 'done';
+    } catch (\Throwable $th) {
+        info($th);
+    }
+});
 
 // auth routes
 require __DIR__ . '/auth/auth.php';
