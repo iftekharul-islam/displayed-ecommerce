@@ -34,6 +34,7 @@ use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
+use App\Models\ShortUrlType;
 
 class ShortUrlController extends Controller
 {
@@ -393,12 +394,7 @@ class ShortUrlController extends Controller
     public function sortUrlRedirection(Request $request, string $code)
     {
         try {
-            $short_url = Cache::store('redirection')->rememberForever("redirection:$code", function () use ($code) {
-                return DB::table('short_urls')
-                    ->select('id', 'destination_domain')
-                    ->where('url_key', $code)
-                    ->first();
-            });
+            $short_url = ShortUrl::with('type')->where('url_key', $code)->first();
 
             if (empty($short_url)) {
                 abort(404, "Page not found for code: $code");
@@ -412,8 +408,14 @@ class ShortUrlController extends Controller
 
             ShortUrlAfterResponseJob::dispatchAfterResponse($data, new Agent());
 
+            $url = null;
+            if (isset($short_url->type)) {
+                $url = $short_url->type->redirect_url;
+            } else {
+                $url = ShortUrlType::where('is_default', true)->first()->redirect_url;
+            }
             return redirect()
-                ->away('https://' . $short_url->destination_domain, 301, [
+                ->away($url, 301, [
                     'Cache-Control' => 'no-cache, no-store, must-revalidate',
                     'Pragma' => 'no-cache',
                     'Expires' => '0',
