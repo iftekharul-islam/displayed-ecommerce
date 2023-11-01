@@ -23,6 +23,7 @@ class StoreShortUrlTypeRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255', 'unique:short_url_types,name'],
+            'redirect_url' => ['required', 'string', 'max:255'],
         ];
     }
 }
