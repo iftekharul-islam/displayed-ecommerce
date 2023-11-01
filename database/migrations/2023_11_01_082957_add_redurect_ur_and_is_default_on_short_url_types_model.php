@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('short_url_types', function (Blueprint $table) {
             $table->string('redirect_url')->nullable();
-            $table->boolean('isDefault')->default(false);
+            $table->boolean('is_default')->default(false);
         });
     }
 

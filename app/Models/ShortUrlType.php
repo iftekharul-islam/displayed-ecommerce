@@ -12,10 +12,14 @@ class ShortUrlType extends Model
     protected $fillable  = [
         'name',
         'redirect_url',
-        'isDefault'
+        'is_default'
     ];
 
     protected $appends = ['count'];
+
+    protected $casts = [
+        'is_default' => 'boolean'
+    ];
 
     public function urls()
     {
