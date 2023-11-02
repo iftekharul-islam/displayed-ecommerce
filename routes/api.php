@@ -43,3 +43,6 @@ require __DIR__ . '/excluded-domain/excluded_domain.php';
 
 // report download routes
 require __DIR__ . '/report-download/report-download.php';
+
+// redirection type routes
+require __DIR__ . '/redirection-type/redirection-type.php';

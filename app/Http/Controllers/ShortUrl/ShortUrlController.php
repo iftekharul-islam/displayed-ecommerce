@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Actions\GenerateCodeAction;
+use App\Actions\ProIpApi;
 use App\Constants\ShortUrlConstant;
 use App\Jobs\ShortUrl\TldUpdateJob;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +35,7 @@ use App\Http\Requests\ShortUrl\ValidDomainCheckRequest;
 use App\Http\Requests\ShortUrl\LatestDomainExportRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Jobs\ShortUrl\NotifyUserOfCompletedLatestDomainExportJob;
+use App\Models\MasterSetting;
 use App\Models\ShortUrlType;
 
 class ShortUrlController extends Controller
@@ -408,12 +410,27 @@ class ShortUrlController extends Controller
 
             ShortUrlAfterResponseJob::dispatchAfterResponse($data, new Agent());
 
+            $redirection_type = MasterSetting::first()->redirection_type;
             $url = null;
-            if (isset($short_url->type)) {
-                $url = $short_url->type->redirect_url;
+
+            if ($redirection_type == 1) {
+                $url = 'https://' . $short_url->destination_domain;
+            } elseif ($redirection_type == 2) {
+                if (isset($short_url->type)) {
+                    $url = $short_url->type->redirect_url;
+                } else {
+                    $url = ShortUrlType::where('is_default', true)->first()->redirect_url;
+                }
+            } elseif ($redirection_type == 3) {
+                if ($position = ProIpApi::location($request->ip())) {
+                    $country = @$position['country'];
+                    info($country);
+                }
+                $url = 'https://' . $short_url->destination_domain;
             } else {
-                $url = ShortUrlType::where('is_default', true)->first()->redirect_url;
+                $url = 'https://lotto60.com/';
             }
+
             return redirect()
                 ->away($url, 301, [
                     'Cache-Control' => 'no-cache, no-store, must-revalidate',
