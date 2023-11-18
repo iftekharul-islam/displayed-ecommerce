@@ -19,3 +19,5 @@ Route::get('/', function () {
 });
 
 Route::get('vx/{code}', [ShortUrlController::class, 'sortUrlRedirection']);
+
+

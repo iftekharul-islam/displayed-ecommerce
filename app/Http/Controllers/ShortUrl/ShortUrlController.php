@@ -395,6 +395,9 @@ class ShortUrlController extends Controller
 
     public function sortUrlRedirection(Request $request, string $code)
     {
+	if($code == "649930143fd19"){
+		info("Called");
+}
         try {
             $short_url = ShortUrl::with('type')->where('url_key', $code)->first();
 
