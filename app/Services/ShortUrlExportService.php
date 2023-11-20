@@ -48,17 +48,17 @@ class ShortUrlExportService
                 $query->with([
                     'campaign:id,name',
                     'type:id,name',
-                    'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
-                        $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
-                            ->select([
-                                'short_url_id',
-                                'country',
-                                DB::raw('SUM(total_count) as total_count')
-                            ])
-                            ->whereNotNull('country')
-                            ->groupBy(['short_url_id', 'country'])
-                            ->limit(5);
-                    },
+                    // 'visitorCountByCountries' => function ($query) use ($fromDateFilter, $toDateFilter) {
+                    //     $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
+                    //         ->select([
+                    //             'short_url_id',
+                    //             'country',
+                    //             DB::raw('SUM(total_count) as total_count')
+                    //         ])
+                    //         ->whereNotNull('country')
+                    //         ->groupBy(['short_url_id', 'country'])
+                    //         ->limit(5);
+                    // },
                     // 'visitorCountByCities' => function ($query) use ($fromDateFilter, $toDateFilter) {
                     //     $query->whereBetween('visited_at', [$fromDateFilter, $toDateFilter])
                     //         ->select([
@@ -76,16 +76,16 @@ class ShortUrlExportService
                 $query->with([
                     'campaign:id,name',
                     'type:id,name',
-                    'visitorCountByCountries' => function ($query) {
-                        $query->select([
-                            'short_url_id',
-                            'country',
-                            DB::raw('SUM(total_count) as total_count')
-                        ])
-                            ->whereNotNull('country')
-                            ->groupBy(['short_url_id', 'country'])
-                            ->limit(5);
-                    },
+                    // 'visitorCountByCountries' => function ($query) {
+                    //     $query->select([
+                    //         'short_url_id',
+                    //         'country',
+                    //         DB::raw('SUM(total_count) as total_count')
+                    //     ])
+                    //         ->whereNotNull('country')
+                    //         ->groupBy(['short_url_id', 'country'])
+                    //         ->limit(5);
+                    // },
                     // 'visitorCountByCities' => function ($query) {
                     //     $query->select([
                     //         'short_url_id',
@@ -151,11 +151,11 @@ class ShortUrlExportService
     {
 
         // Sort and format visitorCountByCountries
-        $countryData = [];
-        $visitorCountByCountries = $shortUrl->visitorCountByCountries->sortByDesc('total_count')->values()->all();
-        foreach ($visitorCountByCountries as $country) {
-            $countryData[] = "{$country->country}:{$country->total_count}";
-        }
+        // $countryData = [];
+        // $visitorCountByCountries = $shortUrl->visitorCountByCountries->sortByDesc('total_count')->values()->all();
+        // foreach ($visitorCountByCountries as $country) {
+        //     $countryData[] = "{$country->country}:{$country->total_count}";
+        // }
 
         // Sort and format visitorCountByCities
         // $cityData = [];
@@ -183,11 +183,11 @@ class ShortUrlExportService
             'Auto Renewal' => $shortUrl->auto_renewal ? 'Yes' : 'No',
             'Status' => $this->getStatus((int) $shortUrl->status, $shortUrl->expired_at),
             'Expired On' => $shortUrl->expired_at ?? '-',
-            '1st Country Visitor' => @$countryData[0] ? $countryData[0] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[0])) : '-',
-            '2nd Country Visitor' => @$countryData[1] ? $countryData[1] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[1])) : '-',
-            '3rd Country Visitor' => @$countryData[2] ? $countryData[2] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[2])) : '-',
-            '4th Country Visitor' => @$countryData[3] ? $countryData[3] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[3])) : '-',
-            '5th Country Visitor' => @$countryData[4] ? $countryData[4] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[4])) : '-',
+            // '1st Country Visitor' => @$countryData[0] ? $countryData[0] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[0])) : '-',
+            // '2nd Country Visitor' => @$countryData[1] ? $countryData[1] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[1])) : '-',
+            // '3rd Country Visitor' => @$countryData[2] ? $countryData[2] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[2])) : '-',
+            // '4th Country Visitor' => @$countryData[3] ? $countryData[3] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[3])) : '-',
+            // '5th Country Visitor' => @$countryData[4] ? $countryData[4] . ':' . $this->getPercentageWithSign((int)$shortUrl->visitor_count, $this->getCountryCount($countryData[4])) : '-',
             // '1st City Visitor' => $cityData[0] ?? '-',
             // '2nd City Visitor' => $cityData[1] ?? '-',
             // '3rd City Visitor' => $cityData[2] ?? '-',
