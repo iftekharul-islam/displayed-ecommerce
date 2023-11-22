@@ -3,7 +3,6 @@
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
-use App\Jobs\ShortUrl\CountryCityVisitorJob;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -15,11 +14,11 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('app:run-valid-domains-checker-command')
             // ->dailyAt('11:10')
-	    ->weeklyOn(0, '11:10')
+            ->weeklyOn(0, '11:10')
             ->timezone('Asia/Dhaka');
 
         $schedule->command('app:run-logs-clear-command')
-            ->hourly()
+            ->weeklyOn(0, '11:10')
             ->timezone('Asia/Dhaka');
     }
 

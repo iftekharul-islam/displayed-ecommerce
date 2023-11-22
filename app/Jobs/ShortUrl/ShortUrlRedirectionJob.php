@@ -81,61 +81,61 @@ class ShortUrlRedirectionJob implements ShouldQueue
             });
 
 
-            DB::transaction(function () use ($short_url_id, $request_ip, $current_date) {
+            // DB::transaction(function () use ($short_url_id, $request_ip, $current_date) {
 
-                // location get
+            //     // location get
 
-                if ($position = ProIpApi::location($request_ip)) {
-                    $countryName = @$position['country'];
-                    $cityName = @$position['city'];
+            //     if ($position = ProIpApi::location($request_ip)) {
+            //         $countryName = @$position['country'];
+            //         $cityName = @$position['city'];
 
 
-                    // Total visitor count by country
-                    if (!empty($countryName)) {
-                        $visitorCountByCountryExist = VisitorCountByCountry::firstOrNew([
-                            'short_url_id' => $short_url_id,
-                            'country' => $countryName,
-                            'visited_at' => $current_date,
-                        ]);
+            //         // Total visitor count by country
+            //         if (!empty($countryName)) {
+            //             $visitorCountByCountryExist = VisitorCountByCountry::firstOrNew([
+            //                 'short_url_id' => $short_url_id,
+            //                 'country' => $countryName,
+            //                 'visited_at' => $current_date,
+            //             ]);
 
-                        if (!$visitorCountByCountryExist->exists) {
-                            $visitorCountByCountryExist->fill([
-                                'short_url_id' => $short_url_id,
-                                'country' => $countryName,
-                                'visited_at' => $current_date,
-                                'total_count' => 1,
-                            ]);
-                        } else {
-                            $visitorCountByCountryExist->total_count += 1;
-                        }
+            //             if (!$visitorCountByCountryExist->exists) {
+            //                 $visitorCountByCountryExist->fill([
+            //                     'short_url_id' => $short_url_id,
+            //                     'country' => $countryName,
+            //                     'visited_at' => $current_date,
+            //                     'total_count' => 1,
+            //                 ]);
+            //             } else {
+            //                 $visitorCountByCountryExist->total_count += 1;
+            //             }
 
-                        $visitorCountByCountryExist->save();
-                    }
+            //             $visitorCountByCountryExist->save();
+            //         }
 
-                    // Total visitor count by city
-                    if (!empty($cityName)) {
+            //         // Total visitor count by city
+            //         if (!empty($cityName)) {
 
-                        $visitorCountByCityExist = VisitorCountByCity::firstOrNew([
-                            'short_url_id' => $short_url_id,
-                            'city' => $cityName,
-                            'visited_at' => $current_date,
-                        ]);
+            //             $visitorCountByCityExist = VisitorCountByCity::firstOrNew([
+            //                 'short_url_id' => $short_url_id,
+            //                 'city' => $cityName,
+            //                 'visited_at' => $current_date,
+            //             ]);
 
-                        if (!$visitorCountByCityExist->exists) {
-                            $visitorCountByCityExist->fill([
-                                'short_url_id' => $short_url_id,
-                                'city' => $cityName,
-                                'visited_at' => $current_date,
-                                'total_count' => 1,
-                            ]);
-                        } else {
-                            $visitorCountByCityExist->total_count += 1;
-                        }
+            //             if (!$visitorCountByCityExist->exists) {
+            //                 $visitorCountByCityExist->fill([
+            //                     'short_url_id' => $short_url_id,
+            //                     'city' => $cityName,
+            //                     'visited_at' => $current_date,
+            //                     'total_count' => 1,
+            //                 ]);
+            //             } else {
+            //                 $visitorCountByCityExist->total_count += 1;
+            //             }
 
-                        $visitorCountByCityExist->save();
-                    }
-                }
-            });
+            //             $visitorCountByCityExist->save();
+            //         }
+            //     }
+            // });
         } catch (HttpException $th) {
             Log::channel('redirection')->error($th->getMessage());
         }
