@@ -47,6 +47,8 @@ class InvalidDomainCheckJob implements ShouldQueue
     public function handle()
     {
         try {
+            info("start");
+            info(now());
             $campaign = $this->campaign;
             $logPrefix = "ValidDomainCheckJob: {$campaign->name} - ";
             Log::channel('valid-domains-checker')->info("$logPrefix started");
@@ -72,6 +74,8 @@ class InvalidDomainCheckJob implements ShouldQueue
                         $remarks = " and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                     } else {
                         try {
+                            info("check start");
+                            info(now());
                             $response = Http::withHeaders(['User-Agent' => 'Sajib/DJDJD/0.1'])->get($originalDomain);
                             $responseBody = $response->body();
 
@@ -91,20 +95,28 @@ class InvalidDomainCheckJob implements ShouldQueue
                                     $remarks = " , not match Lotto60 or Tickets and last checked on {$now->format('l')} - {$now->format('F d, Y')}";
                                 }
                             }
+                            info("check end");
+                            info(now());
                         } catch (\Throwable $th) {
                             $message = $th->getMessage();
                         }
                     }
-
+                    info("update start");
+                    info(now());
                     $shortUrl->update([
                         'status' => $status,
                         'remarks' => "$message " . $remarks,
                         'updated_at' => $now->format('Y-m-d H:i:s'),
                     ]);
+                    info("update end");
+                    info(now());
                 });
 
             $message = 'Invalid Domain Check Success';
             Notification::route('mail', $this->mailsTo)->notify(new ValidDomainCheckSuccessNotification($campaign->name, $message));
+
+            info("End");
+            info(now());
         } catch (HttpException $th) {
             Log::channel('valid-domains-checker')->error($th->getMessage());
         }
