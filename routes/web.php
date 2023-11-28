@@ -42,3 +42,7 @@ Route::get('/test', function (Request $request) {
 
     return "Hello";
 });
+
+Route::get('/test2', function (Request $request) {
+    return view('test');
+});
