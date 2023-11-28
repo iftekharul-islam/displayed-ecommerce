@@ -46,3 +46,7 @@ Route::get('/test', function (Request $request) {
 Route::get('/test2', function (Request $request) {
     return view('test');
 });
+
+Route::get('/test3', function (Request $request) {
+    return view('test3');
+});
