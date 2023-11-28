@@ -395,51 +395,52 @@ class ShortUrlController extends Controller
 
     public function sortUrlRedirection(Request $request, string $code)
     {
-	if($code == "649930143fd19"){
-		info("Called");
-}
         try {
-            $short_url = ShortUrl::with('type')->where('url_key', $code)->first();
+            // $short_url = ShortUrl::with('type')->where('url_key', $code)->first();
 
-            if (empty($short_url)) {
-                abort(404, "Page not found for code: $code");
-            }
+            // if (empty($short_url)) {
+            //     abort(404, "Page not found for code: $code");
+            // }
 
-            $data = [
-                'short_url_id' => $short_url->id,
-                'request_ip' => $request->ip(),
-                'current_date' => now()->format('Y-m-d'),
-            ];
+            // $data = [
+            //     'short_url_id' => $short_url->id,
+            //     'request_ip' => $request->ip(),
+            //     'current_date' => now()->format('Y-m-d'),
+            // ];
 
-            ShortUrlAfterResponseJob::dispatchAfterResponse($data, new Agent());
+            // ShortUrlAfterResponseJob::dispatchAfterResponse($data, new Agent());
 
-            $redirection_type = MasterSetting::first()->redirection_type;
-            $url = null;
+            // $redirection_type = MasterSetting::first()->redirection_type;
+            // $url = null;
 
-            if ($redirection_type == 1) {
-                $url = 'https://' . $short_url->destination_domain;
-            } elseif ($redirection_type == 2) {
-                if (isset($short_url->type)) {
-                    $url = $short_url->type->redirect_url;
-                } else {
-                    $url = ShortUrlType::where('is_default', true)->first()->redirect_url;
-                }
-            } elseif ($redirection_type == 3) {
-                if ($position = ProIpApi::location($request->ip())) {
-                    $country = @$position['country'];
-                    info($country);
-                }
-                $url = 'https://' . $short_url->destination_domain;
-            } else {
-                $url = 'https://lotto60.com/';
-            }
+            // if ($redirection_type == 1) {
+            //     $url = 'https://' . $short_url->destination_domain;
+            // } elseif ($redirection_type == 2) {
+            //     if (isset($short_url->type)) {
+            //         $url = $short_url->type->redirect_url;
+            //     } else {
+            //         $url = ShortUrlType::where('is_default', true)->first()->redirect_url;
+            //     }
+            // } elseif ($redirection_type == 3) {
+            //     if ($position = ProIpApi::location($request->ip())) {
+            //         $country = @$position['country'];
+            //         info($country);
+            //     }
+            //     $url = 'https://' . $short_url->destination_domain;
+            // } else {
+            //     $url = 'https://lotto60.com/';
+            // }
+            $url = 'https://lotto60.com/';
 
-            return redirect()
-                ->away($url, 301, [
-                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                    'Pragma' => 'no-cache',
-                    'Expires' => '0',
-                ]);
+            return view('redirect', compact('url'));
+
+            // return redirect()
+            //     ->away($url, 301, [
+            //         'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            //         'Pragma' => 'no-cache',
+            //         'Expires' => '0',
+            //     ]);
+
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::channel('redirection')->error($th);
