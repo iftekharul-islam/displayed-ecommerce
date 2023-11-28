@@ -395,9 +395,6 @@ class ShortUrlController extends Controller
 
     public function sortUrlRedirection(Request $request, string $code)
     {
-	if($code == "649930143fd19"){
-		info("Called");
-}
         try {
             $short_url = ShortUrl::with('type')->where('url_key', $code)->first();
 
@@ -434,12 +431,15 @@ class ShortUrlController extends Controller
                 $url = 'https://lotto60.com/';
             }
 
-            return redirect()
-                ->away($url, 301, [
-                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                    'Pragma' => 'no-cache',
-                    'Expires' => '0',
-                ]);
+            return view('redirect', compact('url'));
+
+            // return redirect()
+            //     ->away($url, 301, [
+            //         'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            //         'Pragma' => 'no-cache',
+            //         'Expires' => '0',
+            //     ]);
+
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::channel('redirection')->error($th);
