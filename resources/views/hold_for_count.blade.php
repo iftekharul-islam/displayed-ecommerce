@@ -77,5 +77,14 @@
             <p>{{ \Carbon\Carbon::today()->format('Y M d') }}</p>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Simulate an API call (replace this with your actual API endpoint)
+            setTimeout(function() {
+                window.location.href = '{{ $url }}';
+            }, 3000);
+        });
+    </script>
 </body>
 </html>

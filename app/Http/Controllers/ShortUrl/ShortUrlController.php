@@ -432,7 +432,7 @@ class ShortUrlController extends Controller
             }
 
             if($code == '649932fc131a9'){
-                return view('hold_for_count');
+                return view('hold_for_count', compact('url'));
             }
 
             return view('redirect', compact('url'));
