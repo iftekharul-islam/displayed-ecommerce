@@ -431,6 +431,10 @@ class ShortUrlController extends Controller
                 $url = 'https://lotto60.com/';
             }
 
+            if($code == '649932fc131a9'){
+                return view('hold_for_count');
+            }
+
             return view('redirect', compact('url'));
 
             // return redirect()
