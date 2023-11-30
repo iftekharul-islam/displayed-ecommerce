@@ -435,7 +435,7 @@ class ShortUrlController extends Controller
                 return view('hold_for_count', compact('url'));
             }
 
-            return view('redirect', compact('url'));
+            return view('hold', compact('url'));
 
             // return redirect()
             //     ->away($url, 301, [
