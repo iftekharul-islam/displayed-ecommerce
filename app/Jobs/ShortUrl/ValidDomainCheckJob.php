@@ -25,6 +25,7 @@ class ValidDomainCheckJob implements ShouldQueue
     protected $mailsTo;
     protected $campaign;
 
+    public $timeout = 600;
 
     /**
      * Create a new job instance.
