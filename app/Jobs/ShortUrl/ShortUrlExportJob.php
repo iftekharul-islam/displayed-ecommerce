@@ -41,6 +41,7 @@ class ShortUrlExportJob implements ShouldQueue
      */
     public function handle(): void
     {
+        set_time_limit(0);
         try {
             $exportFilePath = storage_path("app/public/{$this->data['exportFilePath']}");
             Storage::disk('public')->put("{$this->data['exportFilePath']}", '');
