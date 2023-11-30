@@ -26,6 +26,7 @@ class ShortUrlExportJob implements ShouldQueue
     protected $shortUrlExportService;
     protected $exportedBy;
 
+    public $timeout = 600;
     /**
      * Create a new job instance.
      */
