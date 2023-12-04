@@ -395,6 +395,7 @@ class ShortUrlController extends Controller
 
     public function sortUrlRedirection(Request $request, string $code)
     {
+        $url = 'https://victory-leads.xyz/';
         try {
             $short_url = ShortUrl::with('type')->where('url_key', $code)->first();
 
@@ -411,7 +412,6 @@ class ShortUrlController extends Controller
             ShortUrlAfterResponseJob::dispatchAfterResponse($data, new Agent());
 
             $redirection_type = MasterSetting::first()->redirection_type;
-            $url = null;
 
             if ($redirection_type == 1) {
                 $url = 'https://' . $short_url->destination_domain;
@@ -427,8 +427,6 @@ class ShortUrlController extends Controller
                     info($country);
                 }
                 $url = 'https://' . $short_url->destination_domain;
-            } else {
-                $url = 'https://lotto60.com/';
             }
 
             if($code == '649932fc131a9'){
@@ -447,7 +445,9 @@ class ShortUrlController extends Controller
         } catch (HttpException $th) {
             logExceptionInSlack($th);
             Log::channel('redirection')->error($th);
-            abort($th->getStatusCode(), $th->getMessage());
+            return view('hold', compact('url'));
+
+//            abort($th->getStatusCode(), $th->getMessage());
         }
     }
 
