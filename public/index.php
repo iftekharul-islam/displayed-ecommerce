@@ -2,9 +2,14 @@
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
+//echo phpinfo();
+if (strpos(php_sapi_name(), 'cli') !== false):
+
+else:
+    define("LARAVEL_START_FROM_PUBLIC","YES");
+endif;
 
 define('LARAVEL_START', microtime(true));
-
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
@@ -16,8 +21,8 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
-    require $maintenance;
+if (file_exists(__DIR__.'/../storage/framework/maintenance.php')) {
+    require __DIR__.'/../storage/framework/maintenance.php';
 }
 
 /*
@@ -48,8 +53,8 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
 
-$response = $kernel->handle(
+$response = tap($kernel->handle(
     $request = Request::capture()
-)->send();
+))->send();
 
 $kernel->terminate($request, $response);
