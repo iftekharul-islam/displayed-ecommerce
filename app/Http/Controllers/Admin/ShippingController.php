@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Shipping\DistrictRequest;
-use App\Http\Requests\Admin\Shipping\statesRequest;
+use App\Http\Requests\Admin\Shipping\DivisionRequest;
+use App\Http\Requests\Admin\Shipping\UpazilaRequest;
+use App\Http\Requests\Admin\Shipping\AreaRequest;
 use App\Http\Requests\Admin\ShippingCommissionRequest;
 use App\Models\District;
-use App\Models\state;
+use App\Models\Division;
+use App\Models\Upazila;
+use App\Models\Area;
 use App\Repositories\Admin\Addon\ShippingClassRepository;
 use App\Repositories\Interfaces\Admin\SettingInterface;
 use App\Repositories\Interfaces\Admin\ShippingInterface;
@@ -83,18 +87,18 @@ class ShippingController extends Controller
         }
     }
 
-    public function cities(Request $request)
+    public function divisions(Request $request)
     {
         $countries = $this->shipping->countries()->where('status', 1)->get();
-        $states = $this->shipping->statesPaginate($request, get_pagination('index_form_paginate'));
+        $divisions = $this->shipping->divisionsPaginate($request, get_pagination('index_form_paginate'));
 
-        return view('admin.shipping.states', compact('states','countries'));
+        return view('admin.shipping.divisions', compact('divisions','countries'));
     }
-    public function stateStore(stateRequest $request)
+    public function divisionStore(DivisionRequest $request)
     {
         DB::beginTransaction();
         try {
-            $this->shipping->stateStore($request);
+            $this->shipping->divisionStore($request);
             Toastr::success(__('Created Successfully'));
             DB::commit();
             return back();
@@ -104,22 +108,22 @@ class ShippingController extends Controller
             return redirect()->back();
         }
     }
-    public function stateEdit(Request $request, $id)
+    public function divisionEdit(Request $request, $id)
     {
         DB::beginTransaction();
         try {
-            $state=$this->shipping->getstate($id);
+            $division= $this->shipping->getDivision($id);
             $countries   = $this->shipping->countries()->where('status', 1)->get();
             $r           = $request->server('HTTP_REFERER');
             DB::commit();
-            return view('admin.shipping.state-edit',compact('state','countries','r'));
+            return view('admin.shipping.division-edit',compact('division','countries','r'));
         } catch (\Exception $e) {
             DB::rollBack();
             Toastr::error($e->getMessage());
             return redirect()->back();
         }
     }
-    public function stateUpdate (stateRequest $request)
+    public function divisionUpdate (DivisionRequest $request)
     {
         if (isDemoServer()):
             $response['message']    = __('This function is disabled in demo server.');
@@ -129,7 +133,7 @@ class ShippingController extends Controller
         endif;
         DB::beginTransaction();
         try {
-            $this->shipping->stateUpdate($request);
+            $this->shipping->divisionUpdate($request);
             Toastr::success(__('Updated Successfully'));
             return redirect($request->r);
         } catch (\Exception $e) {
@@ -138,7 +142,7 @@ class ShippingController extends Controller
             return redirect()->back();
         }
     }
-    public function stateStatusChange(Request $request)
+    public function divisionStatusChange(Request $request)
     {
         if (isDemoServer()):
             $response['message']    = __('This function is disabled in demo server.');
@@ -148,7 +152,7 @@ class ShippingController extends Controller
         endif;
         DB::beginTransaction();
         try {
-            $this->shipping->stateStatusChange($request['data']);
+            $this->shipping->divisionStatusChange($request['data']);
             $response['message']    = __('Updated Successfully');
             $response['title']      = __('Success');
             $response['status']     = 'success';
@@ -161,19 +165,23 @@ class ShippingController extends Controller
         }
     }
 
-    public function districts(Request $request)
+    public function Districts(Request $request)
     {
 
         $data           = [
             'districts'    => $this->shipping->districtsPaginate($request, get_pagination('index_form_paginate')),
         ];
+        
+        $countries = $this->shipping->countries()->where('status', 1)->get();
+        $divisions = $this->shipping->divisions()->where('status', 1)->get();
+        $districts  = $this->shipping->districtsPaginate($request, get_pagination('index_form_paginate'));
 
-        return view('admin.shipping.states', $data);
+        return view('admin.shipping.districts', compact('countries','divisions','districts'));
     }
-    public function state (stateStore $request)
+    public function districtStore(DistrictRequest $request)
     {
         try {
-            $this->shipping-> DistrictsRequest ( $request);
+            $this->shipping->DistrictStore($request);
             Toastr::success(__('Created Successfully'));
             return back();
         } catch (\Exception $e) {
@@ -218,7 +226,8 @@ class ShippingController extends Controller
             return redirect()->back();
         }
     }
-    public function dustrictStatusChange(Request $request)
+    
+    public function districtStatusChange(Request $request)
     {
         if (isDemoServer()):
             $response['message']    = __('This function is disabled in demo server.');
@@ -240,21 +249,21 @@ class ShippingController extends Controller
             return redirect()->back();
         }
     }
-    public function getstateByCountryAjax(Request $request){
-        $data['states'] = $this->shipping->states()->where("country_id",$request->country_id)->where('status', 1)->get(["name","id"]);
+    public function getDivisionByCountryAjax(Request $request){
+        $data['divisions'] = $this->shipping->divisions()->where("country_id",$request->country_id)->where('status', 1)->get(["name","id"]);
         return response()->json($data);
     }
-    public function getDistrictBystateAjax(Request $request){
-        $data['districts'] = $this->shipping->districts()->where("state_id",$request->state_id)->where('status', 1)->get(["name","id"]);
+    public function getDistrictByDivisionAjax(Request $request){
+        $data['districts'] = $this->shipping->districts()->where("division_id",$request->division_id)->where('status', 1)->get(["name","id"]);
 
         return response()->json($data);
     }
 
-    public function stateImport(){
+    public function divisionImport(){
         DB::beginTransaction();
         try {
-            $this->shipping->stateImport();
-            Toastr::success(__('state imported successfully'));
+            $this->shipping->divisionImport();
+            Toastr::success(__('Division imported successfully'));
             DB::commit();
             return redirect()->back();
         } catch (\Exception $e) {
@@ -299,24 +308,205 @@ class ShippingController extends Controller
         }
     }
 
-    public function getstateByAjax(Request $request)
+    public function getDivisionByAjax(Request $request)
     {
         $term           = trim($request->q);
         if (empty($term)) {
             return \Response::json([]);
         }
 
-        $states = $this->shipping->states()
+        $divisions = $this->shipping->divisions()
             ->where('name', 'like', '%'.$term.'%')
             ->limit(20)
             ->get();
 
         $formatted_user   = [];
 
-        foreach ($states as $state) {
-            $formatted_user[] = ['id' => $state->id, 'text' => $state->name];
+        foreach ($divisions as $division) {
+            $formatted_user[] = ['id' => $division->id, 'text' => $division->name];
         }
 
         return \Response::json($formatted_user);
+    }
+    
+    public function upazilas(Request $request)
+    {
+
+        $countries = $this->shipping->countries()->where('status', 1)->get();
+        $districts = $this->shipping->districts()->where('status', 1)->get();
+        $upazilas  = $this->shipping->upazilasPaginate($request, get_pagination('index_form_paginate'));
+
+        return view('admin.shipping.upazilas', compact('countries','districts' , 'upazilas'));
+    }
+    
+    public function upazilaStore(UpazilaRequest $request)
+    {
+        if($request->district_id != null)
+       {
+            DB::beginTransaction();
+            try {
+                $this->shipping->upazilaStore($request);
+                Toastr::success(__('Created Successfully'));
+                DB::commit();
+                return back();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Toastr::error($e->getMessage());
+                return redirect()->back();
+            }
+       }
+    }
+    
+    public function upazilaStatusChange(Request $request)
+    {
+        if (isDemoServer()):
+            $response['message']    = __('This function is disabled in demo server.');
+            $response['title']      = __('Ops..!');
+            $response['status']     = 'error';
+            return response()->json($response);
+        endif;
+        DB::beginTransaction();
+        try {
+            $this->shipping->upazilaStatusChange($request['data']);
+            $response['message']    = __('Updated Successfully');
+            $response['title']      = __('Success');
+            $response['status']     = 'success';
+            DB::commit();
+            return response()->json($response);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
+    }
+    
+      public function upazilaEdit(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $upazila = $this->shipping->getUpazila($id);
+            $r       = $request->server('HTTP_REFERER');
+
+            $data = [
+                'upazila'      => $upazila,
+                'r'         => $r,
+            ];
+            DB::commit();
+            return view('admin.shipping.upazila-edit',$data);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
+    }
+    
+    public function upazilaUpdate (UpazilaRequest $request)
+    {
+        if (isDemoServer()):
+            Toastr::info(__('This function is disabled in demo server.'));
+            return redirect()->back();
+        endif;
+        DB::beginTransaction();
+        try {
+            $this->shipping->upazilaUpdate($request);
+            Toastr::success(__('Updated Successfully'));
+            DB::commit();
+            return redirect($request->r);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
+    }
+    
+    public function areas(Request $request)
+    {
+
+        $countries = $this->shipping->countries()->where('status', 1)->get();
+        $districts = $this->shipping->districts()->where('status', 1)->get();
+        $upazilas = $this->shipping->upazilas()->where('status', 1)->get();
+        $areas  = $this->shipping->areasPaginate($request, get_pagination('index_form_paginate'));
+        
+        return view('admin.shipping.areas', compact('countries','districts' , 'upazilas','areas'));
+    }
+    
+    public function areaStore(AreaRequest $request)
+    {
+        if($request->upazila_id != null)
+       {
+            DB::beginTransaction();
+            try {
+                $this->shipping->areaStore($request);
+                Toastr::success(__('Created Successfully'));
+                DB::commit();
+                return back();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Toastr::error($e->getMessage());
+                return redirect()->back();
+            }
+       }
+    }
+    
+    public function areaStatusChange(Request $request)
+    {
+        if (isDemoServer()):
+            $response['message']    = __('This function is disabled in demo server.');
+            $response['title']      = __('Ops..!');
+            $response['status']     = 'error';
+            return response()->json($response);
+        endif;
+        DB::beginTransaction();
+        try {
+            $this->shipping->areaStatusChange($request['data']);
+            $response['message']    = __('Updated Successfully');
+            $response['title']      = __('Success');
+            $response['status']     = 'success';
+            DB::commit();
+            return response()->json($response);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
+    }
+    
+    public function areaEdit(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $area = $this->shipping->getArea($id);
+            $r       = $request->server('HTTP_REFERER');
+
+            $data = [
+                'area'      => $area,
+                'r'         => $r,
+            ];
+            DB::commit();
+            return view('admin.shipping.area-edit',$data);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
+    }
+    
+    public function areaUpdate (AreaRequest $request)
+    {
+        if (isDemoServer()):
+            Toastr::info(__('This function is disabled in demo server.'));
+            return redirect()->back();
+        endif;
+        DB::beginTransaction();
+        try {
+            $this->shipping->areaUpdate($request);
+            Toastr::success(__('Updated Successfully'));
+            DB::commit();
+            return redirect($request->r);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Toastr::error($e->getMessage());
+            return redirect()->back();
+        }
     }
 }

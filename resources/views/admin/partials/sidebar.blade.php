@@ -657,7 +657,7 @@
                         <span>{{ __('Payment Gateway') }}</span></a>
                 </li>
             @endif
-            @if(hasPermission('shipping_configuration_read') || hasPermission('country_read') || hasPermission('state_read') || hasPermission('city_read'))
+            @if(hasPermission('shipping_configuration_read') || hasPermission('country_read') || hasPermission('division_read') || hasPermission('city_read'))
                 <li class="nav-item dropdown @yield('shipping_active')">
                     <a href="javaScript:void(0)" class="nav-link has-dropdown" data-toggle="dropdown"><i
                                 class="bx bxs-truck"></i><span>{{ __('Shipping') }}</span></a>
@@ -677,14 +677,24 @@
                                                                          href="{{ route('countries') }}"> {{ __('Available Countries') }}</a>
                             </li>
                         @endif
-                        @if(hasPermission('state_read'))
-                            <li class="@yield('available-states')"><a class="nav-link"
-                                                                      href="{{ route('states') }}"> {{ __('Available States') }}</a>
+                        @if(hasPermission('division_read'))
+                            <li class="@yield('available-divisions')"><a class="nav-link"
+                                                                      href="{{ route('divisions') }}"> {{ __('Available Divisions') }}</a>
                             </li>
                         @endif
                         @if(hasPermission('city_read'))
-                            <li class="@yield('available-cities')"><a class="nav-link"
-                                                                      href="{{ route('cities') }}"> {{ __('Available Cities') }}</a>
+                            <li class="@yield('available-districts')"><a class="nav-link"
+                                                                      href="{{ route('districts') }}"> {{ __('Available Districts') }}</a>
+                            </li>
+                        @endif
+                         @if(hasPermission('upazila_read'))
+                            <li class="@yield('available-upazila')"><a class="nav-link"
+                                                                      href="{{ route('upazilas') }}"> {{ __('Available Thana/Upazila') }}</a>
+                            </li>
+                        @endif
+                         @if(hasPermission('area_read'))
+                            <li class="@yield('available-area')"><a class="nav-link"
+                                                                      href="{{ route('areas') }}"> {{ __('Available Area') }}</a>
                             </li>
                         @endif
                     </ul>

@@ -5,6 +5,8 @@ namespace App\Repositories\Site;
 use App\Models\Address;
 use App\Models\City;
 use App\Models\Country;
+use App\Models\District;
+use App\Models\Division;
 use App\Models\State;
 use App\Repositories\Interfaces\Site\AddressInterface;
 use Illuminate\Support\Str;
@@ -26,9 +28,9 @@ class AddressRepository implements AddressInterface {
         $request['user_id'] = authId();
 
         $country = Country::find($request['country_id']);
-        $state   = State::find($request['state_id']);
+        $state   = Division::find($request['state_id']);
         if($request['city_id']){
-            $city    = City::find($request['city_id']);
+            $city    = District::find($request['city_id']);
         }
         
 

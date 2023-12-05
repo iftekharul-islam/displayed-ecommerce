@@ -9,13 +9,23 @@ class Country extends Model
 {
     use HasFactory;
 
-    public function division()
+    public function divisions()
+    {
+        return $this->hasMany(Division::class);
+    }
+    public function districts()
     {
         return $this->hasMany(District::class);
     }
-    public function divisions()
+    
+    public function upazilas()
     {
-        return $this->hasMany(District::class);
+        return $this->hasMany(Upazila::class);
+    }
+    
+    public function areas()
+    {
+        return $this->hasMany(Area::class);
     }
 
     public function flag()

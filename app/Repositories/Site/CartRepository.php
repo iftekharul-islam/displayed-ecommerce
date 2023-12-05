@@ -586,7 +586,7 @@ class CartRepository implements CartInterface
                 if ($shipping_address && $shipping_address->address_ids) {
                     $city_id        = $shipping_address->address_ids['city_id'];
                     $shipping_repo  = new ShippingRepository();
-                    $city           = $shipping_repo->getCity($city_id);
+                    $city           = $shipping_repo->getDivision($city_id);
                     $shipping_cost  = $city ? $city->cost : 0;
                 }
             }
@@ -772,7 +772,7 @@ class CartRepository implements CartInterface
         else{
             $seller_carts   = $carts->groupBy('seller_id');
             $shipping_repo  = new ShippingRepository();
-            $city           = $shipping_repo->getCity($data['city_id']);
+            $city           = $shipping_repo->getDivision($data['city_id']);
             $cost           = $city ? $city->cost : 0;
 
             foreach ($seller_carts as $key => $seller_cart) {

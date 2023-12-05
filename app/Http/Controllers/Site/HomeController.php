@@ -44,6 +44,7 @@ class HomeController extends Controller
     public function index(LanguageInterface $language,CurrencyInterface $currency, WishlistInterface $wishlist, CartInterface $cart, CategoryInterface $category, SliderInterface $slider,BannerInterface $banner,
                           ServiceInterface $service, ProductInterface $product,SellerProfileInterface $seller,BlogInterface $blog,BrandInterface $brand,AddonInterface $addon,PageInterface $page,$email=null,$resetCode=null)
     {
+        
         if (isAppMode())
         {
             if (authUser())
@@ -136,14 +137,15 @@ class HomeController extends Controller
                 'meta'                              => $meta,
                 'addons'                            => $addon->activePlugin(),
                 'favicon'                           => [
-                    'image_16x16'                   => @is_file_exists(@settingHelper('favicon')['image_16x16_url']) ? get_media(settingHelper('favicon')['image_16x16_url']) : asset('images/ico/favicon.ico'),
-                    'image_144x144'                 => @is_file_exists(@settingHelper('favicon')['image_144x144_url']) ? get_media(settingHelper('favicon')['image_144x144_url']) : asset('images/ico/apple-touch-icon-precomposed.png'),
-                    'image_114x114'                 => @is_file_exists(@settingHelper('favicon')['image_144x144_url']) ? get_media(settingHelper('favicon')['image_114x114_url']) : asset('images/ico/apple-touch-icon-114-precomposed.png'),
-                    'image_72x72'                   => @is_file_exists(@settingHelper('favicon')['image_72x72_url']) ? get_media(settingHelper('favicon')['image_72x72_url']) : asset('images/ico/apple-touch-icon-72-precomposed.png'),
-                    'image_57x57'                   => @is_file_exists(@settingHelper('favicon')['image_57x57_url']) ? get_media(settingHelper('favicon')['image_57x57_url']) : asset('images/ico/apple-touch-icon-57-precomposed.png'),
+                    'image_16x16'                   => @is_file_exists(@settingHelper('favicon')['image_16x16_url']) ? get_media(settingHelper('favicon')['image_16x16_url']) : static_asset('images/ico/favicon.ico'),
+                    'image_144x144'                 => @is_file_exists(@settingHelper('favicon')['image_144x144_url']) ? get_media(settingHelper('favicon')['image_144x144_url']) : static_asset('images/ico/apple-touch-icon-precomposed.png'),
+                    'image_114x114'                 => @is_file_exists(@settingHelper('favicon')['image_144x144_url']) ? get_media(settingHelper('favicon')['image_114x114_url']) : static_asset('images/ico/apple-touch-icon-114-precomposed.png'),
+                    'image_72x72'                   => @is_file_exists(@settingHelper('favicon')['image_72x72_url']) ? get_media(settingHelper('favicon')['image_72x72_url']) : static_asset('images/ico/apple-touch-icon-72-precomposed.png'),
+                    'image_57x57'                   => @is_file_exists(@settingHelper('favicon')['image_57x57_url']) ? get_media(settingHelper('favicon')['image_57x57_url']) : static_asset('images/ico/apple-touch-icon-57-precomposed.png'),
                 ],
                 'default_assets' => $this->defaultAssets(),
             ];
+
             return view('frontend.master', $data);
         } catch (\Exception $e) {
             dd($e);

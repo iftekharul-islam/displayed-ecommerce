@@ -1,11 +1,11 @@
 @extends('admin.partials.master')
 @section('title')
-    {{ __('Divisions') }}
+    {{ __('Areas') }}
 @endsection
 @section('shipping_active')
     active
 @endsection
-@section('available-divisions')
+@section('available-areas')
     active
 @endsection
 @php
@@ -24,34 +24,34 @@
         <div class="section-body">
             <div class="d-flex justify-content-between">
                 <div class="d-block">
-                    <h2 class="section-title">{{ __('Divisions') }}</h2>
+                    <h2 class="section-title">{{ __('Areas') }}</h2>
                     <p class="section-lead">
-                        {{ __('You have total') . ' ' . $divisions->total() . ' ' . __('Divisions') }}
+                        {{ __('You have total') . ' ' . $areas->total() . ' ' . __('Areas') }}
                     </p>
                 </div>
-                @if(hasPermission('division_import_create'))
+                @if(hasPermission('area_import_create'))
                 <div class="mt-4">
                     <a href="javascript:void(0)" class="btn btn-outline-primary currency-add-btn modal-menu"
-                       data-title="{{__('Import Divisions')}}"
-                       data-url="{{ route('edit-info', ['page_name' => 'import-divisions']) }}" data-toggle="modal"
+                       data-title="{{__('Import Areas')}}"
+                       data-url="{{ route('edit-info', ['page_name' => 'import-areas']) }}" data-toggle="modal"
                        data-target="#common-modal">
-                        <i class="bx bx-plus"></i>{{ __('Import Divisions') }}
+                        <i class="bx bx-plus"></i>{{ __('Import Area') }}
                     </a>
                 </div>
                 @endif
             </div>
             <div class="row">
-                <div class="{{ hasPermission('division_create') ? 'col-7 col-md-7 col-lg-7' : 'col-7 col-md-7 col-lg-8 middle' }}">
+                <div class="{{ hasPermission('area_create') ? 'col-7 col-md-7 col-lg-7' : 'col-7 col-md-7 col-lg-8 middle' }}">
                     <div class="card">
                         <div class="card-header">
-                            <h4>{{ __('Divisions') }}</h4>
+                            <h4>{{ __('Areas') }}</h4>
                             <div class="card-header-form">
                                 <form class="form-inline" id="sorting">
                                     <div class="form-group">
                                         <select class="form-control select2 sorting" name="a">
-                                            <option value="">{{ __('Filter By Country') }}</option>
-                                            @foreach($countries as $key => $country)
-                                                <option {{ $a != null ? ($country->id == $a ? "selected" : "" ) :''}} value="{{ $country->id }}">{{ $country->name }}</option>
+                                            <option value="">{{ __('Filter By Upazilas/Thanas') }}</option>
+                                            @foreach($upazilas as $key => $upazila)
+                                                <option {{ $a != null ? ($upazila->id == $a ? "selected" : "" ) :''}} value="{{ $upazila->id }}">{{ $upazila->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -73,33 +73,39 @@
                                         <th>#</th>
                                         <th>{{ __('Name') }}</th>
                                         <th>{{ __('Country') }}</th>
+                                        <th>{{ __('Division') }}</th>
+                                        <th>{{ __('District') }}</th>
+                                        <th>{{ __('Thana/Upazila') }}</th>
                                         <th>{{ __('Status') }}</th>
-                                        @if(hasPermission('division_update') || hasPermission('division_delete'))
+                                        @if(hasPermission('area_update') || hasPermission('area_delete'))
                                         <th>{{ __('Option') }}</th>
                                         @endif
                                     </tr>
-                                    @foreach($divisions as $key => $value)
-                                        <tr id="{{ $divisions->firstItem() + $key }}">
-                                            <td> {{$divisions->firstItem() + $key }} </td>
+                                    @foreach($areas as $key => $value)
+                                        <tr id="{{ $areas->firstItem() + $key }}">
+                                            <td> {{$areas->firstItem() + $key }} </td>
                                             <td> {{ $value->name }} </td>
                                             <td> {{ $value->country->name }} </td>
-                                            <td> <label class="custom-switch mt-2 {{ hasPermission('division_update') ? '' : 'cursor-not-allowed' }}">
-                                                    <input type="checkbox" name="custom-switch-checkbox" value="division-status-change/{{$value->id}}"
-                                                            {{ hasPermission('division_update') ? '' : 'enable' }}
+                                            <td> {{ $value->division->name }} </td>
+                                            <td> {{ $value->district->name }} </td>
+                                            <td> {{ $value->upazila->name }} </td>
+                                            <td> <label class="custom-switch mt-2 {{ hasPermission('area_update') ? '' : 'cursor-not-allowed' }}">
+                                                    <input type="checkbox" name="custom-switch-checkbox" value="area-status-change/{{$value->id}}"
+                                                            {{ hasPermission('area_update') ? '' : 'enable' }}
                                                            {{ $value->status == 1 ? 'checked' : '' }} class="{{ hasPermission('division_update') ? 'status-change' : '' }} custom-switch-input">
                                                     <span class="custom-switch-indicator"></span>
                                                 </label>
                                             </td>
                                             <td>
-                                                @if(hasPermission('division_update'))
-                                                <a href="{{ route('division.edit', $value->id) }}" class="btn btn-outline-secondary btn-circle"
+                                                @if(hasPermission('area_update'))
+                                                <a href="{{ route('area.edit', $value->id) }}" class="btn btn-outline-secondary btn-circle"
                                                     data-toggle="tooltip" title=""
                                                     data-original-title="{{ __('Edit') }}"><i class="bx bx-edit"></i>
                                                  </a>
                                                 @endif
-                                                @if(hasPermission('division_delete'))
+                                                @if(hasPermission('area_delete'))
                                                   <a href="javascript:void(0)"
-                                                    onclick="delete_row('delete/divisions/', {{ $value->id }})"
+                                                    onclick="delete_row('delete/areas/', {{ $value->id }})"
                                                     class="btn btn-outline-danger btn-circle" data-toggle="tooltip"
                                                     title="" data-original-title="{{ __('Delete') }}">
                                                     <i class='bx bx-trash'></i>
@@ -115,38 +121,38 @@
                         </div>
                         <div class="card-footer">
                             <nav class="d-inline-block">
-                                {{ $divisions->appends(Request::except('page'))->links('pagination::bootstrap-4') }}
+                                {{ $areas->appends(Request::except('page'))->links('pagination::bootstrap-4') }}
                             </nav>
                         </div>
                     </div>
                 </div>
-            @if(hasPermission('division_create'))
+            @if(hasPermission('area_create'))
                 <div class="col-5 col-md-5 col-lg-5">
                     <div class="card" >
                             <div class="card-header input-title">
-                                <h4>{{ __('Add Division') }}</h4>
+                                <h4>{{ __('Add Area') }}</h4>
                             </div>
                             <div class="card-body card-body-paddding">
-                                <form method="POST" action="{{ route('division.store') }}" enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('area.store') }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group" >
-                                        <label for="country_id">{{ __('Country') }}</label>
-                                        <select class="form-control select2" name="country_id" id ="country_id" required>
-                                            <option value="">{{ __('Select Country') }}</option>
-                                            @foreach($countries as $key => $country)
-                                                <option {{ old('country_id') ? ($country->id == old('country_id') ? "selected" : "" ) :''}} value="{{ $country->id }}">{{ $country->name }}</option>
+                                        <label for="country_id">{{ __('Thana/Upazila') }}</label>
+                                        <select class="form-control select2" name="upazila_id" id ="upazila_id" required>
+                                            <option value="">{{ __('Select Thana/Upazila') }}</option>
+                                            @foreach($upazilas as $key => $upazila)
+                                                <option {{ old('upazila_id') ? ($upazila->id == old('upazila_id') ? "selected" : "" ) :''}} value="{{ $upazila->id }}">{{ $upazila->name }}</option>
                                             @endforeach
 
                                         </select>
-                                        @if ($errors->has('country_id'))
+                                        @if ($errors->has('upazila_id'))
                                             <div class="invalid-feedback">
-                                                <p>{{ $errors->first('country_id') }}</p>
+                                                <p>{{ $errors->first('upazila_id') }}</p>
                                             </div>
                                         @endif
                                     </div>
                                     <div class="form-group">
                                         <label for="code">{{ __('Name') }}</label>
-                                        <input type="text" name="name" id="name" placeholder="{{ __('Enter division name') }}" value="{{ old('name') }}" class="form-control" required>
+                                        <input type="text" name="name" id="name" placeholder="{{ __('Enter Area name') }}" value="{{ old('name') }}" class="form-control" required>
                                         @if ($errors->has('name'))
                                             <div class="invalid-feedback">
                                                 <p>{{ $errors->first('name') }}</p>

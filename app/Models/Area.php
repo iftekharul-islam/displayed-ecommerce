@@ -5,26 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class District extends Model
+class Area extends Model
 {
     use HasFactory;
 
-    public function division()
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+    
+     public function division()
     {
         return $this->belongsTo(Division::class);
     }
+    
     public function country()
     {
         return $this->belongsTo(Country::class);
     }
     
-    public function upazilas()
+     public function upazila()
     {
-        return $this->hasMany(Upazila::class);
+        return $this->belongsTo(Upazila::class);
     }
     
-    public function areas()
-    {
-        return $this->hasMany(Area::class);
-    }
 }

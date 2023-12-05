@@ -53,6 +53,9 @@
                                         <select class="division-by-ajax form-control sorting select2" name="a" id="a"
                                                 required>
                                             <option value="">{{ __('Select Division') }}</option>
+                                             @foreach($divisions as $key => $division)
+                                                <option {{ $a != null ? ($division->id == $a ? "selected" : "" ) :''}} value="{{ $division->id }}">{{ $division->name }}</option>
+                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="input-group">
@@ -113,7 +116,7 @@
                                             <td> {{ get_price($value->cost) }} </td>
                                             <td>
                                                 @if(hasPermission('district_update'))
-                                                    <a href="{{ route('city.edit', $value->id) }}"
+                                                    <a href="{{ route('district.edit', $value->id) }}"
                                                        class="btn btn-outline-secondary btn-circle"
                                                        data-toggle="tooltip" title=""
                                                        data-original-title="{{ __('Edit') }}"><i class="bx bx-edit"></i>
@@ -148,13 +151,16 @@
                                 <h4>{{ __('Add District') }}</h4>
                             </div>
                             <div class="card-body card-body-paddding">
-                                <form method="POST" action="{{ route('city.store') }}">
+                                <form method="POST" action="{{ route('district.store') }}">
                                     @csrf
                                     <div class="form-group">
                                         <label for="division_id">{{ __('Division') }}</label>
                                         <select class="division-by-ajax form-control select2" name="division_id" id="division_id"
                                                 required>
                                             <option value="">{{ __('Select Division') }}</option>
+                                            @foreach($divisions as $key => $division)
+                                                <option {{ old('division_id') ? ($division->id == old('division_id') ? "selected" : "" ) :''}} value="{{ $division->id }}">{{ $division->name }}</option>
+                                            @endforeach
                                         </select>
                                         @if ($errors->has('division_id'))
                                             <div class="invalid-feedback">
@@ -231,7 +237,7 @@
                             <p>{!! __('memory_limit_msg') !!} </p>
                         </div>
                         <div class="modal-footer modal-padding-bottom text-center">
-                            <a href="{{ route('import.city') }}"
+                            <a href="{{ route('import.district') }}"
                                class="btn btn-icon icon-left btn-outline-primary {{ !$condition_1 || !$condition_2 ? 'disable_btn' : '' }}">
                                 <i class='bx bx-check'></i>{{ __('confirm') }}
                             </a>

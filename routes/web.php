@@ -236,10 +236,9 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::get('delete/user-address/{id}', [AddressController::class, 'deleteAddress'])->name('user.delete.address');
 //    Route::get('state/by-country/{id}', [AddressController::class, 'getStates'])->name('state.by-country');
     Route::get('state/by-country/{id}', [AddressController::class, 'getDivisions'])->name('state.by-country');
-//    Route::get('state/by-country/{id}', function (){
-//        dd('hello');
-//    });
     Route::get('city/by-state/{id}', [AddressController::class, 'getCities'])->name('city.by-state');
+    Route::get('upazila/by-city/{id}', [AddressController::class, 'getUpazila'])->name('upazila.by-city');
+    Route::get('area/by-upazila/{id}', [AddressController::class, 'getArea'])->name('area.by-upazila');
     Route::post('home/product-by-search/{searchKey}', [ProductController::class, 'productBySearch'])->name('product.by.search.post');
     Route::post('home/subscribers', [FrontendController::class, 'subscribers'])->name('front.subscribers');
     Route::post('home/product-view', [ProductController::class, 'productView'])->name('product.view');

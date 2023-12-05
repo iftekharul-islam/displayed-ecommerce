@@ -14,7 +14,7 @@ class ShippingClass extends Model
         'status'
     ];
 
-    public function districts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function Districts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(District::class,'shipping_class_id');
     }

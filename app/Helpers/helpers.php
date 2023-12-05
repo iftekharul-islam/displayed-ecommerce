@@ -41,7 +41,7 @@ if (!function_exists('curlRequest')) {
 if (!function_exists('update_version')):
     function update_version()
     {
-        if (settingHelper('current_version') == '1.0.0' || settingHelper('current_version') < 165):
+        if (settingHelper('current_version') == '1.0.0' || settingHelper('current_version') < 166):
 
             if (is_dir(base_path('public/frontend/js/chunks-164')))
             {
@@ -54,8 +54,8 @@ if (!function_exists('update_version')):
                 $version_code = "1.1.0";
             }
             else{
-                $version = 165;
-                $version_code = "1.6.0";
+                $version = 166;
+                $version_code = "1.6.6";
             }
 
 
@@ -90,7 +90,7 @@ if (!function_exists('validate_purchase')):
 
         $fields = [
             'domain' => urlencode($_SERVER['SERVER_NAME']),
-            'version' => isAppMode() ? '121' : '165',
+            'version' => isAppMode() ? '121' : '166',
             'item_id' => isAppMode() ? '38944711' : '37142846',
             'url' => urlencode($script_url),
             'purchase_code' => urlencode($code)
@@ -1316,7 +1316,7 @@ if (!function_exists('geoLocale')):
         }
     }
 endif;
-if (!function_exists('currencyList')):
+if (! function_exists('currencyList')) {
     function currencyList()
     {
         $currency_list = [];
@@ -1334,7 +1334,7 @@ if (!function_exists('currencyList')):
 
         return $currency_list;
     }
-endif;
+}
 if (!function_exists('subscriptionCheck')):
     function subscriptionCheck(): bool
     {

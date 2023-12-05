@@ -1,4 +1,5 @@
 @extends('admin.partials.master')
+
 @section('title')
     {{__('Dashboard')}}
 @endsection

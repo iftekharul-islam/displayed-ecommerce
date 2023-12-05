@@ -53,7 +53,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>{{ lang.state }}</label>
+                  <label>Division</label>
                   <v-select :dir="settings.text_direction" label="name" :options="states" v-model="form.state_id" :reduce="(option) => option.id" @input="getCities()" :class="{ 'error_border' : errors.state_id }"></v-select>
                 </div>
                 <span class="validation_error"
@@ -61,7 +61,7 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>{{ lang.city }}</label>
+                  <label>District</label>
                   <v-select :dir="settings.text_direction" label="name" :options="cities" v-model="form.city_id" :reduce="(option) => option.id" @input="getUpazila()" :class="{ 'error_border' : errors.city_id }"></v-select>
                 </div>
                 <span class="validation_error"
@@ -69,8 +69,8 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>Upazila</label>
-                  <v-select :dir="settings.text_direction" label="name" :options="upazilas" v-model="form.upazila_id" :reduce="(option) => option.id" :class="{ 'error_border' : errors.upazila_id }"></v-select>
+                  <label>Upazila/Thana</label>
+                  <v-select :dir="settings.text_direction" label="name" :options="upazilas" v-model="form.upazila_id" :reduce="(option) => option.id" @input="getArea()" :class="{ 'error_border' : errors.upazila_id }"></v-select>
                 </div>
                 <span class="validation_error"
                       v-if="errors.upazila_id">{{ errors.upazila_id[0] }}</span>
@@ -232,14 +232,27 @@ export default {
       });
     },
     getUpazila() {
-      let upazila_id = this.form.upazila_id;
+      let city_id = this.form.city_id;
 
-      let url = this.getUrl('upazila/by-city/' + upazila_id);
+      let url = this.getUrl('upazila/by-city/' + city_id);
       axios.get(url).then((response) => {
         if (response.data.error) {
           toastr.error(response.data.error, this.lang.Error + ' !!');
         } else {
           this.upazilas = response.data.upazilas;
+        }
+      });
+    },
+
+    getArea() {
+      let upazila_id = this.form.upazila_id;
+
+      let url = this.getUrl('area/by-upazila/' + upazila_id);
+      axios.get(url).then((response) => {
+        if (response.data.error) {
+          toastr.error(response.data.error, this.lang.Error + ' !!');
+        } else {
+          this.areas = response.data.areas;
         }
       });
     },

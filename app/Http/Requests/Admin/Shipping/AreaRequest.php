@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin\Shipping;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DistrictRequest extends FormRequest
+class AreaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +25,7 @@ class DistrictRequest extends FormRequest
     {
         return [
             'name' => 'required|min:3|max:50',
-            'division_id' => 'required',
-            'cost' => 'required',
+            'upazila_id' => 'required',
         ];
     }
 }

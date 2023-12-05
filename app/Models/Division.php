@@ -17,5 +17,15 @@ class Division extends Model
     {
         return $this->hasMany(district::class);
     }
-
+    
+    public function upazilas()
+    {
+        return $this->hasMany(Upazila::class);
+    }
+    
+    public function areas()
+    {
+        return $this->hasMany(Area::class);
+    }
+    
 }

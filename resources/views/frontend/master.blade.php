@@ -58,21 +58,21 @@
     <link href="{{fontURL()}}" rel="stylesheet">
     <!-- CSS -->
 
-    <link rel="stylesheet" href="{{ asset('frontend/css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/materialdesignicons.min.css') }}?version={{ $version }}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/vue-toastr-2.min.css') }}?version={{$version}}">
+    <link rel="stylesheet" href="{{ mix('frontend/css/app.css') }}">
+    <link rel="stylesheet" href="{{ static_asset('frontend/css/materialdesignicons.min.css') }}?version={{ $version }}">
+    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-toastr-2.min.css') }}?version={{$version}}">
 
 
-    <link rel="stylesheet" href="{{ asset('frontend/css/vue-slick-carousel.css') }}?version={{$version}}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/vue-slick-carousel-theme.css') }}?version={{$version}}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/vue-select.css') }}?version={{$version}}">
+    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-slick-carousel.css') }}?version={{$version}}">
+    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-slick-carousel-theme.css') }}?version={{$version}}">
+    <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-select.css') }}?version={{$version}}">
 
     @if(isDemoServer())
-        <link rel="stylesheet" href="{{ asset('frontend/css/color-switcher.css') }}?version={{$version}}">
+        <link rel="stylesheet" href="{{ static_asset('frontend/css/color-switcher.css') }}?version={{$version}}">
     @endif
 
     @if($settings['text_direction'] == 'rtl')
-        <link rel="stylesheet" href="{{ asset('frontend/css/rtl.css') }}?version={{$version}}">
+        <link rel="stylesheet" href="{{ static_asset('frontend/css/rtl.css') }}?version={{$version}}">
     @endif
     <style>
         :root {
@@ -206,8 +206,8 @@
 <input type="hidden" id="app_id" value="{{ settingHelper('app_id') }}">
 <input type="hidden" id="measurement_id" value="{{ settingHelper('measurement_id') }}">
 
-<script src="{{ asset('frontend/js/app.js') }}" async></script>
-<script src="{{ asset('frontend/js/vue-toastr-2.js') }}?version={{$version}}"></script>
+<script src="{{ mix('frontend/js/app.js') }}" async></script>
+<script src="{{ static_asset('frontend/js/vue-toastr-2.js') }}?version={{$version}}"></script>
 
 @if(settingHelper('is_pusher_notification_active') == 1 && Sentinel::check())
     <input type="hidden" value="{{ settingHelper('pusher_app_key') }}" id="f_pusher_app_key">
@@ -250,7 +250,7 @@
                     yOffset : '{{ $settings["text_direction"] ==  "rtl" ?  "70px" : "70px"}}'
                 }
             }
-        };
+        };       
     })();
     @endif
     // "vue-fb-customer-chat": "^0.2.1"

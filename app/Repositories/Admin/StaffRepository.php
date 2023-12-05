@@ -8,6 +8,7 @@ use App\Repositories\Interfaces\Admin\StaffInterface;
 use App\Traits\ImageTrait;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Sentinel;
 
 class StaffRepository implements StaffInterface

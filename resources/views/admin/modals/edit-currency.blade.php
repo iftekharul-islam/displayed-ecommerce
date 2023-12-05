@@ -34,11 +34,6 @@
                        value="{{ $currency->exchange_rate }}"
                        class="form-control"
                        placeholder="{{ __('Exchange Rate') }}">
-                <div class="input-group-append get_conversion_rate">
-                    <div class="input-group-text">
-                        <i class="bx bx-refresh"></i>
-                    </div>
-                </div>
             </div>
 
             @if ($errors->has('exchange_rate'))

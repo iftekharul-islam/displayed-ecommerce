@@ -21,7 +21,7 @@
                 <div class="d-block">
                     <h2 class="section-title">{{ __('Country') }}</h2>
                     <p class="section-lead">
-                        {{ __('You have total') . ' ' . $countries ->total() . ' ' . __('Country') }}
+                        {{ __('You have total') . ' ' . $countries->total() . ' ' . __('Country') }}
                     </p>
                 </div>
             </div>
@@ -52,6 +52,8 @@
                                         <th>{{ __('Code') }}</th>
                                         <th>{{ __('Total Division') }}</th>
                                         <th>{{ __('Total District') }}</th>
+                                        <th>{{ __('Total Thana/Upazila') }}</th>
+                                        <th>{{ __('Total Area') }}</th>
                                         <th>{{ __('Status') }}</th>
                                     </tr>
                                     @foreach($countries as $key => $value)
@@ -59,8 +61,12 @@
                                             <td> {{ $countries->firstItem() + $key  }} </td>
                                             <td> {{ $value->name }} </td>
                                             <td> {{ $value->iso3 }} </td>
-                                            <td> {{ $value->divisions->count()  }}</td>
-                                            <td> {{ $value->cities->count() }} </td>
+                                            <td> {{ $value->divisions->count() }} </td>
+                                            <td> {{ $value->districts->count() }} </td>
+                                            <td> {{ $value->upazilas->count() }} </td>
+                                            <td> {{ $value->areas->count() }} </td>
+                                            
+                                            
                                             <td> <label class="custom-switch mt-2 {{ hasPermission('country_update') ? '' : 'cursor-not-allowed' }}">
                                                     <input type="checkbox" name="custom-switch-checkbox" value="country-status-change/{{$value->id}}"
                                                             {{ hasPermission('country_update') ? '' : 'disabled' }}

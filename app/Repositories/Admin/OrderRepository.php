@@ -585,7 +585,7 @@ class OrderRepository implements OrderInterface
                 elseif (settingHelper('shipping_fee_type') == 'area_base') {
                     $city_id = $data['shipping_address']['address_ids']['city_id'];
                     $shipping_repo = new ShippingRepository();
-                    $city = $shipping_repo->getCity($city_id);
+                    $city = $shipping_repo->getDivision($city_id);
                     $shipping_cost += $city ? $city->cost : 0;
                 }
                 elseif (addon_is_activated('ramdhani') && settingHelper('shipping_fee_type') == 'product_base')

@@ -72,6 +72,20 @@ class AddressController extends Controller
         }
     }
 
+    public function getStates($id, ShippingInterface $shipping): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $data = [
+                'states' => $shipping->getStateByCountry($id),
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function getDivisions($id, ShippingInterface $shipping): \Illuminate\Http\JsonResponse
     {
         try {
@@ -91,6 +105,34 @@ class AddressController extends Controller
         try {
             $data = [
                 'cities' => $shipping->getDistrictsByDivision($id),
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getUpazila($id, ShippingInterface $shipping): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $data = [
+                'upazilas' => $shipping->getupazilasBydistrict($id),
+            ];
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getArea($id, ShippingInterface $shipping): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $data = [
+                'areas' => $shipping->getareasByupazila($id),
             ];
             return response()->json($data);
         } catch (\Exception $e) {
@@ -121,8 +163,8 @@ class AddressController extends Controller
             'email' => 'required',
             'phone_no' => 'required',
             'country_id' => 'required',
-            'division_id' => 'required',
-            'district_id' => 'nullable',
+            'state_id' => 'required',
+            'city_id' => 'nullable',
             'postal_code' => 'required',
             'address' => 'required',
         ]);

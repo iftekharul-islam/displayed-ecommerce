@@ -36,7 +36,7 @@
 
                                     <div class="form-group" >
                                         <label for="country_id_c">{{ __('Country') }}</label>
-                                        <select class="form-control select2" name="country_id" id ="country_id_c" required>
+                                        <select class="form-control select2" name="country_id" id ="country_id" required>
                                             <option value="">{{ __('Select Country') }}</option>
                                             @foreach($countries as $key => $country)
                                                 <option {{ $country->id == $division->country_id ? "selected" : "" }} value="{{ $country->id }}">{{ $country->name }}</option>

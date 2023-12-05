@@ -181,7 +181,7 @@
                                     2.{{ __(' Flat Rate Calculation: How many products a customer purchase, does not matter.Shipping cost is fixed.')}}
                                 </li>
                                 <li>
-                                    3. {{__('Area Base text')}} <a href="{{ route('cities') }}">Districts</a>
+                                    3. {{__('Area Base text')}} <a href="{{ route('districts') }}">Districts</a>
                                 </li>
                                 <li>
                                     4. {{__('Invoice Base: Enter The ranges of amount for Invoice Based Shipping Fee you want to charge.')}}
