@@ -17,7 +17,7 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
             Route::get('/config', [PosSystemController::class, 'posConfig'])->name('admin.pos.config')->middleware('posSellerCheck:pos_config_update');
             Route::post('/get-product', [PosSystemController::class, 'getProduct'])->middleware('posSellerCheck:pos_order');
             Route::post('/confirm-order', [PosSystemController::class, 'confirmOrder'])->middleware('posSellerCheck:pos_order');
-//            Route::get('state/by-country/{id}', [AddressController::class, 'getStates'])->name('pos.state.by-country');
+            Route::get('state/by-country/{id}', [AddressController::class, 'getStates'])->name('pos.state.by-country');
             Route::get('city/by-state/{id}', [AddressController::class, 'getCities'])->name('pos.city.by-state');
             Route::post('/draft-list', [PosSystemController::class, 'draftList'])->middleware('posSellerCheck:pos_order');
             Route::post('/recent-orders', [PosSystemController::class, 'recentOrders'])->middleware('posSellerCheck:pos_order');

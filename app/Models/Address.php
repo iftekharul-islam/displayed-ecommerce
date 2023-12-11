@@ -9,7 +9,7 @@ class Address extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','address','email','phone_no','default_shipping','default_billing','country','division','district','area','longitude','latitude','postal_code','user_id','address_ids'];
+    protected $fillable = ['name','address','email','phone_no','default_shipping','default_billing','country','division','district', 'upazila','area','longitude','latitude','postal_code','user_id','address_ids'];
 
     protected $casts = [
         'address_ids' => 'array',

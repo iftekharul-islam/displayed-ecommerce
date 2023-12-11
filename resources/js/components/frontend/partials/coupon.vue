@@ -5,7 +5,7 @@
         <button class="accordion-button" type="button" data-bs-toggle="collapse"
                 data-bs-target="#couponCollapse" aria-expanded="true"
                 aria-controls="collapseOne"><span>
-                                            <img :src="getUrl('/images/others/pencil1.png')" alt="Image"
+                                            <img :src="getUrl('public/images/others/pencil1.png')" alt="Image"
                                                  class="img-fluid"></span>{{ lang.apply_coupon_code }}
         </button>
       </div>

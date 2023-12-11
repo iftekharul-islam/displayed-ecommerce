@@ -148,8 +148,8 @@ Route::prefix('v100')->group(function() {
         Route::get('search',[ProductController::class,'search']);
 
         Route::get('get-countries',[ShippingController::class,'countries']);
-        Route::get('get-states/{country_id}',[ShippingController::class,'getStates']);
-        Route::get('get-cities/{state_id}',[ShippingController::class,'getCities']);
+        Route::get('get-divisions/{country_id}',[ShippingController::class,'getDivisions']);
+        Route::get('get-districts/{division_id}',[ShippingController::class,'getDivisions']);
 
 
         //shipping address

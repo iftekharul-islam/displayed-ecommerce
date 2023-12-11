@@ -18,7 +18,7 @@ class ClassCity extends Model
 
     public function city(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(District::class);
     }
 
     public function shippingClass(): \Illuminate\Database\Eloquent\Relations\BelongsTo

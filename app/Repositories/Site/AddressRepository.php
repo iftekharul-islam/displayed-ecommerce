@@ -3,11 +3,13 @@
 namespace App\Repositories\Site;
 
 use App\Models\Address;
+use App\Models\Area;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\District;
 use App\Models\Division;
 use App\Models\State;
+use App\Models\Upazila;
 use App\Repositories\Interfaces\Site\AddressInterface;
 use Illuminate\Support\Str;
 use Sentinel;
@@ -25,10 +27,14 @@ class AddressRepository implements AddressInterface {
 
     public function storeAddress($request)
     {
+
         $request['user_id'] = authId();
 
         $country = Country::find($request['country_id']);
         $state   = Division::find($request['state_id']);
+        $district   = District::find($request['city_id']);
+        $upazila   = Upazila::find($request['upazila_id']);
+        $area   = Area::find($request['area_id']);
         if($request['city_id']){
             $city    = District::find($request['city_id']);
         }
@@ -41,13 +47,17 @@ class AddressRepository implements AddressInterface {
         ];
 
         $request['country'] = $country->name;
-        $request['state']   = $state->name;
+        $request['division']   = $state->name;
+        $request['district']   = $district->name;
+        $request['upazila']   = $upazila->name;
+        $request['area']   = $area->name;
         if( $request['city_id'] ){
-        $request['city']    = $city->name;
-        $request['longitude']   = $city->longitude;
-        $request['latitude']    = $city->latitude;            
+            $request['city']    = $city->name;
+            $request['longitude']   = $city->longitude;
+            $request['latitude']    = $city->latitude;
         }
-
+        logger($request);
+//        logger($request->all());
 
         if (authUser())
         {
@@ -80,9 +90,11 @@ class AddressRepository implements AddressInterface {
                             'phone_no' => $request['phone_no'],
                             'address' => $request['address'],
                             'address_ids' => $request['address_ids'],
-                            'country' => $request['country'],
-                            'state' => $request['state'],
-                            'city' => $request['city'] ?? '',
+                            'country' => $country->name,
+                            'division'  => $state->name,
+                            'district'  => $district->name,
+                            'upazila' => $upazila->name,
+                            'area' => $area->name,
                             'latitude' => $request['latitude'] ?? '',
                             'postal_code' => $request['postal_code'],
                         ];
@@ -97,9 +109,11 @@ class AddressRepository implements AddressInterface {
                     'phone_no' => $request['phone_no'],
                     'address' => $request['address'],
                     'address_ids' => $request['address_ids'],
-                    'country' => $request['country'],
-                    'state' => $request['state'],
-                    'city' => $request['city'] ?? '',
+                    'country' => $country->name,
+                    'division'  => $state->name,
+                    'district'  => $district->name,
+                    'upazila' => $upazila->name,
+                    'area' => $area->name,
                     'latitude' => $request['latitude'] ?? '',
                     'postal_code' => $request['postal_code'],
                 ];

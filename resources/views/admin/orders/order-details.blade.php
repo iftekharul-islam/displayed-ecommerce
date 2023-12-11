@@ -9,7 +9,6 @@
     active
 @endsection
 @section('main-content')
-
     <section class="section">
         <div class="section-body">
             <div class="invoice">
@@ -129,8 +128,14 @@
                                             {{ arrayCheck('phone_no',$order->billing_address) ? @$order->billing_address['phone_no'] : '' }}<br>
                                             {{ @$order->billing_address['address'] }} {{ @$order->billing_address['address'] ? ',' : ''}}
                                             <br>
+
+                                            {{ @$order->billing_address['postal_code'] }} {{ @$order->billing_address['postal_code'] ? ',' : '' }}
+                                            {{ @$order->billing_address['area'] }} {{ @$order->billing_address['area'] ? ',' : '' }}
+                                            {{ @$order->billing_address['upazila'] }} {{ @$order->billing_address['upazila'] ? ',' : '' }}
+                                            {{ @$order->billing_address['district'] }} {{ @$order->billing_address['district'] ? ',' : '' }}
                                             {{ @$order->billing_address['city'] }} {{ @$order->billing_address['city'] ? ',' : '' }}
                                             {{ @$order->billing_address['country'] }}
+
                                         </address>
                                     </div>
                                     <div class="col-md-6 col-12 col-sm-6 text-md-right">
@@ -141,8 +146,11 @@
                                             {{ arrayCheck('phone_no',$order->shipping_address) ? @$order->shipping_address['phone_no'] : '' }}<br>
                                             {{ @$order->shipping_address['address'] }} {{ @$order->shipping_address['address'] ? ',' : ''}}
                                             <br>
-                                            {{ @$order->shipping_address['city'] }} {{ @$order->shipping_address['city'] ? ',' : ''}}
-                                            {{ @$order->shipping_address['country'] }}
+                                            {{ @$order->billing_address['area'] }} {{ @$order->billing_address['area'] ? ',' : '' }}
+                                            {{ @$order->billing_address['upazila'] }} {{ @$order->billing_address['upazila'] ? ',' : '' }}
+                                            {{ @$order->billing_address['district'] }} {{ @$order->billing_address['district'] ? ',' : '' }}
+                                            {{ @$order->billing_address['city'] }} {{ @$order->billing_address['city'] ? ',' : '' }}
+                                            {{ @$order->billing_address['country'] }}
                                         </address>
                                     </div>
                                 </div>

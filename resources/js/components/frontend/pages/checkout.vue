@@ -1,4 +1,4 @@
-<template>
+`<template>
   <div class="sg-page-content">
     <div class="sg-breadcrumb">
       <div class="container">
@@ -71,9 +71,10 @@
                               <li>{{ lang.email }} : {{ address.email }}</li>
                               <li>{{ lang.phone }} : {{ address.phone_no }}</li>
                               <li>{{ lang.street_address }} : {{ address.address }}</li>
-                              <li>{{ lang.country }} : {{ address.country }}</li>
-                              <li>{{ lang.state }} : {{ address.state }}</li>
-                              <li>{{ lang.city }} : {{ address.city }}</li>
+                              <li> Division: {{ address.division }}</li>
+                              <li> District: {{ address.district }}</li>
+                              <li> Upazila/Thana: {{ address.upazila }}</li>
+                              <li> Area: {{ address.area }}</li>
                             </ul>
                           </div>
                         </div>
@@ -125,8 +126,10 @@
                               <li>{{ lang.phone }} : {{ address.phone_no }}</li>
                               <li>{{ lang.street_address }} : {{ address.address }}</li>
                               <li>{{ lang.country }} : {{ address.country }}</li>
-                              <li>{{ lang.state }} : {{ address.state }}</li>
-                              <li>{{ lang.city }} : {{ address.city }}</li>
+                              <li> Division: {{ address.division }}</li>
+                              <li> District: {{ address.district }}</li>
+                              <li> Upazila/Thana: {{ address.upazila }}</li>
+                              <li> Area: {{ address.area }}</li>
                             </ul>
                           </div>
                         </div>
@@ -157,11 +160,19 @@
               <h6>{{ lang.price_details }}</h6>
               <coupon v-if="authUser" :coupon_list="coupon_list" :cartList="carts" :trx_id="payment_form.trx_id"></coupon>
               <div class="sg-card">
+<!--                <payment_details-->
+<!--                    :sub_total="payment_form.sub_total"-->
+<!--                    :tax="payment_form.tax"-->
+<!--                    :discount_offer="payment_form.discount_offer"-->
+<!--                    :shipping_tax="payment_form.shipping_tax"-->
+<!--                    :coupon_discount="payment_form.coupon_discount"-->
+<!--                    :total="payment_form.total"-->
+<!--                ></payment_details>-->
                 <payment_details
                     :sub_total="payment_form.sub_total"
                     :tax="payment_form.tax"
                     :discount_offer="payment_form.discount_offer"
-                    :shipping_tax="payment_form.shipping_tax"
+                    :shipping_tax="payment_form.shipping_cost"
                     :coupon_discount="payment_form.coupon_discount"
                     :total="payment_form.total"
                 ></payment_details>
@@ -273,6 +284,7 @@ export default {
           }
 
           this.$Progress.finish();
+          this.fetchShippingCost();
         }
       }).catch((error) => {
         this.$Progress.fail();
@@ -329,6 +341,7 @@ export default {
         this.payment_form.discount_offer += parseFloat(carts[i].discount * carts[i].quantity);
         if (this.settings.shipping_cost == 'product_base') {
           this.payment_form.shipping_tax += parseFloat(carts[i].shipping_cost);
+          this.payment_form.shipping_cost += parseFloat(carts[i].shipping_cost);
         }
         this.payment_form.tax += parseFloat(carts[i].tax * carts[i].quantity);
         this.payment_form.trx_id = carts[i].trx_id;
@@ -337,6 +350,7 @@ export default {
       if (checkouts) {
         for (let key in checkouts) {
           this.payment_form.shipping_tax += parseFloat(checkouts[key].shipping_cost);
+          this.payment_form.shipping_cost += parseFloat(checkouts[key].shipping_cost);
           this.payment_form.tax += parseFloat(checkouts[key].tax);
         }
       }
@@ -366,6 +380,7 @@ export default {
             toastr.error(response.data.error, this.lang.Error + ' !!');
           } else {
             this.payment_form.shipping_tax = response.data.shipping_cost;
+            this.payment_form.shipping_cost = response.data.shipping_cost;
             this.shipping_cost = this.payment_form.shipping_tax;
             this.payment_form.total = parseFloat((parseFloat(this.payment_form.sub_total) + parseFloat(this.payment_form.tax) + parseFloat(this.payment_form.shipping_tax)) - (parseFloat(this.payment_form.discount_offer) + parseFloat(this.payment_form.coupon_discount)));
 
@@ -388,10 +403,13 @@ export default {
     },
     calculateShippingCost() {
       this.payment_form.shipping_tax = 0;
+      this.payment_form.shipping_cost = 0;
       if (this.checkout_method == 1) {
         this.payment_form.shipping_tax = 0;
+        this.payment_form.shipping_cost = 0;
       } else {
         this.payment_form.shipping_tax = this.shipping_cost;
+        this.payment_form.shipping_cost = this.shipping_cost;
       }
 
       if (this.settings.tax_type == 'after_tax' && this.settings.vat_and_tax_type == 'order_base') {

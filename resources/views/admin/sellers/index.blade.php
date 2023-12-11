@@ -75,8 +75,8 @@
                                         <th>{{ __('Options') }}</th>
                                     </tr>
                                     @foreach ($users as $key => $user)
-
-                                        <tr id="row_{{$user->id}}">
+                                        @if(!empty($user->sellerProfile))
+                                            <tr id="row_{{$user->id}}">
                                             <td>{{ $users->firstItem() + $key }}</td>
                                             <td>
                                                 <div class="d-flex">
@@ -218,6 +218,7 @@
                                                 </div>
                                             </td>
                                         </tr>
+                                        @endif
                                     @endforeach
                                     </tbody>
                                 </table>

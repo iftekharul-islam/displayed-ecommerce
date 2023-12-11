@@ -100,6 +100,13 @@
 
                             <strong>{{ $shipping_address['name'] }}</strong>
                             <p>{{ $shipping_address['address'] }}, {{ @$shipping_address['city'] }}, {{ @$shipping_address['country'] }} </p>
+                            {{ $shipping_address['postal_code'] }} {{ $shipping_address['postal_code'] ? ',' : '' }}
+                            {{ $shipping_address['area'] }} {{ $shipping_address['area'] ? ',' : '' }}
+                            {{ $shipping_address['upazila'] }} {{ $shipping_address['upazila'] ? ',' : '' }}
+                            {{ $shipping_address['district'] }} {{ $shipping_address['district'] ? ',' : '' }}
+                            {{ $shipping_address['country'] }}
+                            
+                            
                             <p>{{ isDemoServer() ? emailAddressMask($shipping_address['email']) : $shipping_address['email'] }} </p>
                             <p>{{ @$shipping_address['phone_no'] }}</p>
 
@@ -121,7 +128,12 @@
                     <tr>
                         <td width="100%">
                             <strong>{{ $billing_address['name'] }}</strong>
-                            <p>{{ $billing_address['address'] }}, {{ @$billing_address['city'] }}, {{ @$billing_address['country'] }} </p>
+                            {{ $billing_address['postal_code'] }} {{ $billing_address['postal_code'] ? ',' : '' }}
+                            {{ $billing_address['area'] }} {{ $billing_address['area'] ? ',' : '' }}
+                            {{ $billing_address['upazila'] }} {{ $billing_address['upazila'] ? ',' : '' }}
+                            {{ $billing_address['district'] }} {{ $billing_address['district'] ? ',' : '' }}
+                            {{ $billing_address['country'] }}
+
                             <p>{{ isDemoServer() ? emailAddressMask($billing_address['email']) : $billing_address['email'] }}</p>
                             <p>{{ @$billing_address['phone_no'] }}</p>
                         </td>

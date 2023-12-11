@@ -74,9 +74,9 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
 
                 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
                 Route::get('order-statistics/{type}', [DashboardController::class, 'orderStatistics'])->name('admin.dashboard.order-statistics');
-                Route::get('order-state/{type}', [DashboardController::class, 'orderState'])->name('admin.dashboard.order-state');
+                Route::get('order-division/{type}', [DashboardController::class, 'orderDivision'])->name('admin.dashboard.order-division');
                 Route::get('sales-by-category/{type}', [DashboardController::class, 'salesByCategory'])->name('admin.dashboard.sales-by-category');
-                Route::get('total-sales-state/{type}', [DashboardController::class, 'salesState'])->name('admin.dashboard.total-sales-state');
+                Route::get('total-sales-division/{type}', [DashboardController::class, 'salesDivision'])->name('admin.dashboard.total-sales-division');
                 Route::get('top-products/{type}', [DashboardController::class, 'topProducts'])->name('admin.dashboard.top-products');
 
                 //user
@@ -433,25 +433,42 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 Route::get('countries', [ShippingController::class, 'countries'])->name('countries')->middleware('PermissionCheck:country_read');
                 Route::put('country-status-change', [ShippingController::class, 'countryStatusChange'])->name('country.status.change')->middleware('PermissionCheck:country_update');
 
-                //state
-                Route::get('states', [ShippingController::class, 'states'])->name('states')->middleware('PermissionCheck:state_read');
-                Route::post('state-store', [ShippingController::class, 'stateStore'])->name('state.store')->middleware('PermissionCheck:state_create');
-                Route::put('state-status-change', [ShippingController::class, 'stateStatusChange'])->name('state.status.change')->middleware('PermissionCheck:state_update');
-                Route::put('state-update', [ShippingController::class, 'stateUpdate'])->name('state.update')->middleware('PermissionCheck:state_update');
-                Route::get('state-edit/{id}', [ShippingController::class, 'stateEdit'])->name('state.edit')->middleware('PermissionCheck:state_update');
-                Route::post('state-import', [ShippingController::class, 'stateImport'])->name('state.import')->middleware('PermissionCheck:state_import_create');
-                Route::delete('delete/states/{id}', [CommonController::class, 'delete'])->name('admin.state.delete')->middleware('PermissionCheck:state_delete');
-                Route::post('get-states-by-country', [ShippingController::class, 'getStateByCountryAjax']);
-                Route::post('get-cities-by-state', [ShippingController::class, 'getCityByStateAjax']);
-                Route::get('state-by-ajax', [ShippingController::class, 'getStateByAjax'])->name('state.by.ajax');
+                //division
+                Route::get('divisions', [ShippingController::class, 'divisions'])->name('divisions')->middleware('PermissionCheck:division_read');
+                Route::post('division-store', [ShippingController::class, 'divisionStore'])->name('division.store')->middleware('PermissionCheck:division_create');
+                Route::put('division-status-change', [ShippingController::class, 'divisionStatusChange'])->name('division.status.change')->middleware('PermissionCheck:division_update');
+                Route::put('division-update', [ShippingController::class, 'divisionUpdate'])->name('division.update')->middleware('PermissionCheck:division_update');
+                Route::get('division-edit/{id}', [ShippingController::class, 'divisionEdit'])->name('division.edit')->middleware('PermissionCheck:division_update');
+                Route::post('division-import', [ShippingController::class, 'divisionImport'])->name('division.import')->middleware('PermissionCheck:division_import_create');
+                Route::delete('delete/divisions/{id}', [CommonController::class, 'delete'])->name('admin.division.delete')->middleware('PermissionCheck:division_delete');
+                Route::post('get-divisions-by-country', [ShippingController::class, 'getDivisionByCountryAjax']);
+                Route::post('get-districts-by-division', [ShippingController::class, 'getDistrictByDivisionAjax']);
+                Route::get('division-by-ajax', [ShippingController::class, 'getDivisionByAjax'])->name('division.by.ajax');
 
-                //city
-                Route::get('cities', [ShippingController::class, 'cities'])->name('cities')->middleware('PermissionCheck:city_read');
-                Route::post('city-store', [ShippingController::class, 'cityStore'])->name('city.store')->middleware('PermissionCheck:city_create');
-                Route::put('city-status-change', [ShippingController::class, 'cityStatusChange'])->name('city.status.change')->middleware('PermissionCheck:city_update');
-                Route::put('city-update', [ShippingController::class, 'cityUpdate'])->name('city.update')->middleware('PermissionCheck:city_update');
-                Route::get('city-edit/{id}', [ShippingController::class, 'cityEdit'])->name('city.edit')->middleware('PermissionCheck:city_update');
-                Route::delete('delete/cities/{id}', [CommonController::class, 'delete'])->name('city.delete')->middleware('PermissionCheck:city_delete');
+                //district
+                Route::get('districts', [ShippingController::class, 'districts'])->name('districts')->middleware('PermissionCheck:district_read');
+                Route::post('district-store', [ShippingController::class, 'districtStore'])->name('district.store')->middleware('PermissionCheck:district_create');
+                Route::put('district-status-change', [ShippingController::class, 'districtStatusChange'])->name('district.status.change')->middleware('PermissionCheck:district_update');
+                Route::put('district-update', [ShippingController::class, 'districtUpdate'])->name('district.update')->middleware('PermissionCheck:district_update');
+                Route::get('district-edit/{id}', [ShippingController::class, 'districtEdit'])->name('district.edit')->middleware('PermissionCheck:district_update');
+                Route::delete('delete/districts/{id}', [CommonController::class, 'delete'])->name('district.delete')->middleware('PermissionCheck:district_delete');
+                
+                //upazila/thana
+                Route::get('upazilas', [ShippingController::class, 'upazilas'])->name('upazilas')->middleware('PermissionCheck:upazila_read');
+                Route::post('upazila-store', [ShippingController::class, 'upazilaStore'])->name('upazila.store')->middleware('PermissionCheck:upazila_create');
+                Route::put('upazila-status-change', [ShippingController::class, 'upazilaStatusChange'])->name('upazila.status.change')->middleware('PermissionCheck:upazila_update');
+                Route::put('upazila-update', [ShippingController::class, 'upazilaUpdate'])->name('upazila.update')->middleware('PermissionCheck:upazila_update');
+                Route::get('upazila-edit/{id}', [ShippingController::class, 'upazilaEdit'])->name('upazila.edit')->middleware('PermissionCheck:upazila_update');
+                Route::delete('delete/upazilas/{id}', [CommonController::class, 'delete'])->name('upazila.delete')->middleware('PermissionCheck:upazila_delete');
+                
+                //area
+                Route::get('areas', [ShippingController::class, 'areas'])->name('areas')->middleware('PermissionCheck:area_read');
+                Route::post('area-store', [ShippingController::class, 'areaStore'])->name('area.store')->middleware('PermissionCheck:area_create');
+                Route::put('area-status-change', [ShippingController::class, 'areaStatusChange'])->name('area.status.change')->middleware('PermissionCheck:area_update');
+                Route::put('area-update', [ShippingController::class, 'areaUpdate'])->name('area.update')->middleware('PermissionCheck:area_update');
+                Route::get('area-edit/{id}', [ShippingController::class, 'areaEdit'])->name('area.edit')->middleware('PermissionCheck:area_update');
+                Route::delete('delete/areas/{id}', [CommonController::class, 'delete'])->name('area.delete')->middleware('PermissionCheck:area_delete');
+
 
                 //support
                 Route::get('support/{status?}', [SupportController::class, 'index'])->name('support')->middleware('PermissionCheck:support_read');
@@ -593,7 +610,7 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
                 //seller import
                 Route::get('import-sellers',[SellerController::class, 'sellerImport'])->name('admin.seller.import')->middleware('PermissionCheck:seller_create');
                 Route::post('import-sellers',[SellerController::class, 'importSeller'])->name('admin.seller.import.post')->middleware('PermissionCheck:seller_create');
-                Route::get('import-cities',[ShippingController::class, 'importCity'])->name('import.city');
+                Route::get('import-districts',[ShippingController::class, 'importDistrict'])->name('import.district');
             });
         });
     });

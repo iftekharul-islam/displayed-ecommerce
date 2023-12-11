@@ -234,7 +234,8 @@ Route::middleware(['XSS', 'isInstalled'])->group(function () {
     Route::post('store/user-address', [AddressController::class, 'saveAddress'])->name('user.store.address');
     Route::post('default/user-address/{type}/{id}', [AddressController::class, 'updateDefault'])->name('user.default.address');
     Route::get('delete/user-address/{id}', [AddressController::class, 'deleteAddress'])->name('user.delete.address');
-//    Route::get('state/by-country/{id}', [AddressController::class, 'getStates'])->name('state.by-country');
+    Route::get('divisions/by-country/{id}', [AddressController::class, 'getDivisions'])->name('division.by-country');
+    Route::get('district/by-Division/{id}', [AddressController::class, 'getDistricts'])->name('district.by-division');
     Route::get('state/by-country/{id}', [AddressController::class, 'getDivisions'])->name('state.by-country');
     Route::get('city/by-state/{id}', [AddressController::class, 'getCities'])->name('city.by-state');
     Route::get('upazila/by-city/{id}', [AddressController::class, 'getUpazila'])->name('upazila.by-city');

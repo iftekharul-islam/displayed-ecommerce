@@ -28,7 +28,6 @@ Route::prefix('delivery-hero')->middleware(['CheckApiKey'])->group(function() {
             Route::get('orders/{slug}', [OrderController::class,'orders']);
             Route::post('order-delivery-status-update', [OrderController::class,'deliveryStatusUpdate']);
             Route::post('order-payment-status-update', [OrderController::class,'paymentStatusUpdate']);
-            
         });
 
     });

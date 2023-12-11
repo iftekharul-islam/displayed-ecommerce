@@ -595,6 +595,8 @@ class OrderRepository implements OrderInterface
                     $shipping_cost = ClassCity::whereIn('shipping_class_id',$class_ids)->where('city_id',$city_id)->sum('cost');
                 }
 
+                $shipping_cost = $shipping_cost == 0 ? $data['shipping_cost'] : $shipping_cost;
+
                 $total_tax += $cart_group['tax'];
 
                 if (settingHelper('vat_type') == 'after_tax' && settingHelper('vat_and_tax_type') == 'order_base')
@@ -610,7 +612,6 @@ class OrderRepository implements OrderInterface
                     'vat_tax_type'  => settingHelper('vat_and_tax_type'),
                     'tax_type'      => settingHelper('vat_type'),
                 ];
-               
 
                 $order = Order::create([
                     'seller_id'                 => $key,

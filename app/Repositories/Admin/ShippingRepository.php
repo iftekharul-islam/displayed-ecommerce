@@ -142,7 +142,7 @@ class ShippingRepository implements ShippingInterface
         $District->name        = $request->name;
         $District->division_id    = $request->division_id;
         $District->country_id  = $division->country_id;
-        $District->cost        = priceFormatUpdate($request->cost,settingHelper('default_currency'));
+        $District->cost        = priceFormatUpdate($request->cost, settingHelper('default_currency'));
         $District->save();
         return true;
     }

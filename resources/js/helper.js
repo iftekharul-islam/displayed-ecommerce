@@ -28,6 +28,7 @@ export default Vue.mixin({
                 sub_total: 0,
                 discount_offer: 0,
                 shipping_tax: 0,
+                shipping_cost: 0,
                 tax: 0,
                 coupon_discount: 0,
                 total: 0,

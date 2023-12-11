@@ -33,6 +33,7 @@ Route::middleware(['XSS','isInstalled'])->group(function () {
             });
             Route::delete('delete/delivery_hero/{id}', [CommonController::class, 'delete'])->middleware('PermissionCheck:delivery_hero_delete');
 
+
         });
     });
 });

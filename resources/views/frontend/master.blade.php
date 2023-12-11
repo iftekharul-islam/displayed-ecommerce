@@ -58,7 +58,7 @@
     <link href="{{fontURL()}}" rel="stylesheet">
     <!-- CSS -->
 
-    <link rel="stylesheet" href="{{ mix('frontend/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/app.css') }}">
     <link rel="stylesheet" href="{{ static_asset('frontend/css/materialdesignicons.min.css') }}?version={{ $version }}">
     <link rel="stylesheet" href="{{ static_asset('frontend/css/vue-toastr-2.min.css') }}?version={{$version}}">
 
@@ -206,7 +206,7 @@
 <input type="hidden" id="app_id" value="{{ settingHelper('app_id') }}">
 <input type="hidden" id="measurement_id" value="{{ settingHelper('measurement_id') }}">
 
-<script src="{{ mix('frontend/js/app.js') }}" async></script>
+<script src="{{ asset('frontend/js/app.js') }}" async></script>
 <script src="{{ static_asset('frontend/js/vue-toastr-2.js') }}?version={{$version}}"></script>
 
 @if(settingHelper('is_pusher_notification_active') == 1 && Sentinel::check())
